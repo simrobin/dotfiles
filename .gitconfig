@@ -5,7 +5,7 @@
     helper = cache
 [core]
     editor = vim
-	excludesfile = /home/s.robin/.gitignore_global
+    excludesfile = /Users/Simon/.gitignore_global
     autocrlf = input
 [alias]
     st = status -sb
@@ -23,7 +23,7 @@
     frs = flow release start
     frf = flow release finish
     ignore = update-index --assume-unchanged
-    unignore = update-index --no-assume-unchanged 
+    unignore = update-index --no-assume-unchanged
     ignored = !git ls-files -v | grep "^[[:lower:]]"
     ba = branch -avv
     bd = branch -D
