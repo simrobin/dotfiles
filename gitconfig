@@ -1,12 +1,13 @@
 [user]
     email = simon.robin.info@gmail.com
-    name = Simon ROBIN
+    name = Simon Robin
+    login = simrobin
 [credential]
     helper = cache
 [core]
-    editor = vim
-    excludesfile = /Users/Simon/.gitignore_global
+    editor = vi
     autocrlf = input
+    excludesfile = ${HOME}/.gitignore_global
 [alias]
     st = status -sb
     df = diff
@@ -16,18 +17,18 @@
     adda = add -A
     lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
     wdiff = diff --word-diff --color-words=.
-    ffs = flow feature start
-    fff = flow feature finish
-    fhs = flow hotfix start
-    fhf = flow hotfix finish
-    frs = flow release start
-    frf = flow release finish
     ignore = update-index --assume-unchanged
     unignore = update-index --no-assume-unchanged
     ignored = !git ls-files -v | grep "^[[:lower:]]"
     ba = branch -avv
     bd = branch -D
     oops = commit --amend
+    ffs = flow feature start
+    fff = flow feature finish
+    fhs = flow hotfix start
+    fhf = flow hotfix finish
+    frs = flow release start
+    frf = flow release finish
 [push]
     default = upstream
 # activate color for all commands
@@ -46,7 +47,6 @@
 # pull will do a rebase instead of a merge
 [pull]
     rebase = true
-
 # merge is looking harder for renames
 [merge]
     renamelimit = 3000

@@ -1,0 +1,12 @@
+#!/bin/sh
+
+if [ `uname` == 'Darwin' ]; then
+  export CLICOLOR=1
+  export LS_OPTIONS=''
+  export LSCOLORS=GxFxCxDxBxegedabagaced
+else
+  export LS_OPTIONS='--color'
+fi
+
+alias ll='ls ${LS_OPTIONS} -trhAl'
+alias l='ls ${LS_OPTIONS} -la'

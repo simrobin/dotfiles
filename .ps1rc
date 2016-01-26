@@ -1,0 +1,13 @@
+#!/bin/sh
+
+RED="\[\033[01;91m\]"
+GREEN="\[\033[01;92m\]"
+BLUE="\[\033[0;94m\]"
+CYAN="\[\033[01;96m\]"
+RESET="\[\033[0m\]"
+
+if [ `which git 2>/dev/null | wc -l` -eq 0 ]; then
+  export PS1="${GREEN}\u@\h${RESET} ${CYAN}\w${RESET} "
+else
+  export PS1="${GREEN}\u@\h${RESET} ${CYAN}\w${RESET}${RED}\$(git_info)${RESET} "
+fi
