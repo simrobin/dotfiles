@@ -5,8 +5,9 @@ if [ `uname` == 'Darwin' ]; then
   export LS_OPTIONS=''
   export LSCOLORS=GxFxCxDxBxegedabagaced
 else
-  export LS_OPTIONS='--color'
+  export LS_OPTIONS='--color=auto'
 fi
 
-alias ll='ls ${LS_OPTIONS} -trhAl'
-alias l='ls ${LS_OPTIONS} -la'
+alias ls='ls $LS_OPTIONS'
+alias ll='ls -trhAl'
+alias l='ls -la'
