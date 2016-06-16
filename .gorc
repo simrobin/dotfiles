@@ -1,0 +1,6 @@
+#!/bin/sh
+
+if [ `which go 2>/dev/null | wc -l` -eq 1 ]; then
+  export GOPATH=${HOME}/code/go
+  export PATH=${GOPATH}:${PATH}
+fi

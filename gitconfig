@@ -7,7 +7,7 @@
 [core]
     editor = vi
     autocrlf = input
-    excludesfile = ${HOME}/.gitignore_global
+    excludesfile = ~/.gitignore_global
 [alias]
     st = status -sb
     df = diff

@@ -43,6 +43,7 @@ function dclean() {
   docker rmi `docker images --filter dangling=true -q 2>/dev/null` 2>/dev/null
 }
 
-if [ `type docker-machine >/dev/null 2>&1 && docker-machine status default` == "Running" ]; then
+DOCKER_MACHINE_STATUS=$(type docker-machine >/dev/null 2>&1 && docker-machine status default 2>&1)
+if [ "${DOCKER_MACHINE_STATUS}" == "Running" ]; then
     eval `docker-machine env default`
 fi
