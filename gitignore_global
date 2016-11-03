@@ -80,6 +80,9 @@ nbactions.xml
 *.sublime-workspace
 sftp-config.json
 
+# VSCode
+.vscode
+
 # Compiled source
 *.class
 *.dll
