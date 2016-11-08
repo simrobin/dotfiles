@@ -1,7 +1,10 @@
 #!/bin/sh
 
 function os_clean() {
+  directory=${1:-`pwd`}
   if [ `uname` == 'Darwin' ]; then
-    sudo find / -name ".DS_Store" -exec rm -f {} \;
+    echo "Cleaning .DS_Store and ._* files in $directory and subdirectories ..."
+    find $directory -name ".DS_Store" -exec rm -f {} \;
+    find $directory -name "._*" -exec rm -f {} \;
   fi
 }
