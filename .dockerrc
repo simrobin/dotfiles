@@ -43,3 +43,16 @@ function dclean() {
   docker rmi `docker images --filter dangling=true -q 2>/dev/null` 2>/dev/null
 }
 
+function dcheat() {  
+  read -r -d '' cheatsheet <<'EOF'
+# remove all containers and their volumes (running and stopped)
+docker rm -vf $(docker ps -aq)
+# postgres database
+docker run -p 5432:5432 --name some-postgres -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=secret -e POSTGRES_DB=postgres -d postgres:alpine
+# mysql database
+docker run -p 3306:3306 --name some-mysql -e MYSQL_ROOT_PASSWORD=root -e MYSQL_USER=mysql -e MYSQL_PASSWORD=secret -e MYSQL_DATABASE=mysql -d mysql
+EOF
+
+  echo "$cheatsheet" | grep "$1"
+}
+
