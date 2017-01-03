@@ -19,3 +19,4 @@ if [ -d "$GNUBIN_PATH"  ]; then
   export LS_OPTIONS='--color=auto'
 fi
 
+[ -f /usr/local/etc/bash_completion ] && . /usr/local/etc/bash_completion
