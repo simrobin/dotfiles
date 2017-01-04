@@ -1,0 +1,17 @@
+EditorConfig.EditorConfig
+HookyQR.beautify
+IBM.output-colorizer
+PKief.material-icon-theme
+PeterJausovec.vscode-docker
+alefragnani.project-manager
+dbaeumer.jshint
+dbaeumer.vscode-eslint
+donjayamanne.githistory
+lukehoban.Go
+ms-vscode.Theme-TomorrowKit
+ms-vscode.jscs
+msjsdiag.debugger-for-chrome
+pprice.better-merge
+rpinski.shebang-snippets
+sysoev.language-stylus
+waderyan.gitblame

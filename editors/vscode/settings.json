@@ -1,0 +1,7 @@
+{
+    "editor.fontSize": 12,
+    "editor.renderWhitespace": "boundary",
+    "files.autoSave": "off",
+    "workbench.activityBar.visible": true,
+    "jscs.disableIfNoConfig": true
+}
