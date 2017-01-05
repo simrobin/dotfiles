@@ -9,6 +9,7 @@
     autocrlf = input
     excludesfile = ~/.gitignore_global
 [alias]
+    start = !git init && git commit --allow-empty -m "init"
     st = status -sb
     df = diff
     co = checkout
