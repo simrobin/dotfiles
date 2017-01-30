@@ -16,7 +16,7 @@
     ci = !git add -A && git commit
     undo = reset --soft HEAD^
     adda = add -A
-    lg = log --all --graph --color --oneline  --abbrev-commit --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset'
+    lg = log --all --graph --decorate --color --oneline --abbrev-commit
     wdiff = diff --word-diff --color-words=.
     ignore = update-index --assume-unchanged
     unignore = update-index --no-assume-unchanged
