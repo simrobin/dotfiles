@@ -1,5 +1,8 @@
 #!/bin/sh
 
+[ -f /etc/bash_completion ] && source /etc/bash_completion
+[ -f /usr/local/etc/bash_completion ] && source /usr/local/etc/bash_completion
+
 _complete_ssh_hosts ()
 {
         COMPREPLY=()
