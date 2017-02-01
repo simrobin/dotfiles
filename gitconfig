@@ -13,23 +13,20 @@
     st = status -sb
     df = diff
     co = checkout
-    ci = !git add -A && git commit
+    ck = checkout
+    ci = git commit
+    lg = log --all --graph --decorate --color --oneline --abbrev-commit
+    ba = branch -avv
+    bd = branch -D
+    fp = fetch --prune
+    rbi = rebase --interactive
     undo = reset --soft HEAD^
     adda = add -A
-    lg = log --all --graph --decorate --color --oneline --abbrev-commit
     wdiff = diff --word-diff --color-words=.
     ignore = update-index --assume-unchanged
     unignore = update-index --no-assume-unchanged
     ignored = !git ls-files -v | grep "^[[:lower:]]"
-    ba = branch -avv
-    bd = branch -D
     oops = commit --amend
-    ffs = flow feature start
-    fff = flow feature finish
-    fhs = flow hotfix start
-    fhf = flow hotfix finish
-    frs = flow release start
-    frf = flow release finish
 [push]
     default = upstream
 # activate color for all commands
