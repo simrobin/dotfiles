@@ -7,10 +7,14 @@ alefragnani.project-manager
 dbaeumer.jshint
 dbaeumer.vscode-eslint
 donjayamanne.githistory
+eg2.tslint
+formulahendry.auto-close-tag
+formulahendry.auto-rename-tag
 lukehoban.Go
 ms-vscode.Theme-TomorrowKit
 ms-vscode.jscs
 msjsdiag.debugger-for-chrome
+pflannery.vscode-versionlens
 pprice.better-merge
 rpinski.shebang-snippets
 sysoev.language-stylus
