@@ -7,7 +7,9 @@ alefragnani.project-manager
 dbaeumer.jshint
 dbaeumer.vscode-eslint
 donjayamanne.githistory
+donjayamanne.python
 eg2.tslint
+felixfbecker.php-intellisense
 formulahendry.auto-close-tag
 formulahendry.auto-rename-tag
 lukehoban.Go
@@ -17,5 +19,7 @@ msjsdiag.debugger-for-chrome
 pflannery.vscode-versionlens
 pprice.better-merge
 rpinski.shebang-snippets
+secanis.jenkinsfile-support
 sysoev.language-stylus
 waderyan.gitblame
+xabikos.JasmineSnippets

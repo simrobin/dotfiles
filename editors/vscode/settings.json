@@ -3,5 +3,22 @@
     "editor.renderWhitespace": "boundary",
     "files.autoSave": "off",
     "workbench.activityBar.visible": true,
-    "jscs.disableIfNoConfig": true
+    "jscs.disableIfNoConfig": true,
+    "window.zoomLevel": 0,
+    "files.exclude": {
+        "**/node_modules": true,
+        "**/vendor": true,
+        "**/build": true,
+        "**/temp": true,
+        "**/.idea": true
+    },
+    "typescript.check.tscVersion": false,
+    "zenMode.fullScreen": false,
+    "window.newWindowDimensions": "inherit",
+    "auto-close-tag.activationOnLanguage": [
+        "html", "php"
+    ],
+    "workbench.editor.enablePreviewFromQuickOpen": false,
+    "editor.scrollBeyondLastLine": false,
+    "workbench.iconTheme": "material-icon-theme"
 }
