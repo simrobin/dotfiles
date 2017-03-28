@@ -14,11 +14,13 @@
     df = diff
     co = checkout
     ck = checkout
-    ci = git commit
+    ci = commit
+    cm = commit -m
     lg = log --all --graph --decorate --color --oneline --abbrev-commit
     ba = branch -avv
     bd = branch -D
     fp = fetch --prune
+    pf = push --force-with-lease
     rbi = rebase --interactive
     undo = reset --soft HEAD^
     adda = add -A
