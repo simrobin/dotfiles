@@ -10,6 +10,7 @@
     excludesfile = ~/.gitignore_global
 [alias]
     start = !git init && git commit --allow-empty -m "init"
+    aa = add -A
     st = status -sb
     df = diff
     co = checkout
@@ -22,6 +23,8 @@
     fp = fetch --prune
     pf = push --force-with-lease
     rbi = rebase --interactive
+    rbc = rebase --continue
+    rba = rebase --abort
     undo = reset --soft HEAD^
     adda = add -A
     wdiff = diff --word-diff --color-words=.
