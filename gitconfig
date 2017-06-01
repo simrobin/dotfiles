@@ -8,6 +8,7 @@
     editor = vi
     autocrlf = input
     excludesfile = ~/.gitignore_global
+    ignorecase = false
 [alias]
     start = !git init && git commit --allow-empty -m "init"
     aa = add -A
