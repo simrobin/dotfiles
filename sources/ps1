@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env sh
 
 RED="\[\033[01;91m\]"
 GREEN="\[\033[01;92m\]"

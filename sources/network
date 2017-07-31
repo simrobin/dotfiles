@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env sh
 
 function ip() {
   echo `ifconfig -a | grep "netmask 0xffffff00\|netmask 255.255.255.0" | awk '{print $2}'`
