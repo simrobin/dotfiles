@@ -82,6 +82,7 @@ sftp-config.json
 
 # VSCode
 .vscode
+jsconfig.json
 
 # Compiled source
 *.class
