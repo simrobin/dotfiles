@@ -72,6 +72,8 @@ ffe () { /usr/bin/find . -name '*'"$@" ; }
 # find out the pid of a specified process
 findPid () { lsof -t -c "$@" ; }
 
+base64decode () { echo; echo "${1}" | base64 -d; echo; }
+
 if [ `uname` != 'Darwin' ]; then
   return
 fi
