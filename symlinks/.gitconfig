@@ -18,7 +18,7 @@
     ck = checkout
     ci = commit
     cm = commit -m
-    lg = log --all --graph --decorate --color --oneline --abbrev-commit
+    lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
     ba = branch -avv
     bd = branch -D
     fp = fetch --prune
