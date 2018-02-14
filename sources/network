@@ -1,5 +1,14 @@
 #!/usr/bin/env sh
 
+function open_ports() {
+    if [ `uname` == 'Darwin' ]; then
+        sudo lsof -PniTCP -sTCP:LISTEN
+    fi
+    if [ `uname` == 'Linux' ]; then
+        sudo netstat -pluton
+    fi
+}
+
 function ip() {
   echo `ifconfig -a | grep "netmask 0xffffff00\|netmask 255.255.255.0" | awk '{print $2}'`
 }
