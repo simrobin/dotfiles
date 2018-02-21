@@ -1,24 +1,56 @@
 {
-    "editor.fontSize": 12,
+    "window.title": "${activeEditorMedium}${separator}${rootName}",
+    "window.newWindowDimensions": "maximized",
+    "window.zoomLevel": -1,
+    "workbench.startupEditor": "newUntitledFile",
+    "workbench.iconTheme": "material-icon-theme",
+    "workbench.colorTheme": "Cobalt2",
+    "workbench.editor.enablePreviewFromQuickOpen": false,
+    "zenMode.fullScreen": false,
     "editor.renderWhitespace": "boundary",
-    "files.autoSave": "off",
-    "workbench.activityBar.visible": true,
-    "jscs.disableIfNoConfig": true,
-    "window.zoomLevel": 0,
+    "editor.wordWrap": "on",
+    "editor.dragAndDrop": false,
+    "editor.scrollBeyondLastLine": false,
+    "editor.rulers": [100],
+    "editor.tabCompletion": true,
+    "files.trimTrailingWhitespace": true,
+    "files.insertFinalNewline": true,
+    "files.watcherExclude": {
+        "**/.git/objects/**": true,
+        "**/.git/subtree-cache/**": true,
+        "**/node_modules/**": true,
+        "**/bin/": true,
+        "**/vendor/": true,
+        "**/vendors/": true,
+        "**/esdoc/": true,
+        "**/dist/": true,
+        "**/coverage/": true,
+        "**/.nyc_output/": true
+    },
+    "search.exclude": {
+        "**/node_modules": true,
+        "**/bower_components": true,
+        "**/bin/": true,
+        "**/vendor/": true,
+        "**/vendors/": true,
+        "**/esdoc/": true,
+        "**/dist/": true,
+        "**/coverage/": true,
+        "**/.nyc_output/": true
+    },
     "files.exclude": {
         "**/node_modules": true,
         "**/vendor": true,
+        "**/vendors": true,
         "**/build": true,
         "**/temp": true,
         "**/.idea": true
     },
-    "typescript.check.tscVersion": false,
-    "zenMode.fullScreen": false,
-    "window.newWindowDimensions": "inherit",
-    "auto-close-tag.activationOnLanguage": [
-        "html", "php"
-    ],
-    "workbench.editor.enablePreviewFromQuickOpen": false,
-    "editor.scrollBeyondLastLine": false,
-    "workbench.iconTheme": "material-icon-theme"
+    "prettier.tabWidth": 4,
+    "prettier.singleQuote": true,
+    "prettier.printWidth": 100,
+    "editor.minimap.enabled": false,
+    "files.associations": {
+        "*.inc": "php"
+    }
 }
