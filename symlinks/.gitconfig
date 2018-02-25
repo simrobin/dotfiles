@@ -10,48 +10,33 @@
     excludesfile = ~/.gitignore_global
     ignorecase = false
 [alias]
-    start = !git init && git commit --allow-empty -m "init"
     aa = add -A
     st = status -sb
     df = diff
     co = checkout
-    ck = checkout
-    ci = commit
     cm = commit -m
     lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
-    ba = branch -avv
-    bd = branch -D
     fp = fetch --prune
     pf = push --force-with-lease
     rbi = rebase --interactive
     rbc = rebase --continue
     rba = rebase --abort
     undo = reset --soft HEAD^
-    adda = add -A
-    wdiff = diff --word-diff --color-words=.
-    ignore = update-index --assume-unchanged
-    unignore = update-index --no-assume-unchanged
-    ignored = !git ls-files -v | grep "^[[:lower:]]"
     oops = commit --amend
+    start = !git init && git commit --allow-empty -m "init"
 [push]
     default = upstream
-# activate color for all commands
 [color]
     ui = auto
-# diff with meaningful prefix and word-diff will find a letter as a word
 [diff]
     mnemonicprefix = true
     wordRegex = .
-# commands will be autocorrect (rset -> reset)
 [help]
     autocorrect = -1
-# remember previous conflict resolutions
 [rerere]
     enabled = true
-# pull will do a rebase instead of a merge
 [pull]
     rebase = true
     ff = only
-# merge is looking harder for renames
 [merge]
     renamelimit = 3000
