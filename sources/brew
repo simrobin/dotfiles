@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
 if [ `which brew 2>/dev/null | wc -l` -lt 1 ]; then
   return

@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
 alias dcp='docker-compose'
 
@@ -45,7 +45,7 @@ function dclean() {
   docker rmi `docker images --filter dangling=true -q 2>/dev/null` 2>/dev/null
 }
 
-function dcheat() {  
+function dcheat() {
   read -r -d '' cheatsheet <<'EOF'
 # remove all containers and their volumes (running and stopped)
 docker rm -vf $(docker ps -aq)

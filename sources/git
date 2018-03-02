@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
 if [ `which git 2>/dev/null | wc -l` -lt 1 ]; then
   return
@@ -8,6 +8,11 @@ alias g='git'
 alias gst='git st'
 
 [ `which __git_complete 2>/dev/null | wc -l` -gt 0 ] && __git_complete g _git
+
+function git_cleanup() {
+  git prune
+  git branch --merged | egrep -v "(^\*|master)" | xargs git branch -d
+}
 
 function git_info() {
   git rev-parse --is-inside-work-tree &>/dev/null || return
@@ -55,27 +60,4 @@ function git_browse() {
   done
 
   cd ${currentWorkDir}
-}
-
-function gitcommithelp() {
-  read -r -d '' cheatsheet <<'EOF'
-https://github.com/angular/angular.js/blob/master/CONTRIBUTING.md#commit
-
-<type>(<scope>): <subject>
-<BLANK LINE>
-<body>
-<BLANK LINE>
-<footer>
-
-feat: A new feature
-fix: A bug fix
-docs: Documentation only changes
-style: Changes that do not affect the meaning of the code (white-space, formatting, missing semi-colons, etc)
-refactor: A code change that neither fixes a bug nor adds a feature
-perf: A code change that improves performance
-test: Adding missing or correcting existing tests
-chore: Changes to the build process or auxiliary tools and libraries such as documentation generation
-EOF
-
-  echo "$cheatsheet"
 }
