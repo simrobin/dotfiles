@@ -23,15 +23,37 @@ function git_info() {
 }
 
 function git_sync() {
-  ssh ${1} "cd ~/${2}/ && git checkout -- ."
+  RED='\033[0;31m'
+  GREEN='\033[0;32m'
+  BLUE='\033[0;34m'
+  RESET='\033[0m'
 
-  CURRENT_TIME=$(date +"%T")
+  echo -e "${BLUE}$(date +"%T") Syncing files...${RESET}"
 
-  git status --porcelain | grep -v -e "^\s*D" | awk '{print $2}' | sed "s|\(.*\)|${CURRENT_TIME} syncing \1|"
-  git status --porcelain | grep -e "^\s*D" | awk '{print $2}' | sed "s|\(.*\)|${CURRENT_TIME} removing \1|"
+  ssh "${1}" "cd ~/${2}/ && git checkout -- ."
 
-  git status --porcelain | grep -v -e "^\s*D" | awk '{print $2}' | sed "s|\(.*\)|rsync -ca \1 ${1}:~/${2}/\1|" | sh
-  git status --porcelain | grep -e "^\s*D" | awk '{print $2}' | sed "s|\(.*\)|ssh ${1} \"rm ~/${2}/\1\"|" | sh
+  IFS=$'\n'
+  for gitFile in `git status --porcelain`; do
+    syncedFile="${gitFile##* }"
+
+    case "${gitFile:0:2}" in
+      " M" | "M " | "MM" | "A " | "AM" | "??" | "U " | "R " | "RM")
+        rsync -a "${syncedFile}" "${1}:~/${2}/${syncedFile}"
+        echo -e "${GREEN} + ${syncedFile}${RESET}"
+        ;;
+
+      " D" | "D " | "DM")
+        ssh "${1}" "rm ~/${2}/${syncedFile}"
+        echo -e "${RED} - ${syncedFile}${RESET}"
+        ;;
+
+      *)
+        echo -e "${BLUE} ¯\_(ツ)_/¯ Don't know how to handle ${gitFile}${RESET}"
+    esac
+  done
+
+  echo -e "${BLUE}$(date +"%T") Done!${RESET}"
+  echo
 }
 
 function watch_sync() {
