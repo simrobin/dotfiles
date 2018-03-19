@@ -9,11 +9,6 @@ alias gst='git st'
 
 [ `which __git_complete 2>/dev/null | wc -l` -gt 0 ] && __git_complete g _git
 
-function git_cleanup() {
-  git prune
-  git branch --merged | egrep -v "(^\*|master)" | xargs git branch -d
-}
-
 function git_info() {
   git rev-parse --is-inside-work-tree &>/dev/null || return
   branch=`git symbolic-ref -q HEAD | sed -e 's|^refs/heads/||'`
@@ -22,57 +17,13 @@ function git_info() {
   echo " ("$branch$dirty")"
 }
 
-function git_sync() {
-  RED='\033[0;31m'
-  GREEN='\033[0;32m'
-  BLUE='\033[0;34m'
-  RESET='\033[0m'
-
-  echo -e "${BLUE}$(date +"%T") Syncing files...${RESET}"
-
-  ssh "${1}" "cd ~/${2}/ && git checkout -- ."
-
-  IFS=$'\n'
-  for gitFile in `git status --porcelain`; do
-    syncedFile="${gitFile##* }"
-
-    case "${gitFile:0:2}" in
-      " M" | "M " | "MM" | "A " | "AM" | "??" | "U " | "R " | "RM")
-        rsync -a "${syncedFile}" "${1}:~/${2}/${syncedFile}"
-        echo -e "${GREEN} + ${syncedFile}${RESET}"
-        ;;
-
-      " D" | "D " | "DM")
-        ssh "${1}" "rm ~/${2}/${syncedFile}"
-        echo -e "${RED} - ${syncedFile}${RESET}"
-        ;;
-
-      *)
-        echo -e "${BLUE} ¯\_(ツ)_/¯ Don't know how to handle ${gitFile}${RESET}"
-    esac
-  done
-
-  echo -e "${BLUE}$(date +"%T") Done!${RESET}"
-  echo
-}
-
-function watch_sync() {
-  echo Usage: watch_sync [REMOTE_SERVER] [REMOTE_PATH_FROM_HOME]
-
-  git_sync "${@}"
-
-  fswatch -0 -o --exclude=.git/ . | while read -d "" event
-  do
-    git_sync "${@}"
-  done
-}
-
-function git_checkout() {
-  git_browse 'git checkout ${1}'
+function git_prune() {
+  git prune
+  git branch --merged | egrep -v "(^\*|master)" | xargs git branch -d
 }
 
 function git_browse() {
-  currentWorkDir=`pwd`
+  local currentWorkDir=`pwd`
 
   for dir in ${currentWorkDir}/*; do
     cd ${dir}
@@ -82,4 +33,120 @@ function git_browse() {
   done
 
   cd ${currentWorkDir}
+}
+
+function git_pull() {
+  git_browse 'git pull'
+}
+
+function head_sync() {
+  if [ "${#}" -ne 2 ]; then
+    echo Usage: head_sync [REMOTE_SERVER] [REMOTE_PATH]
+    return 1
+  fi
+
+  local REMOTE_PATH_PREFIX="~/${2}"
+  if [ "${2:0:1}" == "/" ]; then
+    REMOTE_PATH_PREFIX="${2}"
+  fi
+
+  local branch=`git symbolic-ref -q HEAD | sed -e 's|^refs/heads/||'`
+  ssh "${1}" "PS1=$ source ~/.bashrc && cd ${REMOTE_PATH_PREFIX} && git reset HEAD . && git clean -f && git checkout -- . && git fetch && git checkout ${branch} && git pull"
+}
+
+function git_sync() {
+  if [ "${#}" -lt 2 ]; then
+    echo Usage: git_sync [REMOTE_SERVER] [REMOTE_PATH] [DRY]?
+    return 1
+  fi
+
+  local RED='\033[0;31m'
+  local GREEN='\033[0;32m'
+  local YELLOW='\033[0;33m'
+  local BLUE='\033[0;34m'
+  local RESET='\033[0m'
+
+  if ! `git rev-parse --is-inside-work-tree 2>/dev/null`; then
+    echo -e "${RED}You're not inside a git folder${RESET}"
+    return 1
+  else
+    gitRootDir=`git rev-parse --show-cdup`
+
+    if [ -n "${gitRootDir}" ]; then
+      cd "${gitRootDir}"
+    fi
+  fi
+
+  local REMOTE_PATH_PREFIX="~/${2}"
+  if [ "${2:0:1}" == "/" ]; then
+    REMOTE_PATH_PREFIX="${2}"
+  fi
+
+  local dry=false
+  if [ "${3,,}" == "dry" ]; then
+    dry=true
+  fi
+
+  if ${dry}; then
+    echo -e "${BLUE}$(date +"%T") Dry run of syncing files...${RESET}\n"
+  else
+    echo -e "${BLUE}$(date +"%T") Syncing files...${RESET}"
+  fi
+
+  local toSync=()
+  local toDelete=()
+
+  local IFS=$'\n'
+  for gitFile in `git status --porcelain`; do
+    local prefix="${gitFile:0:2}"
+    local trimmedPrefix="${prefix#[[:space:]]}"
+
+    case "${trimmedPrefix:0:1}" in
+      "M" | "A" | "?")
+        toSync=("${toSync[@]}" "${gitFile:3}")
+        ;;
+
+      "D")
+        toDelete=("${toDelete[@]}" "${REMOTE_PATH_PREFIX}/${gitFile:3}")
+        ;;
+
+      "R")
+        local originFile=`echo -n "${gitFile}" | awk '{print $2}'`
+        local destinationFile=`echo -n "${gitFile}" | awk '{print $4}'`
+
+        toDelete=("${toDelete[@]}" "${REMOTE_PATH_PREFIX}/${originFile}")
+        toSync=("${toSync[@]}" "${destinationFile}")
+        ;;
+
+      *)
+        echo -e "${BLUE} ¯\_(ツ)_/¯ Don't know how to handle ${gitFile}${RESET}"
+    esac
+  done
+
+  if ! ${dry}; then
+    echo -e "${YELLOW}Cleaning remote${RESET}\n"
+    ssh "${1}" "cd ${REMOTE_PATH_PREFIX} && git clean -f && git checkout -- ."
+  fi
+
+  if [ "${#toDelete[@]}" -ne 0 ]; then
+    ! ${dry} && ssh "${1}" "rm -rf ${toDelete[@]}"
+    echo -e "${RED} - Deleted\n${toDelete[*]}${RESET}\n"
+  fi
+
+  if [ "${#toSync[@]}" -ne 0 ]; then
+    ! ${dry} && rsync -raR "${toSync[@]}" "${1}:${REMOTE_PATH_PREFIX}/"
+    echo -e "${GREEN} + Copied\n${toSync[*]}${RESET}\n"
+  fi
+
+  echo -e "${BLUE}$(date +"%T") Done!${RESET}"
+  echo
+}
+
+function watch_sync() {
+  git_sync "${@}"
+
+  fswatch -0 -o --exclude=.git/ . | while read -d "" event
+  do
+    git_sync "${@}"
+  done
 }
