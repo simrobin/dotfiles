@@ -74,6 +74,17 @@ findPid () { lsof -t -c "$@" ; }
 
 base64decode () { echo; echo "${1}" | base64 -d; echo; }
 
+function trim() {
+    local var="$*"
+
+    # remove leading whitespace characters
+    var="${var#"${var%%[![:space:]]*}"}"
+    # remove trailing whitespace characters
+    var="${var%"${var##*[![:space:]]}"}"
+
+    echo -n "$var"
+}
+
 if [ `uname` != 'Darwin' ]; then
   return
 fi
