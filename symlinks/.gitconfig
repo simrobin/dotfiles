@@ -35,8 +35,5 @@
     autocorrect = -1
 [rerere]
     enabled = true
-[pull]
-    rebase = true
-    ff = only
 [merge]
     renamelimit = 3000
