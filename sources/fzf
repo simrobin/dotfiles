@@ -1,20 +1,27 @@
 #!/usr/bin/env bash
 
-if [ ! -f ~/.fzf.bash ]; then
+if ! command -v fzf > /dev/null 2>&1; then
   return
 fi
 
-source ~/.fzf.bash
+if [ -e "${HOME}/.fzf.bash" ]; then
+  source "${HOME}/.fzf.bash"
+fi
 
-# To apply the command to CTRL-T as well
-export FZF_CTRL_T_COMMAND="${FZF_DEFAULT_COMMAND}"
+if command -v fd > /dev/null 2>&1; then
+  export FZF_DEFAULT_COMMAND='fd --hidden --follow --exclude .git --exclude node_modules --exclude vendor --exclude vendors'
+  export FZF_CTRL_T_COMMAND="${FZF_DEFAULT_COMMAND}"
+fi
 
-function fzvim() {
-  EDITOR=vim
-  if [ ${#} -gt 0 ]
-  then
-      $EDITOR $*
-  else
-      $EDITOR $(fzf)
-  fi
-}
+if command -v pass > /dev/null 2>&1; then
+  _fzf_complete_pass() {
+    local PASS_DIR=${PASSWORD_STORE_DIR-~/.password-store}
+    local entries=`find "$PASS_DIR" -name "*.gpg" -print | sed -e "s|${PASS_DIR}/\(.*\)\.gpg$|\1|"`
+
+    _fzf_complete '--reverse' "$@" < <(
+      echo "${entries}"
+    )
+  }
+
+  [ -n "$BASH" ] && complete -F _fzf_complete_pass -o default -o bashdefault pass
+fi
