@@ -7,11 +7,11 @@ CYAN="\[\033[01;96m\]"
 PURPLE="\[\033[01;95m\]"
 RESET="\[\033[0m\]"
 
-PS1="${GREEN}\u@\h${RESET} ${CYAN}\w${RESET}${RED}${GITINFO}${RESET}\n${PURPLE}>${RESET}"
-
 if command -v git > /dev/null 2>&1 && [ `type -t git_info` ]; then
-  PS1="${PS1}${RED}\$(git_info)${RESET}"
+  GITINFO="${RED}\$(git_info)${RESET}"
 fi
+
+PS1="${GREEN}\u@\h${RESET} ${CYAN}\w${RESET}${RED}${GITINFO}${RESET}\n${PURPLE}>${RESET}"
 
 PROMPT_DIRTRIM=3
 
