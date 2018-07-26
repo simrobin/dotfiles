@@ -407,3 +407,6 @@ function! <SID>BufcloseCloseIt()
      execute("bdelete! ".l:currentBufNum)
    endif
 endfunction
+
+" Save file with sudo permission
+command W :execute ':silent w !sudo tee % > /dev/null' | :edit!
