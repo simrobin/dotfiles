@@ -25,6 +25,24 @@ if command -v git > /dev/null 2>&1; then
 fi
 
 if command -v pass > /dev/null 2>&1; then
+  function passfor() {
+    local PASS_DIR=${PASSWORD_STORE_DIR-~/.password-store}
+    local file=`find "${PASS_DIR}" -name "*.gpg" -print | sed -e "s|${PASS_DIR}/\(.*\)\.gpg$|\1|" | fzf --reverse -q "${1}" -1`
+
+    if [ -n "${file}" ]; then
+      pass -c "${file}"
+    fi
+  }
+
+  function otpfor() {
+    local PASS_DIR=${PASSWORD_STORE_DIR-~/.password-store}
+    local file=`find "${PASS_DIR}" -name "*.gpg" -print | sed -e "s|${PASS_DIR}/\(.*\)\.gpg$|\1|" | fzf --reverse -q "${1}" -1`
+
+    if [ -n "${file}" ]; then
+      pass otp -c "${file}"
+    fi
+  }
+
   _fzf_complete_pass() {
     local PASS_DIR=${PASSWORD_STORE_DIR-~/.password-store}
     local entries=`find "$PASS_DIR" -name "*.gpg" -print | sed -e "s|${PASS_DIR}/\(.*\)\.gpg$|\1|"`
