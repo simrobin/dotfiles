@@ -29,10 +29,10 @@
         "when": "editorTextFocus"
     },
     {
-        "key": "cmd+shift+t",
+        "key": "cmd+shift+b",
         "command": "workbench.action.tasks.runTask",
         "args": "Test current file",
-        "when": "editorTextFocus"
+        "when": "editorFocus && resourceExtname == .js"
     },
     {
         "key": "cmd+l",
