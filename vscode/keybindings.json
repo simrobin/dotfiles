@@ -32,7 +32,7 @@
         "key": "cmd+shift+b",
         "command": "workbench.action.tasks.runTask",
         "args": "Test current file",
-        "when": "editorFocus && resourceExtname == .js"
+        "when": "editorFocus && resourceFilename =~ /\\.test\\.jsx?$/"
     },
     {
         "key": "cmd+l",
