@@ -1,21 +1,27 @@
 {
+    "console.log": {
+        "prefix": "csl",
+        "body": ["console.log('${1:var}', typeof ${1}, ${1});", ""],
+        "description": "console.log"
+    },
     "React Ava Test": {
         "prefix": "rat",
         "body": [
             "import React from 'react';",
             "import test from 'ava';",
             "import { shallow } from 'enzyme';",
-            "import ${1:ComponentName} from './';",
-            "",
+			"import ${1:ComponentName} from './';",
+			"",
             "function defaultProps() {",
             "  return {};",
-            "}",
-            "",
+			"}",
+			"",
             "test('should always render as a ${2:Type}', (t) => {",
             "  const props = defaultProps();",
             "  const wrapper = shallow(<${1:ComponentName} {...props} />);",
             "  t.is(wrapper.type(), '${2:Type}');",
-            "});"
+            "});",
+            ""
         ],
         "description": "React Ava Test"
     },
@@ -23,8 +29,8 @@
         "prefix": "rcc",
         "body": [
             "import React, { Component } from 'react';",
-            "import PropTypes from 'prop-types';",
-            "",
+			"import PropTypes from 'prop-types';",
+			"",
             "/**",
             " * ${1:ComponentName} Component.",
             " */",
@@ -35,8 +41,8 @@
             "   */",
             "  constructor(props) {",
             "    super(props);",
-            "  }",
-            "",
+			"  }",
+			"",
             "  /**",
             "   * React lifecycle.",
             "   */",
@@ -46,9 +52,9 @@
             "    );",
             "  }",
             "}",
-            "",
             "${1:ComponentName}.propTypes = {",
-            "};"
+            "};",
+            ""
         ],
         "description": "React Class Component"
     },
@@ -57,24 +63,24 @@
         "body": [
             "import React, { Component } from 'react';",
             "import { connect } from 'react-redux';",
-            "import PropTypes from 'prop-types';",
-            "",
+			"import PropTypes from 'prop-types';",
+			"",
             "/**",
             " * Select props from Redux state.",
             " * @param {Object} state Current state",
             " */",
             "const mapStateToProps = state => ({",
             "  ${3:stateProp}: state.${3:stateProp},",
-            "});",
-            "",
+			"});",
+			"",
             "/**",
             " * Provide dispatch functions in props.",
             " * @param {Function} dispatch Redux dispatch function",
             " */",
             "const mapDispatchToProps = dispatch => ({",
             "  ${4:stateAction}: () => dispatch({ type: 'action' }),",
-            "});",
-            "",
+			"});",
+			"",
             "/**",
             " * ${1:ComponentName} Component.",
             " */",
@@ -85,8 +91,8 @@
             "   */",
             "  constructor(props) {",
             "    super(props);",
-            "  }",
-            "",
+			"  }",
+			"",
             "  /**",
             "   * React lifecycle.",
             "   */",
@@ -95,17 +101,18 @@
             "      ${2}",
             "    );",
             "  }",
-            "}",
-            "",
+			"}",
+			"",
             "${1:ComponentName}Component.propTypes = {",
             "  ${3:stateProp}: PropTypes.string,",
             "  ${4:stateAction}: PropTypes.func,",
-            "};",
-            "",
+			"};",
+			"",
             "/**",
             " * ${1:ComponentName}Component connected.",
             " */",
-            "export default connect(mapStateToProps, mapDispatchToProps)(${1:ComponentName}Component);"
+            "export default connect(mapStateToProps, mapDispatchToProps)(${1:ComponentName}Component);",
+            ""
         ],
         "description": "React Class component with Redux"
     },
@@ -113,23 +120,22 @@
         "prefix": "rfc",
         "body": [
             "import React from 'react';",
-            "import PropTypes from 'prop-types';",
-            "",
-            "const ${1:ComponentName} = ({}) => {",
+			"import PropTypes from 'prop-types';",
+			"",
+			"/**",
+            " * ${1:ComponentName} Functional Component.",
+            " */",
+            "export default function ${1:ComponentName}({}) {",
             "  return (",
             "    ${2}",
             "  );",
-            "};",
-            "",
-            "${1:ComponentName}.displayName = '${1:ComponentName}';",
-            "",
+			"};",
+			"",
+			"${1:ComponentName}.displayName = '${1:ComponentName}';",
+			"",
             "${1:ComponentName}.propTypes = {",
-            "};",
-            "",
-            "/**",
-            " * ${1:ComponentName} Functional Component.",
-            " */",
-            "export default ${1:ComponentName};"
+			"};",
+            ""
         ],
         "description": "React Functional Component"
     },
@@ -140,42 +146,220 @@
             "import expect from 'expect';",
             "import { shallow } from 'enzyme';",
             "import ${1:ComponentName} from './';",
-            "",
-            "describe('<${1:ComponentName} />', () => {",
+			"",
+			"describe('<${1:ComponentName} />', () => {",
             "  function defaultProps() {",
             "    return {};",
-            "  }",
-            "",
+			"  }",
+			"",
             "  it('should always render as a ${2:Type}', () => {",
             "    const props = defaultProps();",
             "    const wrapper = shallow(<${1:ComponentName} {...props} />);",
             "    expect(wrapper.type()).to.equal('${2:Type}');",
             "  });",
-            "});"
+            "});",
+            ""
         ],
         "description": "React Mocha Test"
+    },
+    "React: componentDidMount() {…}": {
+        "prefix": "cdm",
+        "body": [
+            "/**",
+            " * React lifecycle.",
+            " */",
+            "componentDidMount() {",
+            "  ${0}",
+            "}",
+            ""
+        ],
+        "description": "React: componentDidMount() {…}"
+    },
+    "React: componentDidUpdate(pp, ps) {…}": {
+        "prefix": "cdup",
+        "body": [
+            "/**",
+            " * React lifecycle.",
+            " * @param {Object} prevProps Previous props",
+            " * @param {Object} prevState Previous state",
+            " */",
+            "componentDidUpdate(prevProps, prevState) {",
+            "  ${0}",
+            "}",
+            ""
+        ],
+        "description": "React: componentDidUpdate(pp, ps) {…}"
+    },
+    "React: componentWillMount() {…}": {
+        "prefix": "cwm",
+        "body": [
+            "/**",
+            " * React lifecycle.",
+            " */",
+            "componentWillMount() {",
+            "  ${0}",
+            "}",
+            ""
+        ],
+        "description": "React: componentWillMount() {…}"
+    },
+    "React: componentWillReceiveProps(np) {…}": {
+        "prefix": "cwr",
+        "body": [
+            "/**",
+            " * React lifecycle.",
+            " * @param {Object} nextProps Next props",
+            " */",
+            "componentWillReceiveProps(nextProps) {",
+            "  ${0}",
+            "}",
+            ""
+        ],
+        "description": "React: componentWillReceiveProps(np) {…}"
+    },
+    "React: componentWillUnmount() {…}": {
+        "prefix": "cwun",
+        "body": [
+            "/**",
+            " * React lifecycle.",
+            " */",
+            "componentWillUnmount() {",
+            "  ${0}",
+            "}",
+            ""
+        ],
+        "description": "React: componentWillUnmount() {…}"
+    },
+    "React: componentWillUpdate(np, ns) {…}": {
+        "prefix": "cwup",
+        "body": [
+            "/**",
+            " * React lifecycle.",
+            " * @param {Object} nextProps Next props",
+            " * @param {Object} nextState Next state",
+            " */",
+            "componentWillUpdate(nextProps, nextState) {",
+            "  ${0}",
+            "}",
+            ""
+        ],
+        "description": "React: componentWillUpdate(np, ns) {…}"
+    },
+    "React: PropTypes.arrayOf (Instances)": {
+        "prefix": "ptai",
+        "body": ["${1}: PropTypes.arrayOf(PropTypes.instanceOf(${2:Class}))${3:.isRequired}$0", ""],
+        "description": "React: PropTypes.arrayOf (Instances)"
+    },
+    "React: PropTypes.arrayOf": {
+        "prefix": "pta",
+        "body": ["${1}: PropTypes.arrayOf(${2:propType})${3:.isRequired}$0", ""],
+        "description": "React: PropTypes.arrayOf"
+    },
+    "React: PropTypes.bool": {
+        "prefix": "ptb",
+        "body": ["${1}: PropTypes.bool${2:.isRequired}$0", ""],
+        "description": "React: PropTypes.bool"
+    },
+    "React: PropTypes.element": {
+        "prefix": "pte",
+        "body": ["${1}: PropTypes.element${2:.isRequired}$0", ""],
+        "description": "React: PropTypes.element"
+    },
+    "React: PropTypes.func": {
+        "prefix": "ptf",
+        "body": ["${1}: PropTypes.func${2:.isRequired}$0", ""],
+        "description": "React: PropTypes.func"
+    },
+    "React: PropTypes.instanceOf": {
+        "prefix": "pti",
+        "body": ["${1}: PropTypes.instanceOf(${2:Class})${3:.isRequired}$0", ""],
+        "description": "React: PropTypes.instanceOf"
+    },
+    "React: PropTypes.node": {
+        "prefix": "ptn",
+        "body": ["${1}: PropTypes.node${2:.isRequired}$0", ""],
+        "description": "React: PropTypes.node"
+    },
+    "React: PropTypes.number": {
+        "prefix": "ptn",
+        "body": ["${1}: PropTypes.number${2:.isRequired}$0", ""],
+        "description": "React: PropTypes.number"
+    },
+    "React: PropTypes.object": {
+        "prefix": "pto",
+        "body": ["${1}: PropTypes.object${2:.isRequired}$0", ""],
+        "description": "React: PropTypes.object"
+    },
+    "React: PropTypes.objectOf": {
+        "prefix": "ptof",
+        "body": ["${1}: PropTypes.objectOf(${2:type})${3:.isRequired}$0", ""],
+        "description": "React: PropTypes.objectOf"
+    },
+    "React: PropTypes.oneOf (Enum)": {
+        "prefix": "ptof",
+        "body": ["${1}: PropTypes.oneOf([${2:value}, ${3:value}])${4:.isRequired}$0", ""],
+        "description": "React: PropTypes.oneOf (Enum)"
+    },
+    "React: PropTypes.oneOfType (Union)": {
+        "prefix": "ptoft",
+        "body": ["${1}: PropTypes.oneOfType([${2:value}, ${3:value}])${4:.isRequired}$0", ""],
+        "description": "React: PropTypes.oneOfType (Union)"
+    },
+    "React: PropTypes.shape": {
+        "prefix": "ptsp",
+        "body": ["${1}: PropTypes.shape({", "  $0", "})", ""],
+        "description": "React: PropTypes.shape"
+    },
+    "React: PropTypes.string": {
+        "prefix": "pts",
+        "body": ["${1}: PropTypes.string${2:.isRequired}$0", ""],
+        "description": "React: PropTypes.string"
+    },
+    "React: propTypes { ... }": {
+        "prefix": "pt",
+        "body": ["propTypes: {", "  ${1}: PropTypes.${2:string}", "},", ""],
+        "description": "React: propTypes { ... }"
+    },
+    "React: this.setState(…)": {
+        "prefix": "rss",
+        "body": ["this.setState({ ${1}: ${2} });", ""],
+        "description": "React: this.setState(…)"
+    },
+    "React: shouldComponentUpdate(np, ns) {…}": {
+        "prefix": "scu",
+        "body": [
+            "shouldComponentUpdate(nextProps, nextState) {",
+            "  ${1:return ${2:false};}${0}",
+            "}",
+            ""
+        ],
+        "description": "React: shouldComponentUpdate(np, ns) {…}"
     },
     "Redux Ava Test": {
         "prefix": "rat",
         "body": [
             "import test from 'ava';",
             "import reducer, { initialState } from './${1:ReducerName}';",
-            "",
+			"",
             "test('should return initial state', (t) => {",
             "  t.deepEqual(reducer(undefined, { type: '' }), initialState);",
-            "});"
+            "});",
+            ""
         ],
         "description": "Redux Ava Test"
     },
     "Redux Mocha Test": {
-        "prefix": "rat",
+        "prefix": "rmt",
         "body": [
-            "import test from 'ava';",
+            "import expect from 'expect';",
             "import reducer, { initialState } from './${1:ReducerName}';",
-            "",
-            "test('should return initial state', (t) => {",
-            "  t.deepEqual(reducer(undefined, { type: '' }), initialState);",
-            "});"
+			"",
+            "describe('${1:ReducerName} reducer', () => {",
+            "  it('should return initial state', () => {",
+            "    expect(reducer(undefined, { type: '' })).to.deep.equal(initialState);",
+            "  });",
+            "});",
+            ""
         ],
         "description": "Redux Mocha Test"
     },
@@ -189,21 +373,23 @@
             "export const initialState = {",
             "  ${2:defaultState}",
             "};",
-            "",
-            "/**",
+			"",
+			"/**",
             " * ${1:ReducerName}'s reducer.",
             " * @param {String} state  Existing ${1:ReducerName}'s state",
             " * @param {Object} action Action dispatched",
             " * @return {Object} New state",
             " */",
-            "export default (state = initialState, action) => {",
+			"",
+			"export default (state = initialState, action) => {",
             "  switch (action.type) {",
             "    case ${3:actionName}:",
             "      return ${4};",
             "    default:",
             "      return state;",
             "  }",
-            "};"
+            "};",
+            ""
         ],
         "description": "Redux ReduceR"
     }
