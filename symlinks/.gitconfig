@@ -9,10 +9,11 @@
     autocrlf = input
     excludesfile = ~/.gitignore_global
     ignorecase = false
+    pager = diff-so-fancy | less --tabs=4 -RFX
 [alias]
     aa = add -A
     st = status -sb
-    df = diff
+    df = diff -w
     co = checkout
     cm = commit -m
     lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
@@ -27,7 +28,7 @@
 [push]
     default = current
 [color]
-    ui = auto
+    ui = true
 [diff]
     mnemonicprefix = true
     wordRegex = .
@@ -39,3 +40,15 @@
     rebase = preserve
 [merge]
     renamelimit = 3000
+[color "diff-highlight"]
+    oldNormal = red bold
+    oldHighlight = red bold 52
+    newNormal = green bold
+    newHighlight = green bold 22
+[color "diff"]
+    meta = yellow
+    frag = magenta bold
+    commit = yellow bold
+    old = red bold
+    new = green bold
+    whitespace = red reverse
