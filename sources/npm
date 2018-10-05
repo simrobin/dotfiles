@@ -8,9 +8,10 @@ export N_PREFIX=${HOME}/.n
 export PATH=${N_PREFIX}/bin:${PATH}
 export PATH=${HOME}/.npm_packages/bin:${PATH}
 
+alias npmi="npm install --no-save"
 alias npmb="npm run build"
-alias npms="npm run start"
 alias npmw="npm run build:watch"
+alias npms="npm run start"
 alias npmt="npm run test"
 alias npmq="npm run quality"
 
