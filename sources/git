@@ -4,7 +4,6 @@ if ! command -v git > /dev/null 2>&1; then
   return
 fi
 
-alias git='LC_ALL=C git'
 alias g='git'
 alias gst='git st'
 
