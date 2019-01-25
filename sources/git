@@ -19,7 +19,11 @@ function git_info() {
 
 function git_prune() {
   git fetch --prune
-  git branch --merged | egrep -v "(^\*|master)" | xargs --no-run-if-empty git branch -d
+
+  merged_branches=$(git branch --merged | egrep -v "(^\*|master)")
+  if [ "${merged_branches}" != "" ]; then
+    git branch -d ${merged_branches}
+  fi
 }
 
 function git_browse() {
