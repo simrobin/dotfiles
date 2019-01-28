@@ -1,9 +1,14 @@
 #!/usr/bin/env bash
 
-[ -z "$PS1" ] && return
+[[ -z "${PS1:-}" ]] && return
 
-for file in ${HOME}/code/dotfiles/sources/*; do
-  [ -r "${file}" ] && [ -f "${file}" ] && source ${file}
+readonly BASHRC_PATH=$(python -c 'import sys; import os.path; print(os.path.realpath(sys.argv[1]))' "${BASH_SOURCE[0]}")
+readonly DOTFILES_PATH="$(dirname ${BASHRC_PATH})/.."
+
+for file in "${DOTFILES_PATH}/sources/"*; do
+  [[ -r "${file}" ]] && [[ -f "${file}" ]] && source "${file}"
 done
 
-[ -r ${HOME}/.localenvsrc ] && [ -f ${HOME}/.localenvsrc ] && source ${HOME}/.localenvsrc
+if [[ -e "${HOME}/.localenvsrc" ]]; then
+  source "${HOME}/.localenvsrc"
+fi
