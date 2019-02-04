@@ -1,102 +1,25 @@
 #!/usr/bin/env bash
 
-if [ -e "${HOME}/.fzf.bash" ]; then
+if [[ -e "${HOME}/.fzf.bash" ]]; then
   source "${HOME}/.fzf.bash"
-fi
 
-if ! command -v fzf > /dev/null 2>&1; then
-  return
-fi
+  if command -v rg > /dev/null 2>&1; then
+    export FZF_DEFAULT_COMMAND='rg --files --hidden 2> /dev/null'
+    export FZF_CTRL_T_COMMAND="${FZF_DEFAULT_COMMAND}"
+  fi
 
-__fzf_history__() {
-  local line
-  shopt -u nocaseglob nocasematch
+  __fzf_history__() {
+    local line
+    shopt -u nocaseglob nocasematch
 
-  line=$(
-    HISTTIMEFORMAT= history | sort -r -k 2 | uniq -f 1 | sort -n |
-    FZF_DEFAULT_OPTS="--height ${FZF_TMUX_HEIGHT:-40%} ${FZF_DEFAULT_OPTS} --tac --sync -n2..,.. --tiebreak=index --bind=ctrl-r:toggle-sort ${FZF_CTRL_R_OPTS} +m" $(__fzfcmd) |
-    command grep '^ *[0-9]') &&
-    if [[ $- =~ H ]]; then
-      sed 's/^ *\([0-9]*\)\** .*/!\1/' <<< "${line}"
-    else
-      sed 's/^ *\([0-9]*\)\** *//' <<< "${line}"
-    fi
-}
-
-if command -v fd > /dev/null 2>&1; then
-  export FZF_DEFAULT_COMMAND='fd --hidden --follow --exclude .git --exclude node_modules --exclude vendor --exclude vendors'
-  export FZF_CTRL_T_COMMAND="${FZF_DEFAULT_COMMAND}"
-fi
-
-if command -v git > /dev/null 2>&1; then
-  function gitco() {
-    local branch=`git branch -vv --all | fzf --ansi --reverse`
-    git checkout `echo ${branch} | awk '{print $1}' | sed 's|^remotes/origin/||'`
+    line=$(
+      HISTTIMEFORMAT= history | sort -r -k 2 | uniq -f 1 | sort -n |
+      FZF_DEFAULT_OPTS="--height ${FZF_TMUX_HEIGHT:-40%} ${FZF_DEFAULT_OPTS} --tac --sync -n2..,.. --tiebreak=index --bind=ctrl-r:toggle-sort ${FZF_CTRL_R_OPTS} +m" $(__fzfcmd) |
+      command grep '^ *[0-9]') &&
+      if [[ $- =~ H ]]; then
+        sed 's/^ *\([0-9]*\)\** .*/!\1/' <<< "${line}"
+      else
+        sed 's/^ *\([0-9]*\)\** *//' <<< "${line}"
+      fi
   }
-
-  function gitlg() {
-    git log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' "${@}" | fzf --ansi --reverse --tiebreak=index --no-sort --preview 'f() { set -- $(echo -- "$@" | grep -o "[a-f0-9]\{7\}"); [ $# -eq 0 ] || git show --color=always $1; }; f {}'
-  }
-fi
-
-if command -v pass > /dev/null 2>&1; then
-  function _fzf_complete_pass() {
-    FZF_COMPLETION_TRIGGER='' _fzf_complete '-1' "${@}" < <(
-      local PASS_DIR=${PASSWORD_STORE_DIR-~/.password-store}
-      find "${PASS_DIR}" -name '*.gpg' -print | sed -e "s|${PASS_DIR}/\(.*\)\.gpg$|\1|"
-    )
-  }
-  [ -n "${BASH}" ] && complete -F _fzf_complete_pass -o default -o bashdefault pass
-
-  function passfor() {
-    pass -c "${1}"
-
-    if [ $? -eq 0 ] && [ `pass show "${1}" | grep '^otpauth:' | wc -l` -eq 1 ]; then
-      read -s -p "  Press enter for otp"
-      echo ""
-
-      pass otp -c "${1}"
-    fi
-  }
-  [ -n "${BASH}" ] && complete -F _fzf_complete_pass -o default -o bashdefault passfor
-fi
-
-if command -v make > /dev/null 2>&1; then
-  function _fzf_complete_make() {
-    FZF_COMPLETION_TRIGGER='' _fzf_complete '-1' "${@}" < <(make -rpn | sed -n -e '/^$/ { n ; /^[^ .#][^ ]*:/ { s/:.*$// ; p ; } ; }')
-  }
-  [ -n "${BASH}" ] && complete -F _fzf_complete_make -o default -o bashdefault make
-fi
-
-if command -v ssh > /dev/null 2>&1; then
-  function _fzf_complete_ssh_notrigger() {
-    FZF_COMPLETION_TRIGGER='' _fzf_complete_ssh
-  }
-  [ -n "${BASH}" ] && complete -F _fzf_complete_ssh_notrigger -o default -o bashdefault ssh
-fi
-
-if command -v pgcli > /dev/null 2>&1; then
-  function _fzf_complete_pgcli() {
-    FZF_COMPLETION_TRIGGER='' _fzf_complete '--ansi' '-1' "${@}" < <(
-      local RED='\033[31m'
-      local GREEN='\033[32m'
-      local YELLOW='\033[33m'
-      local BLUE='\033[34m'
-      local RESET='\033[0m'
-
-      while IFS=':' read -r host port db user pass
-      do
-        if ! [[ "${host}" =~ ^\s*# ]]; then
-          echo -e "host: ${BLUE}${host}${RESET} port: ${YELLOW}${port}${RESET} db: ${RED}${db}${RESET} user: ${GREEN}${user}${RESET}"
-        fi
-      done < "${PGPASSFILE-${HOME}/.pgpass}"
-    )
-  }
-
-  function _fzf_complete_pgcli_post() {
-    sed -E 's|host: ([^:]*) port: ([^:]*) db: ([^:]*) user: ([^:]*)|\1 \2 \3 \4|g' | \
-    awk '{if ($1 != "*") { print "-h " $1; } if ($2 != "*") { print "-p " $2; } if ($3 != "*") { print "-U " $3; } if ($4 != "*") { print $4; }}'
-  }
-
-  [ -n "${BASH}" ] && complete -F _fzf_complete_pgcli -o default -o bashdefault pgcli
 fi

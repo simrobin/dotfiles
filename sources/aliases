@@ -23,10 +23,6 @@ alias fix_stty='stty sane'
 # Make tab-completion case-insensitive
 alias cic='set completion-ignore-case On'
 
-# Shortcut to open selenium browser with vnc
-alias selenium-chrome="open vnc://localhost:secret@localhost:5900"
-alias selenium-firefox="open vnc://localhost:secret@localhost:5901"
-
 # Makes new Dir and jumps inside
 mcd () { mkdir -p "$1" && cd "$1"; }
 

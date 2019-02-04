@@ -9,6 +9,6 @@ for file in "${DOTFILES_PATH}/sources/"*; do
   [[ -r "${file}" ]] && [[ -f "${file}" ]] && source "${file}"
 done
 
-if [[ -e "${HOME}/.localenvsrc" ]]; then
-  source "${HOME}/.localenvsrc"
+if [[ -e "${HOME}/.localrc" ]]; then
+  source "${HOME}/.localrc"
 fi

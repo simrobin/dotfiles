@@ -1,7 +1,12 @@
 #!/usr/bin/env bash
 
-[ -f /etc/bash_completion ] && source /etc/bash_completion
-[ -f /usr/local/etc/bash_completion ] && source /usr/local/etc/bash_completion
+if command -v brew > /dev/null 2>&1; then
+  if [[ -f "$(brew --prefix)/etc/bash_completion" ]]; then
+    source "$(brew --prefix)/etc/bash_completion"
+  fi
+elif [[ -f "/etc/bash_completion" ]]; then
+  source "/etc/bash_completion"
+fi
 
 _complete_ssh_hosts ()
 {

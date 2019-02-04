@@ -11,13 +11,3 @@ function os_clean() {
   find $directory -name ".DS_Store" -exec rm -f {} \;
   find $directory -name "._*" -exec rm -f {} \;
 }
-
-# needs to be installed with homebrew -> `brew install coreutils gnu-sed`
-GNUBIN_PATH=/usr/local/opt/coreutils/libexec/gnubin
-if [ -d "$GNUBIN_PATH"  ]; then
-  export PATH=${GNUBIN_PATH}:${PATH}
-  export LS_OPTIONS='--color=auto'
-
-  # Using native stat for use by gcloud tools (gls and gssh)
-  unlink /usr/local/opt/coreutils/libexec/gnubin/stat && ln -s /usr/bin/stat /usr/local/opt/coreutils/libexec/gnubin/stat
-fi
