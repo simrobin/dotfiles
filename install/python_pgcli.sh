@@ -6,9 +6,16 @@ set -o pipefail
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 main() {
-  if command -v pip > /dev/null 2>&1; then
-    pip install --user pgcli
+  if ! command -v pip > /dev/null 2>&1; then
+    echo "pgcli requires pip"
+    exit
   fi
+
+  if command -v apt-get > /dev/null 2>&1; then
+    sudo apt-get install -y -qq libpq-dev
+  fi
+
+  pip install --user pgcli
 
   if command -v pgcli > /dev/null 2>&1; then
     mkdir -p "${HOME}/.config/pgcli"
