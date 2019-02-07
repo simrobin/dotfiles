@@ -1,10 +1,16 @@
 #!/usr/bin/env bash
 
+if ! command -v n > /dev/null 2>&1; then
+  return
+fi
+
+export N_PREFIX="${HOME}/opt"
+
 if ! command -v node > /dev/null 2>&1; then
   return
 fi
 
-export PATH=${HOME}/.npm_packages/bin:${PATH}
+export PATH="${HOME}/opt/node/bin:${PATH}"
 
 alias npmi="npm install --no-save"
 alias npmb="npm run build"

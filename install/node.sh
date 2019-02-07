@@ -8,7 +8,6 @@ readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 clean() {
   rm -rf \
     "${HOME}/.npm" \
-    "${HOME}/.npm_packages" \
     "${HOME}/.babel.json" \
     "${HOME}/.node_repl_history" \
     "${HOME}/.v8flags."*
@@ -27,6 +26,8 @@ main() {
     exit
   fi
 
+  local NODE_VERSION="latest"
+
   rm -rf "${HOME}/n-install"
   git clone --depth 1 https://github.com/tj/n.git "${HOME}/n-install"
   pushd "${HOME}/n-install"
@@ -34,8 +35,9 @@ main() {
   popd
   rm -rf "${HOME}/n-install"
 
-  source "${SCRIPT_DIR}/../sources/n"
-  n latest
+  mkdir -p "${HOME}/opt/node"
+  source "${SCRIPT_DIR}/../sources/node"
+  n "${NODE_VERSION}"
 
   if command -v npm > /dev/null 2>&1; then
     npm install --ignore-scripts -g npm npm-check-updates node-gyp
