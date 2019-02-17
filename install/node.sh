@@ -26,7 +26,7 @@ main() {
     exit
   fi
 
-  local NODE_VERSION="latest"
+  local NODE_VERSION="10"
 
   rm -rf "${HOME}/n-install"
   git clone --depth 1 https://github.com/tj/n.git "${HOME}/n-install"
