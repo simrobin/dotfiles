@@ -9,9 +9,9 @@ main() {
   printf '+----------+\n'
   printf '| symlinks |\n'
   printf '+----------+\n'
-  for file in "${SCRIPT_DIR}/symlinks"/*; do
+  for file in "${SCRIPT_DIR}/symlinks"/.*; do
     basenameFile=$(basename "${file}")
-    [ -r "${file}" ] && [ -e "${file}" ] && rm -f "${HOME}/.${basenameFile}" && ln -s "${file}" "${HOME}/.${basenameFile}"
+    [ -r "${file}" ] && [ -f "${file}" ] && rm -f "${HOME}/${basenameFile}" && ln -s "${file}" "${HOME}/${basenameFile}"
   done
 
   set +u
