@@ -9,7 +9,8 @@ install() {
   cat \
     <(curl -q -sS -L "https://raw.githubusercontent.com/StevenBlack/hosts/master/alternates/fakenews-gambling-porn/hosts") \
     <(curl -q -sS -L "https://someonewhocares.org/hosts/zero/hosts") \
-    <(echo "127.0.0.1 ${DOTFILES_HOSTNAME}") |
+    <(echo "127.0.0.1 ${DOTFILES_HOSTNAME}") \
+    <(echo "127.0.0.1 localhost.meilleursagents.tech") |
     grep -E -v '^$' |
     grep -E -v '^\s*#' |
     grep -E '^(0.0.0.0|127.0.0.1|255.255.255.255|::1|fe00::|ff02::)' |
@@ -17,5 +18,13 @@ install() {
     sort |
     uniq |
     grep -v "ɢ" |
+    grep -v "0.0.0.0 analytics.google.com" |
+    grep -v "0.0.0.0 google-analytics.com" |
+    grep -v "0.0.0.0 ssl-google-analytics.l.google.com" |
+    grep -v "0.0.0.0 ssl.google-analytics.com" |
+    grep -v "0.0.0.0 www-google-analytics.l.google.com" |
+    grep -v "0.0.0.0 www.google-analytics.com" |
+    grep -v "0.0.0.0 www.googletagmanager.com" |
+    grep -v "0.0.0.0 files.slack.com" |
     sudo tee /etc/hosts >/dev/null
 }

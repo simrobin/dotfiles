@@ -1,0 +1,87 @@
+#!/usr/bin/env bash
+
+export MA_FOLDER=${MA_FOLDER:-"${HOME}/code/ma"}
+export MA_REPOSITORY=${MA_REPOSITORY:-"${MA_FOLDER}/meilleursagents"}
+export MA_INFRA_REPOSITORY=${MA_INFRA_REPOSITORY:-"${MA_FOLDER}/ma-infra"}
+export MA_INTEGRATION_REPOSITORY=${MA_INTEGRATION_REPOSITORY:-"${MA_FOLDER}/ma-integration"}
+
+export JIRA_URL="https://meilleursagents.atlassian.net"
+export JIRA_CREDENTIALS="work/ma/jira-api"
+
+export WEBPACK_NO_ESLINT=true
+export WEBPACK_NO_NOTIFICATION=true
+export WEBPACK_PROGRESS=false
+
+if [[ -e "${MA_FOLDER}" ]]; then
+  alias ma="cd ${MA_FOLDER}"
+
+  alias cookiebanner="cd ${MA_FOLDER}/CookieBanner"
+  alias design-tokens="cd ${MA_FOLDER}/design-tokens"
+  alias e2e="cd ${MA_FOLDER}/e2e"
+  alias estima="cd ${MA_FOLDER}/Estima"
+  alias infra="cd ${MA_FOLDER}/ma-infra"
+  alias integration="cd ${MA_FOLDER}/ma-integration"
+  alias js-common="cd ${MA_FOLDER}/js-common"
+  alias ma-react="cd ${MA_FOLDER}/ma-react"
+  alias myaccount="cd ${MA_FOLDER}/MyAccount"
+  alias mypro="cd ${MA_FOLDER}/MyPro"
+  alias pipeline-libs="cd ${MA_FOLDER}/ma-pipeline-libs"
+  alias prospectionmap="cd ${MA_FOLDER}/prospectionmap"
+  alias www="cd ${MA_FOLDER}/www-flask"
+  alias site="cd ${MA_FOLDER}/www-flask/www/frontend"
+  alias mailapi="cd ${MA_FOLDER}/MailAPI"
+  alias www-next="cd ${MA_FOLDER}/www-next"
+  alias wwwnext="www-next"
+fi
+
+if [[ -e "${MA_INFRA_REPOSITORY}/tools/gssh/gssh.sh" ]]; then
+  alias gssh="${MA_INFRA_REPOSITORY}/tools/gssh/gssh.sh gssh"
+  alias gls="${MA_INFRA_REPOSITORY}/tools/gssh/gssh.sh gls"
+  alias gpls="${MA_INFRA_REPOSITORY}/tools/gssh/gssh.sh gpls"
+  alias gshow="${MA_INFRA_REPOSITORY}/tools/gssh/gssh.sh gshow"
+  alias gtunnel="${MA_INFRA_REPOSITORY}/tools/gssh/gssh.sh gtunnel"
+
+  alias vault.sh="${MA_INFRA_REPOSITORY}/tools/vault/vault.sh"
+fi
+
+if [[ -e "${MA_FOLDER}/docker/tools/docker.sh" ]]; then
+  alias docker.sh="\${MA_FOLDER}/docker/tools/docker.sh"
+fi
+
+mactl_upgrade() {
+  (
+    cd "${HOME}/code/dotfiles"
+    ./init -l mactl install
+    mactl version
+  )
+}
+
+if [[ -e "${MA_INTEGRATION_REPOSITORY}" ]]; then
+  list_integration_apps() {
+    find "${MA_INTEGRATION_REPOSITORY}/.tmpl/deployments" -type d -maxdepth 1 -mindepth 1 -exec basename {} \; | fzf
+  }
+
+  list_images_dev() {
+    local app_name="${1:-$(list_integration_apps)}"
+    gcloud container images list-tags "eu.gcr.io/ma-dev2/dev-images/${app_name}" | head -10
+  }
+
+  list_images_backbone() {
+    local app_name="${1:-$(list_integration_apps)}"
+    gcloud container images list-tags "eu.gcr.io/ma-backbone/${app_name}" | head -10
+  }
+fi
+
+copy_non_reg() {
+  target_instance=${1:-${MA_INSTANCE}}
+
+  # WWW
+  pushd "${MA_REPOSITORY}/apps/www/tests/unit/views/.expected_responses"
+  rsync -avzhe ssh ${target_instance}:/home/${target_instance}/meilleursagents/apps/www/tests/unit/views/.expected_responses/ ./ --delete
+  popd
+
+  # MailAPI
+  pushd "${MA_REPOSITORY}/apps/MailAPI/tests/views/expected_rendering"
+  rsync -avzhe ssh ${target_instance}:/home/${target_instance}/meilleursagents/apps/MailAPI/tests/views/expected_rendering/ ./ --delete
+  popd
+}

@@ -1,0 +1,41 @@
+#!/bin/bash
+
+install() {
+  if [[ -z "${GITHUBAPI_TOKEN}" ]]; then
+    printf "Missing GITHUBAPI_TOKEN to download and install mactl\n"
+    return
+  fi
+
+  if ! command -v jq > /dev/null 2>&1; then
+    printf "Missing jq command to parse GitHub release API JSON\n"
+    return
+  fi
+
+  local OS="$(uname -s)"
+  local ARCH="$(uname -m)"
+
+  local readonly authorization_header="Authorization: token ${GITHUBAPI_TOKEN}"
+  local readonly temporary_dir="/tmp/mactl_install"
+
+  local readonly releases_url="https://api.github.com/repos/MeilleursAgents/mactl/releases/latest"
+  local readonly releases=$(curl -q -sSL -H "${authorization_header}" "${releases_url}")
+  local readonly release=$(echo "${releases}" | jq ".assets[] | select(.name | contains(\"${OS}_${ARCH}\"))")
+
+  if [[ -z "${release}" ]]; then
+    printf "Can't find suitable release of mactl for your env\n"
+    printf "Github API response:\n"
+    printf "$(echo ${releases} | jq .)\n"
+    return
+  fi
+
+  local readonly archive_name=$(echo "${release}" | jq --raw-output ".name")
+  local readonly archive_url=$(echo "${release}" | jq --raw-output ".url")
+
+  rm -rf "${temporary_dir}" && mkdir -p "${temporary_dir}"
+
+  curl -q -sSL --max-time 300 -o "${temporary_dir}/${archive_name}" -H "Accept: application/octet-stream" -H "${authorization_header}" "${archive_url}"
+  tar -xzf "${temporary_dir}/${archive_name}" -C "${temporary_dir}"
+  mv "${temporary_dir}/mactl" "${HOME}/opt/bin/mactl"
+
+  rm -rf ${temporary_dir}
+}

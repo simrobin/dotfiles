@@ -25,7 +25,6 @@ install() {
       "foxundermoon.shell-format"
       "golang.go"
       "ms-azuretools.vscode-docker"
-      "MS-CEINTL.vscode-language-pack-fr"
       "pflannery.vscode-versionlens"
       "PKief.material-icon-theme"
       "stylelint.vscode-stylelint"

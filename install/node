@@ -46,7 +46,7 @@ install() {
   source "${SCRIPT_DIR}/../sources/_01_first"
   source "${SCRIPT_DIR}/../sources/node"
 
-  local NODE_VERSION="lts"
+  local NODE_VERSION="16"
   n "${NODE_VERSION}"
 
   if ! command -v npm >/dev/null 2>&1; then

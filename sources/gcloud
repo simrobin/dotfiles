@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+
+if [[ -f "${HOME}/opt/google-cloud-sdk/path.bash.inc" ]]; then
+  source "${HOME}/opt/google-cloud-sdk/path.bash.inc"
+fi
+
+if ! command -v gcloud >/dev/null 2>&1; then
+  return
+fi
+
+if [[ -f "${HOME}/opt/google-cloud-sdk/completion.bash.inc" ]]; then
+  source "${HOME}/opt/google-cloud-sdk/completion.bash.inc"
+fi
+
+export USE_GKE_GCLOUD_AUTH_PLUGIN=True
+export GOOGLE_REGISTRIES=("gcr.io" "eu.gcr.io" "us.gcr.io")
+
+gcloud_auth() {
+  gcloud auth login --update-adc
+  gcloud config unset compute/region
+  gcloud config set project "$(gcloud projects list | grep ma-dev2 | awk '{print $1}')"
+
+  if command -v docker >/dev/null 2>&1; then
+    for registry in "${GOOGLE_REGISTRIES[@]}"; do
+      gcloud --quiet auth configure-docker "${registry}"
+    done
+  fi
+}
+
+gcloud_docker_login() {
+  for registry in "${GOOGLE_REGISTRIES[@]}"; do
+    gcloud auth print-access-token | docker login -u oauth2accesstoken --password-stdin "https://${registry}"
+  done
+}
+
+gcloud_project() {
+  local GCLOUD_PROJECT
+  GCLOUD_PROJECT="$(gcloud projects list --format 'value(projectId)' | fzf --height=20 --ansi --reverse --select-1 --query="${1:-}")"
+
+  if [[ -n ${GCLOUD_PROJECT} ]]; then
+    gcloud config set project "${GCLOUD_PROJECT}"
+  fi
+}
+
+gcloud_kube_import() {
+  local CLUSTER_NAME
+
+  IFS='@' read -r -a CLUSTER_NAME <<<"$(gcloud container clusters list --format json | jq --raw-output '.[] | .name + "@" + .zone' | fzf --height=20 --ansi --reverse --select-1 --query="${1:-}")"
+
+  if [[ -n ${CLUSTER_NAME[0]} ]]; then
+    gcloud container clusters get-credentials "${CLUSTER_NAME[0]}" --zone "${CLUSTER_NAME[1]}"
+    kubectl config rename-context "$(kubectl config current-context)" "$(gcloud config get project 2>/dev/null)_${CLUSTER_NAME[0]}"
+  fi
+}
+
+gcloud_dns() {
+  local ZONE
+  ZONE=$(gcloud dns managed-zones list --format json | jq --raw-output '.[] | .name' | fzf --height=10 --ansi --reverse --select-1 --query="${1:-}")
+
+  if [[ -n ${ZONE} ]]; then
+    gcloud dns record-sets list --zone="${ZONE}" | fzf --height=20 --ansi --reverse --select-1 --header-lines=1 --query="${2:-}"
+  fi
+}

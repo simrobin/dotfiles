@@ -24,9 +24,8 @@ clean() {
 
 install() {
   if [[ ${OSTYPE} =~ ^darwin ]]; then
-    packages_install "colima"
+    packages_install "colima" "docker" "docker-compose"
     colima completion bash >"$(script_dir)/../sources/colima-completion"
-    colima nerdctl install --path "${HOME}/opt/bin/docker" --force
   fi
 
   packages_install ctop
