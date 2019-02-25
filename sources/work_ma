@@ -1,0 +1,74 @@
+#!/usr/bin/env bash
+
+export MA_FOLDER=${MA_FOLDER:-"${HOME}/code/ma"}
+export MA_REPOSITORY=${MA_REPOSITORY:-"${MA_FOLDER}/meilleursagents"}
+export MA_INFRA_REPOSITORY=${MA_INFRA_REPOSITORY:-"${MA_FOLDER}/ma-infra"}
+
+export WEBPACK_NO_ESLINT=true
+export WEBPACK_NO_NOTIFICATION=true
+export WEBPACK_PROGRESS=false
+
+if [[ -e "${MA_REPOSITORY}" ]]; then
+  if [[ -e "${MA_REPOSITORY}/tools/.bashrc" ]]; then
+    source "${MA_REPOSITORY}/tools/.bashrc"
+  fi
+
+  alias ma="cd ${MA_REPOSITORY}"
+  alias www="cd ${MA_REPOSITORY}/apps/www"
+  alias site="cd ${MA_REPOSITORY}/apps/www/www/frontend/site"
+
+  alias estima="cd ${MA_FOLDER}/Estima"
+  alias myaccount="cd ${MA_FOLDER}/MyAccount"
+  alias mypro="cd ${MA_FOLDER}/MyPro"
+fi
+
+if [[ -e "${MA_INFRA_REPOSITORY}/tools/gssh/gssh.sh" ]]; then
+  alias gssh="${MA_INFRA_REPOSITORY}/tools/gssh/gssh.sh gssh"
+  alias gls="${MA_INFRA_REPOSITORY}/tools/gssh/gssh.sh gls"
+  alias gpls="${MA_INFRA_REPOSITORY}/tools/gssh/gssh.sh gpls"
+  alias gshow="${MA_INFRA_REPOSITORY}/tools/gssh/gssh.sh gshow"
+fi
+
+if [[ -e "${MA_FOLDER}/docker/tools/docker.sh" ]]; then
+  alias docker.sh="\${MA_FOLDER}/docker/tools/docker.sh"
+fi
+
+if [[ -e "${MA_FOLDER}/MA-Infra/tools/vault/vault.sh" ]]; then
+  alias vault.sh="\${MA_FOLDER}/MA-Infra/tools/vault/vault.sh"
+fi
+
+alias selenium="open vnc://localhost:secret@localhost:5900"
+
+function selenium_instance() {
+  open "vnc://localhost:secret@$(gls dev | grep "${MA_INSTANCE}-developers" | awk '{print $5}'):5900"
+}
+
+start_instance() {
+  gcloud compute instances start "${1:-${MA_INSTANCE}}-developers-1c-0"
+}
+
+stop_instance() {
+  gcloud compute instances stop "${1:-${MA_INSTANCE}}-developers-1c-0"
+}
+
+add_key_to_instance() {
+  local instance_name="${1}"
+  ssh simonr@$(PLATFORM=FR gls dev 0 | grep "${instance_name}-developers" | awk '{print $5}') "echo '$(ssh-add -L)' | sudo tee -a /home/${instance_name}/.ssh/authorized_keys > /dev/null"
+}
+
+alias wss="(cd ${MA_REPOSITORY} && watch_sync simonr meilleursagents)"
+alias hss="(cd ${MA_REPOSITORY} && head_sync simonr meilleursagents)"
+
+copy_non_reg() {
+  target_instance=${1:-${MA_INSTANCE}}
+
+  # WWW
+  pushd "${MA_REPOSITORY}/apps/www/tests/unit/views/.expected_responses"
+  rsync -avzhe ssh ${target_instance}:/home/${target_instance}/meilleursagents/apps/www/tests/unit/views/.expected_responses/ ./ --delete
+  popd
+
+  # MailAPI
+  pushd "${MA_REPOSITORY}/apps/MailAPI/tests/views/expected_rendering"
+  rsync -avzhe ssh ${target_instance}:/home/${target_instance}/meilleursagents/apps/MailAPI/tests/views/expected_rendering/ ./ --delete
+  popd
+}
