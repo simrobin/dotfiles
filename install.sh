@@ -5,18 +5,20 @@ set -o nounset
 set -o pipefail
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+SYMLINK_PATH="${HOME}"
+
 main() {
   printf '+----------+\n'
   printf '| symlinks |\n'
   printf '+----------+\n'
   for file in "${SCRIPT_DIR}/symlinks"/.*; do
     basenameFile=$(basename "${file}")
-    [ -r "${file}" ] && [ -f "${file}" ] && rm -f "${HOME}/${basenameFile}" && ln -s "${file}" "${HOME}/${basenameFile}"
+    [ -r "${file}" ] && [ -f "${file}" ] && rm -f "${SYMLINK_PATH}/${basenameFile}" && ln -s "${file}" "${SYMLINK_PATH}/${basenameFile}"
   done
 
   set +u
   set +e
-  PS1='$' source "${HOME}/.bashrc"
+  PS1='$' source "${SYMLINK_PATH}/.bashrc"
   set -e
   set -u
 
