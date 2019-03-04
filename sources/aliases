@@ -22,6 +22,8 @@ alias show_options='shopt'
 alias fix_stty='stty sane'
 # Make tab-completion case-insensitive
 alias cic='set completion-ignore-case On'
+# Restore ssh-agent in tmux
+alias fix_ssh='eval $(tmux showenv -s SSH_AUTH_SOCK)'
 
 # Makes new Dir and jumps inside
 mcd () { mkdir -p "$1" && cd "$1"; }
