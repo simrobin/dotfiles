@@ -2,21 +2,42 @@
     email = simon.robin.info@gmail.com
     name = Simon Robin
     login = simrobin
+    signingkey = 3838E400A8B01753
+
 [credential]
     helper = cache
+
 [core]
     editor = code --wait
     autocrlf = input
     excludesfile = ~/.gitignore_global
     ignorecase = false
     pager = diff-so-fancy | less --tabs=4 -RFX
+
+[color]
+    ui = true
+
+[diff]
+    mnemonicprefix = true
+    wordRegex = .
+
+[push]
+    default = current
+
 [alias]
+	sweep = "!f() { git prune && git gc && git branch --merged | egrep -v '(^\\*|master)' | xargs git branch -d; }; f"
+    rbm = pull --rebase origin master
+    plm = pull --rebase=false origin master
     aa = add -A
     st = status -sb
+    s = status -sb
     df = diff -w
+    d = diff -w
     co = checkout
     cm = commit -m
     lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
+    filehistory = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --
+	linehistory = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' -L
     fp = fetch --prune
     pf = push --force-with-lease
     rbi = rebase --interactive
@@ -25,26 +46,31 @@
     undo = reset --soft HEAD^
     oops = commit --amend
     start = !git init && git commit --allow-empty -m "init"
-[push]
-    default = current
-[color]
-    ui = true
-[diff]
-    mnemonicprefix = true
-    wordRegex = .
+
+[log]
+    abbrevCommit = true
+
+[credential]
+	helper = cache --timeout=28800
+
 [help]
     autocorrect = -1
+
 [rerere]
     enabled = true
+
 [pull]
     rebase = preserve
-[merge]
-    renamelimit = 3000
+
+[commit]
+	gpgsign = true
+
 [color "diff-highlight"]
     oldNormal = red bold
     oldHighlight = red bold 52
     newNormal = green bold
     newHighlight = green bold 22
+
 [color "diff"]
     meta = yellow
     frag = magenta bold
