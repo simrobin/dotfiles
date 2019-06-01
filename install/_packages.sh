@@ -1,12 +1,10 @@
 #!/usr/bin/env bash
 
-set -o errexit
-set -o nounset
-set -o pipefail
+set -o nounset -o pipefail -o errexit
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 main() {
-  if [[ "${IS_MACOS}" == true ]]; then
+  if [[ "${OSTYPE}" =~ ^darwin ]]; then
     if ! command -v brew > /dev/null 2>&1; then
       mkdir "${HOME}/homebrew" && curl -L https://github.com/Homebrew/brew/tarball/master | tar xz --strip 1 -C "${HOME}/homebrew"
       source "${SCRIPT_DIR}/../sources/_homebrew"
@@ -28,8 +26,8 @@ main() {
       echo '| changing shell for user |'
       echo '+-------------------------+'
 
-      echo $(brew --prefix)/bin/bash | sudo tee -a /etc/shells
-      chsh -s $(brew --prefix)/bin/bash -u "$(whoami)"
+      echo "$(brew --prefix)/bin/bash" | sudo tee -a /etc/shells > /dev/null
+      chsh -s "$(brew --prefix)/bin/bash" -u "$(whoami)"
     fi
 
     if [[ ! -f "${HOME}/.bash_profile" ]]; then
@@ -43,7 +41,6 @@ if [[ -f "${HOME}/.bashrc" ]]; then
   source ${HOME}/.bashrc
 fi' > "${HOME}/.bash_profile"
     fi
-
   elif command -v apt-get > /dev/null 2>&1; then
     export DEBIAN_FRONTEND=noninteractive
 

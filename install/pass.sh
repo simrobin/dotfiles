@@ -1,18 +1,15 @@
 #!/usr/bin/env bash
 
-set -o errexit
-set -o nounset
-set -o pipefail
-readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+set -o nounset -o pipefail -o errexit
 
 main() {
   if ! command -v git > /dev/null 2>&1; then
-    echo "git not found"
+    echo "git is required"
     exit
   fi
 
   if ! command -v make > /dev/null 2>&1; then
-    echo "make not found"
+    echo "make is required"
     exit
   fi
 
@@ -35,6 +32,8 @@ main() {
   PREFIX="${HOME}/opt" BASHCOMPDIR=${HOME}/opt/bash_completion.d make install
   popd
   rm -rf "${HOME}/pass-otp"
+
+  pass git pull
 }
 
 main

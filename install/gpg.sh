@@ -1,12 +1,9 @@
 #!/usr/bin/env bash
 
-set -o errexit
-set -o nounset
-set -o pipefail
-readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+set -o nounset -o pipefail -o errexit
 
 main() {
-  if [[ "${IS_MACOS}" == true ]]; then
+  if command -v brew > /dev/null 2>&1; then
     brew install gnupg
   elif command -v apt-get > /dev/null 2>&1; then
     sudo apt-get install -y -qq gnupg

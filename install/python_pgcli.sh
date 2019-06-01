@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 
-set -o errexit
-set -o nounset
-set -o pipefail
+set -o nounset -o pipefail -o errexit
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 main() {
+  source "${SCRIPT_DIR}/../sources/_python"
+
   if ! command -v pip > /dev/null 2>&1; then
-    echo "pgcli requires pip"
+    echo "pip is required"
     exit
   fi
 
@@ -15,7 +15,7 @@ main() {
     sudo apt-get install -y -qq libpq-dev
   fi
 
-  pip install --user pgcli
+  pip install --user --prefer-binary pgcli
 
   if command -v pgcli > /dev/null 2>&1; then
     mkdir -p "${HOME}/.config/pgcli"

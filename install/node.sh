@@ -1,32 +1,20 @@
 #!/usr/bin/env bash
 
-set -o errexit
-set -o nounset
-set -o pipefail
+set -o nounset -o pipefail -o errexit
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-clean() {
-  rm -rf \
-    "${HOME}/.npm" \
-    "${HOME}/.babel.json" \
-    "${HOME}/.node_repl_history" \
-    "${HOME}/.v8flags."*
-}
-
 main() {
-  clean
-
   if ! command -v git > /dev/null 2>&1; then
-    echo "git not found"
+    echo "git is required"
     exit
   fi
 
   if ! command -v make > /dev/null 2>&1; then
-    echo "make not found"
+    echo "make is required"
     exit
   fi
 
-  local NODE_VERSION="10"
+  local NODE_VERSION="latest"
 
   rm -rf "${HOME}/n-install"
   git clone --depth 1 https://github.com/tj/n.git "${HOME}/n-install"

@@ -1,14 +1,47 @@
 #!/usr/bin/env bash
 
-function open_ports() {
-    if [ `uname` == "Darwin" ]; then
-        sudo lsof -PniTCP -sTCP:LISTEN
-    fi
-    if [ `uname` == "Linux" ]; then
-        sudo netstat -pluton
-    fi
+open_ports() {
+  if [[ "${OSTYPE}" =~ ^darwin ]]; then
+    sudo lsof -PniTCP -sTCP:LISTEN
+  else
+    sudo netstat -pluton
+  fi
 }
 
-function ip() {
+forward_local_port() {
+  if [[ "${#}" -ne 3 ]]; then
+    echo "Usage: forward_local_port [LOCAL_PORT] [REMOTE_PORT] [SSH_PART]"
+    return 1
+  fi
+
+  ssh -L "${1}:localhost:${2}" "${3}"
+}
+
+forward_remote_port() {
+  if [[ "${#}" -ne 3 ]]; then
+    echo "Usage: forward_remote_port [REMOTE_PORT] [LOCAL_PORT] [SSH_PART]"
+    return 1
+  fi
+
+  ssh -R "${1}:localhost:${2}" "${3}"
+}
+
+dnsFlushCache() {
+  if [[ "${OSTYPE}" =~ ^darwin ]]; then
+    sudo dscacheutil -flushcache;sudo killall -HUP mDNSResponder
+
+    if command -v dnsmasq 2>&1 > /dev/null; then
+      sudo brew services restart dnsmasq
+    fi
+  else
+    sudo service network-manager restart
+
+    if command -v dnsmasq 2>&1 > /dev/null; then
+      sudo /etc/init.d/dnsmasq restart
+    fi
+  fi
+}
+
+ip() {
   echo `ifconfig -a | grep "netmask 0xffffff00\|netmask 255.255.255.0" | awk '{print $2}'`
 }
