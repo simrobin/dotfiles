@@ -32,7 +32,7 @@ if command -v pass > /dev/null 2>&1; then
   function passfor() {
     pass -c "${1}"
 
-    if [ $? -eq 0 ] && [ `pass show "${1}" | grep '^otpauth:' | wc -l` -eq 1 ]; then
+    if [ $? -eq 0 ] && [ $(pass show "${1}" | grep '^otpauth:' | wc -l) -eq 1 ]; then
       read -s -p "  Press enter for otp"
       echo ""
 
@@ -40,6 +40,23 @@ if command -v pass > /dev/null 2>&1; then
     fi
   }
   [ -n "${BASH}" ] && complete -F _fzf_complete_pass -o default -o bashdefault passfor
+
+  function loginfor() { # Will only work in OSX because it uses pbcopy, fallback to passfor in other systems
+    local content="$(pass show "${1}")"
+
+    if [[ "${OSTYPE}" =~ ^darwin ]] && [ $? -eq 0 ] && [ $(echo "${content}" | grep '^login:' | wc -l) -eq 1 ]; then
+      local login="$(echo "${content}" | grep '^login:' | sed -e 's/login://g' | awk '{$1=$1};1')"
+      echo -n "$login" | pbcopy
+
+      echo "Copied ${1} login to clipboard."
+
+      read -s -p "  Press enter for password"
+      echo ""
+    fi
+
+    passfor "${1}"
+  }
+  [ -n "${BASH}" ] && complete -F _fzf_complete_pass -o default -o bashdefault loginfor
 fi
 
 if command -v make > /dev/null 2>&1; then
