@@ -42,16 +42,16 @@ if command -v pass > /dev/null 2>&1; then
   [ -n "${BASH}" ] && complete -F _fzf_complete_pass -o default -o bashdefault passfor
 
   function loginfor() { # Will only work in OSX because it uses pbcopy, fallback to passfor in other systems
-    local content="$(pass show "${1}")"
+    if [[ "${OSTYPE}" =~ ^darwin ]]; then
+      local login="$(pass show "${1}" | grep '^login:')"
+      if [[ $? -eq 0 ]] && [[ $(echo "${content}" | wc -l) -eq 1 ]]; then
+        echo -n "$login" | sed -e 's/login://g' | awk '{$1=$1};1' | pbcopy
 
-    if [[ "${OSTYPE}" =~ ^darwin ]] && [ $? -eq 0 ] && [ $(echo "${content}" | grep '^login:' | wc -l) -eq 1 ]; then
-      local login="$(echo "${content}" | grep '^login:' | sed -e 's/login://g' | awk '{$1=$1};1')"
-      echo -n "$login" | pbcopy
+        echo "Copied ${1} login to clipboard."
 
-      echo "Copied ${1} login to clipboard."
-
-      read -s -p "  Press enter for password"
-      echo ""
+        read -s -p "  Press enter for password"
+        echo ""
+      fi
     fi
 
     passfor "${1}"
