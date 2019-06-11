@@ -60,7 +60,7 @@
     enabled = true
 
 [pull]
-    rebase = preserve
+    rebase = merges
 
 [commit]
 	gpgsign = true
