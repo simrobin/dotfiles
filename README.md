@@ -8,7 +8,7 @@
 mkdir -p ${HOME}/code/
 pushd ${HOME}/code/
 git clone https://github.com/simrobin/dotfiles.git
-./dotfiles/install.sh
+./dotfiles/init.sh
 popd
 ```
 
