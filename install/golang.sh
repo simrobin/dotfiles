@@ -1,21 +1,21 @@
 #!/usr/bin/env bash
 
 set -o nounset -o pipefail -o errexit
-readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 clean() {
   if [[ -n "${GOPATH-}" ]]; then
-    rm -rf "${GOPATH}"
+    sudo rm -rf "${GOPATH}"
     mkdir -p "${GOPATH}"
   fi
+
+  rm -rf "${HOME}/.dlv"
 }
 
-main() {
-  clean
+install() {
+  local GO_VERSION=1.12.8
 
-  local GO_VERSION=1.12.5
-  local OS=$(uname -s | tr '[:upper:]' '[:lower:]')
-  local ARCH=$(uname -m | tr '[:upper:]' '[:lower:]')
+  local OS="$(uname -s | tr "[:upper:]" "[:lower:]")"
+  local ARCH="$(uname -m | tr "[:upper:]" "[:lower:]")"
 
   if [[ "${ARCH}" = "x86_64" ]]; then
     ARCH="amd64"
@@ -27,11 +27,11 @@ main() {
     local GO_ARCHIVE="go${GO_VERSION}.${OS}-${ARCH}.tar.gz"
 
     curl -O "https://dl.google.com/go/${GO_ARCHIVE}"
-    rm -rf "${HOME}/opt/go"
     tar -C "${HOME}/opt" -xzf "${GO_ARCHIVE}"
     rm -rf "${GO_ARCHIVE}"
   fi
 
+  local SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
   source "${SCRIPT_DIR}/../sources/golang"
   mkdir -p "${GOPATH}"
 
@@ -45,5 +45,3 @@ main() {
     go get -u golang.org/x/tools/cmd/goimports
   fi
 }
-
-main

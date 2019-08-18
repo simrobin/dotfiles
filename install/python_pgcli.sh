@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
 set -o nounset -o pipefail -o errexit
-readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-main() {
+install() {
+  local SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
   source "${SCRIPT_DIR}/../sources/_python"
 
   if ! command -v pip > /dev/null 2>&1; then
@@ -15,16 +15,20 @@ main() {
     sudo apt-get install -y -qq libpq-dev
   fi
 
-  pip install --user --prefer-binary pgcli
+  if [[ "$(pip install --help | grep prefer-binary | wc -l)" -eq 1 ]]; then
+    pip install --user --prefer-binary pgcli
+  else
+    pip install --user pgcli
+  fi
 
-  if command -v pgcli > /dev/null 2>&1; then
-    mkdir -p "${HOME}/.config/pgcli"
+  if ! command -v pgcli > /dev/null 2>&1; then
+    return
+  fi
 
-    echo '[main]
+  mkdir -p "${HOME}/.config/pgcli"
+
+  echo "[main]
 multi_line = True
 auto_expand = True
-row_limit = 100' > "${HOME}/.config/pgcli/config"
-  fi
+row_limit = 100" > "${HOME}/.config/pgcli/config"
 }
-
-main
