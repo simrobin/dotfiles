@@ -118,5 +118,6 @@ EOT
     cd "$currFolderPath"
 }
 
-alias finderShowHidden='defaults write com.apple.finder ShowAllFiles TRUE'
-alias finderHideHidden='defaults write com.apple.finder ShowAllFiles FALSE'
+alias finderRestart='sudo killall Finder >/dev/null 2>&1'
+alias finderShowHidden='defaults write com.apple.finder AppleShowAllFiles -bool true && finderRestart'
+alias finderHideHidden='defaults write com.apple.finder AppleShowAllFiles -bool false  && finderRestart'

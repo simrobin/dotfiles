@@ -28,12 +28,12 @@ install() {
     defaults write NSGlobalDomain AppleLocale -string "en_US@currency=EUR"
     defaults write NSGlobalDomain AppleMeasurementUnits -string "Centimeters"
     defaults write NSGlobalDomain AppleMetricUnits -bool true
-    defaults write NSGlobalDomain ApplePressAndHoldEnabled -bool false
+    defaults write NSGlobalDomain ApplePressAndHoldEnabled -bool true
     defaults write NSGlobalDomain AppleShowAllExtensions -bool true
     defaults write NSGlobalDomain com.apple.mouse.tapBehavior -int 1
     defaults write NSGlobalDomain com.apple.swipescrolldirection -bool true
-    defaults write NSGlobalDomain InitialKeyRepeat -int 10
-    defaults write NSGlobalDomain KeyRepeat -int 1
+    defaults write NSGlobalDomain InitialKeyRepeat -int 18
+    defaults write NSGlobalDomain KeyRepeat -int 0
     defaults write NSGlobalDomain NSAutomaticCapitalizationEnabled -bool false
     defaults write NSGlobalDomain NSAutomaticDashSubstitutionEnabled -bool false
     defaults write NSGlobalDomain NSAutomaticPeriodSubstitutionEnabled -bool false
@@ -49,11 +49,11 @@ install() {
 
     defaults write com.apple.finder AppleShowAllFiles -bool true
     defaults write com.apple.finder FXEnableExtensionChangeWarning -bool false
-    defaults write com.apple.finder ShowExternalHardDrivesOnDesktop -bool true
-    defaults write com.apple.finder ShowHardDrivesOnDesktop -bool true
-    defaults write com.apple.finder ShowMountedServersOnDesktop -bool true
+    defaults write com.apple.finder ShowExternalHardDrivesOnDesktop -bool false
+    defaults write com.apple.finder ShowHardDrivesOnDesktop -bool false
+    defaults write com.apple.finder ShowMountedServersOnDesktop -bool false
     defaults write com.apple.finder ShowPathbar -bool true
-    defaults write com.apple.finder ShowRemovableMediaOnDesktop -bool true
+    defaults write com.apple.finder ShowRemovableMediaOnDesktop -bool false
     defaults write com.apple.finder ShowStatusBar -bool true
     defaults write com.apple.finder DisableAllAnimations -bool true
 
