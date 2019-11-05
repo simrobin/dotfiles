@@ -32,8 +32,8 @@ install() {
     defaults write NSGlobalDomain AppleShowAllExtensions -bool true
     defaults write NSGlobalDomain com.apple.mouse.tapBehavior -int 1
     defaults write NSGlobalDomain com.apple.swipescrolldirection -bool true
-    defaults write NSGlobalDomain InitialKeyRepeat -int 18
-    defaults write NSGlobalDomain KeyRepeat -int 0
+    defaults write NSGlobalDomain InitialKeyRepeat -int 10
+    defaults write NSGlobalDomain KeyRepeat -int 1
     defaults write NSGlobalDomain NSAutomaticCapitalizationEnabled -bool false
     defaults write NSGlobalDomain NSAutomaticDashSubstitutionEnabled -bool false
     defaults write NSGlobalDomain NSAutomaticPeriodSubstitutionEnabled -bool false
