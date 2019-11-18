@@ -8,14 +8,17 @@ clean() {
     mkdir -p "${GOPATH}"
   fi
 
+  rm -rf "${HOME}/opt/go"
   rm -rf "${HOME}/.dlv"
 }
 
 install() {
-  local GO_VERSION=1.13.4
+  local GO_VERSION="1.13.4"
 
-  local OS="$(uname -s | tr "[:upper:]" "[:lower:]")"
-  local ARCH="$(uname -m | tr "[:upper:]" "[:lower:]")"
+  local OS
+  OS="$(uname -s | tr "[:upper:]" "[:lower:]")"
+  local ARCH
+  ARCH="$(uname -m | tr "[:upper:]" "[:lower:]")"
 
   if [[ "${ARCH}" = "x86_64" ]]; then
     ARCH="amd64"
@@ -26,12 +29,13 @@ install() {
   if [[ ! -d "${HOME}/opt/go" ]]; then
     local GO_ARCHIVE="go${GO_VERSION}.${OS}-${ARCH}.tar.gz"
 
-    curl -O "https://dl.google.com/go/${GO_ARCHIVE}"
+    curl -q -sS -LO "https://dl.google.com/go/${GO_ARCHIVE}"
     tar -C "${HOME}/opt" -xzf "${GO_ARCHIVE}"
     rm -rf "${GO_ARCHIVE}"
   fi
 
-  local SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  local SCRIPT_DIR
+  SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
   source "${SCRIPT_DIR}/../sources/golang"
   mkdir -p "${GOPATH}"
 
