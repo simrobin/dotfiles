@@ -148,7 +148,6 @@ install() {
     sudo defaults write /Library/Preferences/com.apple.loginwindow RetriesUntilHint -int 0
     sudo defaults write /Library/Preferences/com.apple.loginwindow showInputMenu -bool true
     sudo defaults write /Library/Preferences/com.apple.mDNSResponder.plist NoMulticastAdvertisements -bool true
-    sudo defaults write /Library/Preferences/SystemConfiguration/com.apple.captive.control Active -bool false
 
     sudo launchctl unload -w /System/Library/LaunchAgents/com.apple.notificationcenterui.plist 2> /dev/null
     sudo launchctl unload -w /System/Library/LaunchAgents/com.apple.rcd.plist 2> /dev/null
