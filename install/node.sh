@@ -26,7 +26,7 @@ install() {
   fi
 
   local SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-  local NODE_VERSION="latest"
+  local NODE_VERSION="lts"
 
   rm -rf "${HOME}/n-install"
   git clone --depth 1 https://github.com/tj/n.git "${HOME}/n-install"
@@ -43,5 +43,5 @@ install() {
     return
   fi
 
-  npm install --ignore-scripts -g npm npm-check-updates node-gyp
+  npm install --ignore-scripts -g npm npm-check-updates node-gyp yarn
 }
