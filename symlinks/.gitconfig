@@ -4,15 +4,11 @@
     login = simrobin
     signingkey = 3838E400A8B01753
 
-[credential]
-    helper = cache
-
 [core]
     editor = code --wait
     autocrlf = input
     excludesfile = ~/.gitignore_global
     ignorecase = false
-    pager = diff-so-fancy | less --tabs=4 -RFX
 
 [color]
     ui = true
@@ -21,60 +17,55 @@
     mnemonicprefix = true
     wordRegex = .
 
-[push]
-    default = current
-
-[alias]
-	sweep = "!f() { git prune && git gc && git branch --merged | egrep -v '(^\\*|master)' | xargs git branch -d; }; f"
-    rbm = pull --rebase origin master
-    plm = pull --rebase=false origin master
-    aa = add -A
-    st = status -sb
-    s = status -sb
-    df = diff -w
-    d = diff -w
-    co = checkout
-    cm = commit -m
-    lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
-    filehistory = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --
-	linehistory = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' -L
-    fp = fetch --prune
-    pf = push --force-with-lease
-    rbi = rebase --interactive
-    rbc = rebase --continue
-    rba = rebase --abort
-    undo = reset --soft HEAD^
-    oops = commit --amend
-    start = !git init && git commit --allow-empty -m "init"
-
-[log]
-    abbrevCommit = true
-
-[credential]
-	helper = cache --timeout=28800
-
-[help]
-    autocorrect = -1
-
-[rerere]
-    enabled = true
-
 [pull]
-    rebase = merges
+	rebase = merges
+
+[push]
+	default = current
+
+[fetch]
+	prune = true
 
 [commit]
 	gpgsign = true
 
-[color "diff-highlight"]
-    oldNormal = red bold
-    oldHighlight = red bold 52
-    newNormal = green bold
-    newHighlight = green bold 22
+[rebase]
+	autosquash = true
 
-[color "diff"]
-    meta = yellow
-    frag = magenta bold
-    commit = yellow bold
-    old = red bold
-    new = green bold
-    whitespace = red reverse
+[log]
+	abbrevCommit = true
+
+[color]
+	ui = true
+
+[alias]
+	cc = "! git log --format=format: --name-only | grep -E -v '^$' | sort | uniq -c | sort -rg | head -10"
+	changelog = ! git log --no-merges --pretty=format:'%Cred%h%Creset %s' "${2:-HEAD}...${1}"
+	co = checkout
+	commend = commit --amend --no-edit
+	current-branch = rev-parse --abbrev-ref HEAD
+	d = diff -w
+	fco = "! git checkout \"$(git branch -vv --all | fzf --height 20 --ansi --reverse -q 'remotes/' | awk '{print $1}' | sed 's|^remotes/origin/||')\""
+    cm = commit -m
+	filehistory = log-pretty --
+	find = log-pretty -S
+	fixup = "! git commit --fixup $(git log-pretty master..$(git current-branch) | fzf --height 20 --ansi --reverse | awk '{print $1}')"
+	lg = log-pretty --graph
+	linehistory = log-pretty -L
+	log-pretty = log --color --pretty=format:'%Cred%h%Creset%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset'
+	pur = "! git pushu && git pr"
+	pushu = push -u
+	rbm = pull --rebase origin master
+	s = status -sb
+	st = status -sb
+	sweep = "! git prune && git remote prune origin && git branch --list --format '%(if:equals=[gone])%(upstream:track)%(then)%(refname:short)%(end)' | grep -E -v '^$' | xargs git branch -D && git gc"
+	tidy = rebase -i origin/master
+	unshallow = "! git remote set-branches origin '*' && git pull --unshallow"
+	unstage = reset HEAD --
+    oops = commit --amend
+    pf = push --force-with-lease
+    pr = "! [[ \"$(git remote get-url --push $(git remote show | head -1))\" =~ ^.*@(.*):(.*)$ ]] && \"${DEFAULT_OPENER}\" \"https://${BASH_REMATCH[1]}/${BASH_REMATCH[2]%.git}/compare/master...$(git current-branch)?expand=1\""
+    rba = rebase --abort
+    rbc = rebase --continue
+    rbi = rebase --interactive
+    undo = reset --soft HEAD^
