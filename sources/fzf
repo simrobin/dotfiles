@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-if [[ -e "${HOME}/.fzf.bash" ]]; then
+if [[ -e ${HOME}/.fzf.bash ]]; then
   source "${HOME}/.fzf.bash"
 fi
 
@@ -9,7 +9,7 @@ if ! command -v fzf > /dev/null 2>&1; then
 fi
 
 if command -v rg > /dev/null 2>&1; then
-  export FZF_DEFAULT_COMMAND='rg --files --hidden 2> /dev/null'
+  export FZF_DEFAULT_COMMAND="rg --files --hidden 2> /dev/null"
   export FZF_CTRL_T_COMMAND="${FZF_DEFAULT_COMMAND}"
 fi
 
