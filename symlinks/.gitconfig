@@ -39,33 +39,35 @@
 	ui = true
 
 [alias]
+	aa = add -A
 	cc = "! git log --format=format: --name-only | grep -E -v '^$' | sort | uniq -c | sort -rg | head -10"
 	changelog = ! git log --no-merges --pretty=format:'%Cred%h%Creset %s' "${2:-HEAD}...${1}"
+	cm = commit -m
 	co = checkout
 	commend = commit --amend --no-edit
 	current-branch = rev-parse --abbrev-ref HEAD
 	d = diff -w
+	df = diff -w
 	fco = "! git checkout \"$(git branch -vv --all | fzf --height 20 --ansi --reverse -q 'remotes/' | awk '{print $1}' | sed 's|^remotes/origin/||')\""
-    cm = commit -m
 	filehistory = log-pretty --
 	find = log-pretty -S
 	fixup = "! git commit --fixup $(git log-pretty master..$(git current-branch) | fzf --height 20 --ansi --reverse | awk '{print $1}')"
 	lg = log-pretty --graph
 	linehistory = log-pretty -L
 	log-pretty = log --color --pretty=format:'%Cred%h%Creset%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset'
+	oops = commit --amend
+	pf = push --force-with-lease
+	pr = "! [[ \"$(git remote get-url --push $(git remote show | head -1))\" =~ ^.*@(.*):(.*)$ ]] && \"${DEFAULT_OPENER}\" \"https://${BASH_REMATCH[1]}/${BASH_REMATCH[2]%.git}/compare/master...$(git current-branch)?expand=1\""
 	pur = "! git pushu && git pr"
 	pushu = push -u
+	rba = rebase --abort
+	rbc = rebase --continue
+	rbi = rebase --interactive
 	rbm = pull --rebase origin master
 	s = status -sb
 	st = status -sb
 	sweep = "! git prune && git remote prune origin && git branch --list --format '%(if:equals=[gone])%(upstream:track)%(then)%(refname:short)%(end)' | grep -E -v '^$' | xargs git branch -D && git gc"
 	tidy = rebase -i origin/master
+	undo = reset --soft HEAD^
 	unshallow = "! git remote set-branches origin '*' && git pull --unshallow"
 	unstage = reset HEAD --
-    oops = commit --amend
-    pf = push --force-with-lease
-    pr = "! [[ \"$(git remote get-url --push $(git remote show | head -1))\" =~ ^.*@(.*):(.*)$ ]] && \"${DEFAULT_OPENER}\" \"https://${BASH_REMATCH[1]}/${BASH_REMATCH[2]%.git}/compare/master...$(git current-branch)?expand=1\""
-    rba = rebase --abort
-    rbc = rebase --continue
-    rbi = rebase --interactive
-    undo = reset --soft HEAD^
