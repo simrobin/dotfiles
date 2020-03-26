@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# set -o nounset -o pipefail -o errexit
+set -o nounset -o pipefail -o errexit
 
 clean() {
   rm -rf "${HOME}/.terraform"*
@@ -12,10 +12,12 @@ credentials() {
   fi
 
   local PASS_DIR="${PASSWORD_STORE_DIR-${HOME}/.password-store}"
-  local TERRAFORM_PASS="$(find "${PASS_DIR}" -name "*terraform.gpg" -print | sed -e "s|${PASS_DIR}/\(.*\)\.gpg$|\1|")"
+  local TERRAFORM_PASS
+  TERRAFORM_PASS="$(find "${PASS_DIR}" -name "*terraform.gpg" -print | sed -e "s|${PASS_DIR}/\(.*\)\.gpg$|\1|")"
 
-  if [[ "$(echo "${TERRAFORM_PASS}" | wc -l)" -eq 1 ]]; then
-    local TERRAFORM_TOKEN="$(pass show "${TERRAFORM_PASS}" | grep token | awk '{print $2}')"
+  if [[ -n ${TERRAFORM_PASS:-} ]]; then
+    local TERRAFORM_TOKEN
+    TERRAFORM_TOKEN="$(pass show "${TERRAFORM_PASS}" | grep token | awk '{print $2}')"
 
     echo "credentials \"app.terraform.io\" {
   token = \"${TERRAFORM_TOKEN}\"
@@ -24,20 +26,22 @@ credentials() {
 }
 
 install() {
-  local TERRAFORM_VERSION="0.12.9"
+  local TERRAFORM_VERSION="0.12.23"
 
-  local OS="$(uname -s | tr "[:upper:]" "[:lower:]")"
-  local ARCH="$(uname -m | tr "[:upper:]" "[:lower:]")"
+  local OS
+  OS="$(uname -s | tr "[:upper:]" "[:lower:]")"
+  local ARCH
+  ARCH="$(uname -m | tr "[:upper:]" "[:lower:]")"
 
-  if [[ "${ARCH}" = "x86_64" ]]; then
+  if [[ ${ARCH} = "x86_64" ]]; then
     ARCH="amd64"
-  elif [[ "${ARCH}" =~ ^armv.l$ ]]; then
+  elif [[ ${ARCH} =~ ^armv.l$ ]]; then
     ARCH="arm"
   fi
 
   local TERRAFORM_ARCHIVE="terraform_${TERRAFORM_VERSION}_${OS}_${ARCH}.zip"
 
-  curl -q -sS -O "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/${TERRAFORM_ARCHIVE}"
+  curl -q -sSL --max-time 300 -O "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/${TERRAFORM_ARCHIVE}"
   unzip -o -d "${HOME}/opt/bin" "${TERRAFORM_ARCHIVE}"
   rm -rf "${TERRAFORM_ARCHIVE}"
 }
