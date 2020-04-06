@@ -1,21 +1,21 @@
 [user]
-    email = simon.robin.info@gmail.com
-    name = Simon Robin
-    login = simrobin
-    signingkey = 3838E400A8B01753
+	email = simon.robin.info@gmail.com
+	name = Simon Robin
+	login = simrobin
+	signingkey = 3838E400A8B01753
 
 [core]
-    editor = code --wait
-    autocrlf = input
-    excludesfile = ~/.gitignore_global
-    ignorecase = false
+	editor = code --wait
+	autocrlf = input
+	excludesfile = ~/.gitignore_global
+	ignorecase = false
 
 [color]
-    ui = true
+	ui = true
 
 [diff]
-    mnemonicprefix = true
-    wordRegex = .
+	mnemonicprefix = true
+	wordRegex = .
 
 [pull]
 	rebase = merges
@@ -48,6 +48,7 @@
 	current-branch = rev-parse --abbrev-ref HEAD
 	d = diff -w
 	df = diff -w
+	f = fetch
 	fco = "! git checkout \"$(git branch -vv --all | fzf --height 20 --ansi --reverse -q 'remotes/' | awk '{print $1}' | sed 's|^remotes/origin/||')\""
 	filehistory = log-pretty --
 	find = log-pretty -S
