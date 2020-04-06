@@ -9,5 +9,3 @@ alias dcp='docker-compose'
 docker-restart() {
   docker start $(docker ps -a -q -f status=exited -f status=created 2>/dev/null) 2>/dev/null
 }
-
-export DOCKER_CONTENT_TRUST=1

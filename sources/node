@@ -18,3 +18,6 @@ alias npmw="npm run build:watch"
 alias npms="npm run start"
 alias npmt="npm run test"
 alias npmq="npm run quality"
+
+# See https://github.com/zloirock/core-js/blob/d986c210528e1226b7f1e813856d5329ab04a991/packages/core-js/postinstall.js#L7
+export ADBLOCK=1
