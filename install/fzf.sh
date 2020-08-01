@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# set -o nounset -o pipefail -o errexit
+set -o nounset -o pipefail -o errexit
 
 clean() {
   rm -rf "${HOME}/.fzf.bash"
@@ -8,7 +8,7 @@ clean() {
 }
 
 install() {
-  if ! command -v git > /dev/null 2>&1; then
+  if ! command -v git >/dev/null 2>&1; then
     printf "git not found\n"
     exit
   fi

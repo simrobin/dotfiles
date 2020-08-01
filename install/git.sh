@@ -3,16 +3,17 @@
 set -o nounset -o pipefail -o errexit
 
 install() {
-  if [[ "${OSTYPE}" =~ ^darwin ]]; then
+  if [[ ${OSTYPE} =~ ^darwin ]]; then
     brew install git
-  elif command -v apt-get > /dev/null 2>&1; then
-    sudo apt-get install -y -qq git
+  elif command -v apt-get >/dev/null 2>&1; then
+    sudo apt-get install -y -qq --no-install-recommends git
   fi
 
-  if ! command -v git > /dev/null 2>&1; then
+  if ! command -v git >/dev/null 2>&1; then
     return
   fi
 
-  local SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-  curl -o "${SCRIPT_DIR}/../sources/git-prompt" "https://raw.githubusercontent.com/git/git/v$(git --version | awk '{print $3}')/contrib/completion/git-prompt.sh"
+  local SCRIPT_DIR
+  SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  curl -q -sSL --max-time 30 -o "${SCRIPT_DIR}/../sources/git-prompt" "https://raw.githubusercontent.com/git/git/v$(git --version | awk '{print $3}')/contrib/completion/git-prompt.sh"
 }

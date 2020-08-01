@@ -8,16 +8,16 @@ clean() {
 }
 
 credentials() {
-  if ! command -v pass > /dev/null 2>&1; then
+  if ! command -v pass >/dev/null 2>&1; then
     exit
   fi
 
-  local PASS_DIR="${PASSWORD_STORE_DIR-${HOME}/.password-store}"
+  local PASS_DIR="${PASSWORD_STORE_DIR:-${HOME}/.password-store}"
   local PG_PASS
   PG_PASS="$(find "${PASS_DIR}" -name "*pgpass.gpg" -print | sed -e "s|${PASS_DIR}/\(.*\)\.gpg$|\1|")"
 
   if [[ $(echo "${PG_PASS}" | wc -l) -eq 1 ]]; then
-    pass show "${PG_PASS}" > "${HOME}/.pgpass"
+    pass show "${PG_PASS}" >"${HOME}/.pgpass"
     chmod 600 "${HOME}/.pgpass"
   fi
 }
@@ -27,20 +27,19 @@ install() {
   SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
   source "${SCRIPT_DIR}/../sources/_python"
 
-  local PGCLI_VERSION="2.1.1"
-
-  if ! command -v pip > /dev/null 2>&1; then
+  if ! command -v pip >/dev/null 2>&1; then
     printf "pip is required\n"
     exit
   fi
 
-  if command -v apt-get > /dev/null 2>&1; then
-    sudo apt-get install -y -qq libpq-dev
+  if command -v brew >/dev/null 2>&1; then
+    brew install pgcli
+  elif command -v apt-get >/dev/null 2>&1; then
+    sudo apt-get install -y -qq --no-install-recommends libpq-dev
+    pip install --user pgcli
   fi
 
-  pip install --user "pgcli==${PGCLI_VERSION}" --only-binary psycopg2
-
-  if ! command -v pgcli > /dev/null 2>&1; then
+  if ! command -v pgcli >/dev/null 2>&1; then
     return
   fi
 
@@ -49,5 +48,5 @@ install() {
   echo "[main]
 multi_line = True
 auto_expand = True
-row_limit = 100" > "${HOME}/.config/pgcli/config"
+row_limit = 100" >"${HOME}/.config/pgcli/config"
 }

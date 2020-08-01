@@ -3,28 +3,33 @@
 set -o nounset -o pipefail -o errexit
 
 clean() {
-  if command -v docker > /dev/null 2>&1; then
+  sudo rm -rf "${HOME}/.docker"
+
+  if command -v docker >/dev/null 2>&1; then
     docker system prune -f || true
 
-    docker rmi $(docker images -q) || true
+    docker rmi -f $(docker images -q) || true
+    docker rmi -f $(docker images --format '{{ .Repository }}:{{ .Tag}}') || true
     docker network rm $(docker network ls -q) || true
     docker volume rm $(docker volume ls -q) || true
   fi
 }
 
 install() {
-  if ! command -v docker > /dev/null 2>&1; then
+  if ! command -v docker >/dev/null 2>&1; then
     return
   fi
 
-  local CTOP_VERSION="0.7.2"
-  local OS="$(uname -s | tr "[:upper:]" "[:lower:]")"
-  local ARCH="$(uname -m | tr "[:upper:]" "[:lower:]")"
+  local CTOP_VERSION="0.7.3"
+  local OS
+  OS="$(uname -s | tr "[:upper:]" "[:lower:]")"
+  local ARCH
+  ARCH="$(uname -m | tr "[:upper:]" "[:lower:]")"
 
-  if [[ "${ARCH}" = "x86_64" ]]; then
+  if [[ ${ARCH} == "x86_64" ]]; then
     ARCH="amd64"
   fi
 
-  curl -Lo "${HOME}/opt/bin/ctop" "https://github.com/bcicen/ctop/releases/download/v${CTOP_VERSION}/ctop-${CTOP_VERSION}-${OS}-${ARCH}"
+  curl -q -sSL --max-time 300 -o "${HOME}/opt/bin/ctop" "https://github.com/bcicen/ctop/releases/download/v${CTOP_VERSION}/ctop-${CTOP_VERSION}-${OS}-${ARCH}"
   chmod +x "${HOME}/opt/bin/ctop"
 }

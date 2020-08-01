@@ -7,22 +7,25 @@ clean() {
 }
 
 install() {
-  local SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  local SCRIPT_DIR
+  SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-  if command -v brew > /dev/null 2>&1; then
+  if command -v brew >/dev/null 2>&1; then
     brew install python
-  elif command -v apt-get > /dev/null 2>&1; then
-    sudo apt-get install -y -qq python
+    brew unlink "python@3.8" && brew link "python@3.8"
+  elif command -v apt-get >/dev/null 2>&1; then
+    sudo apt-get install -y -qq --no-install-recommends python
   fi
 
-  if ! command -v python > /dev/null 2>&1; then
+  if ! command -v python >/dev/null 2>&1; then
     return
   fi
 
   mkdir -p "${HOME}/opt/python"
+  source "${SCRIPT_DIR}/../sources/_first"
   source "${SCRIPT_DIR}/../sources/_python"
 
-  if ! command -v pip > /dev/null 2>&1; then
+  if ! command -v pip >/dev/null 2>&1; then
     return
   fi
 

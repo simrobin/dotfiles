@@ -6,18 +6,16 @@ install() {
   cat \
     <(curl -q -sS -L "https://raw.githubusercontent.com/StevenBlack/hosts/master/alternates/fakenews-gambling-porn/hosts") \
     <(curl -q -sS -L "https://someonewhocares.org/hosts/zero/hosts") \
-    <(echo "0.0.0.0 cdn-eu.realytics.net") \
-    <(echo "0.0.0.0 i.realytics.io") \
-    <(echo "0.0.0.0 api.realytics.io") \
-    <(echo "0.0.0.0 lead-the-way.fr") \
-    <(echo "0.0.0.0 www.lead-the-way.fr") \
-    <(echo "0.0.0.0 gl.hostcg.com") \
-    <(echo "127.0.0.1 $(hostname)") \
-    | egrep -v '^\s*#' \
-    | egrep -v '^$' \
-    | sort \
-    | uniq \
-    | sudo tee /etc/hosts > /dev/null
+    <(echo "127.0.0.1 $(hostname)") |
+    grep -E -v '^$' |
+    grep -E -v '^\s*#' |
+    grep -E '^(0.0.0.0|127.0.0.1|255.255.255.255|::1|fe00::|ff02::)' |
+    tr -s '[:blank:]' ' ' |
+    sort |
+    uniq |
+    grep -v "ɢ" |
+    sed $'s|0.0.0.0 \(.*\)|0.0.0.0 \\1\\\n0:0:0:0:0:0:0:0 \\1|g' |
+    sudo tee /etc/hosts >/dev/null
 
   if [[ "${OSTYPE}" =~ ^darwin ]]; then
     defaults -currentHost write NSGlobalDomain com.apple.mouse.tapBehavior -int 1

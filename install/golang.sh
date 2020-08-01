@@ -3,7 +3,7 @@
 set -o nounset -o pipefail -o errexit
 
 clean() {
-  if [[ -n "${GOPATH-}" ]]; then
+  if [[ -n ${GOPATH:-} ]]; then
     sudo rm -rf "${GOPATH}"
     mkdir -p "${GOPATH}"
   fi
@@ -13,23 +13,23 @@ clean() {
 }
 
 install() {
-  local GO_VERSION="1.13.4"
+  local GO_VERSION="1.14.6"
 
   local OS
   OS="$(uname -s | tr "[:upper:]" "[:lower:]")"
   local ARCH
   ARCH="$(uname -m | tr "[:upper:]" "[:lower:]")"
 
-  if [[ "${ARCH}" = "x86_64" ]]; then
+  if [[ ${ARCH} == "x86_64" ]]; then
     ARCH="amd64"
-  elif [[ "${ARCH}" =~ ^armv.l$ ]]; then
+  elif [[ ${ARCH} =~ ^armv.l$ ]]; then
     ARCH="armv6l"
   fi
 
   if [[ ! -d "${HOME}/opt/go" ]]; then
     local GO_ARCHIVE="go${GO_VERSION}.${OS}-${ARCH}.tar.gz"
 
-    curl -q -sS -LO "https://dl.google.com/go/${GO_ARCHIVE}"
+    curl -q -sSL --max-time 300 -O "https://dl.google.com/go/${GO_ARCHIVE}"
     tar -C "${HOME}/opt" -xzf "${GO_ARCHIVE}"
     rm -rf "${GO_ARCHIVE}"
   fi
@@ -39,9 +39,15 @@ install() {
   source "${SCRIPT_DIR}/../sources/golang"
   mkdir -p "${GOPATH}"
 
-  if command -v go > /dev/null 2>&1; then
-    if [[ "${ARCH}" = "amd64" ]]; then
-      go get -u github.com/derekparker/delve/cmd/dlv
+  if command -v brew >/dev/null 2>&1; then
+    brew install graphviz
+  elif command -v apt-get >/dev/null 2>&1; then
+    sudo apt-get install graphviz
+  fi
+
+  if command -v go >/dev/null 2>&1; then
+    if [[ ${ARCH} == "amd64" ]]; then
+      go get -u github.com/go-delve/delve/cmd/dlv
     fi
 
     go get -u github.com/kisielk/errcheck
