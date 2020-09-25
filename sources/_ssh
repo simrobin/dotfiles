@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+
+if ! command -v ssh >/dev/null 2>&1; then
+  return
+fi
+
+SSH_ENV="${HOME}/.ssh/environment"
+
+ssh_agent_stop() {
+  if [[ -n ${SSH_AGENT_PID:-} ]]; then
+    ssh-agent -k
+    rm -rf "${SSH_ENV}"
+  fi
+}
+
+ssh_agent_start() {
+  printf "Initializing new SSH agent...\n"
+
+  touch "${SSH_ENV}"
+  chmod 600 "${SSH_ENV}"
+
+  ssh-agent | grep -v "^echo" >"${SSH_ENV}"
+  source "${SSH_ENV}"
+}
+
+ssh_agent_init() {
+  ssh_agent_stop
+
+  if [[ -d "${HOME}/.ssh/" ]]; then
+    ssh_agent_start
+
+    if [ $(uname) == "Darwin" ]; then
+      ssh-add -A
+    else
+      shopt -s nullglob
+
+      for key in "${HOME}/.ssh/"*.pub; do
+        ssh-add -k "${key%.pub}"
+      done
+
+      shopt -u nullglob
+    fi
+  fi
+}
+
+if [[ -f ${SSH_ENV:-} ]]; then
+  source "${SSH_ENV}"
+
+  if [[ ! -e "${SSH_AUTH_SOCK:-}" ]]; then
+    ssh_agent_init
+  fi
+else
+  ssh_agent_init
+fi
