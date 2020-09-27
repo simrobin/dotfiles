@@ -7,10 +7,10 @@ fi
 SSH_ENV="${HOME}/.ssh/environment"
 
 ssh_agent_stop() {
-  if [[ -n ${SSH_AGENT_PID:-} ]]; then
+  if [[ -n ${SSH_AGENT_PID:-} ]] && [[ -e "${SSH_AUTH_SOCK:-}" ]]; then
     ssh-agent -k
-    rm -rf "${SSH_ENV}"
   fi
+  rm -rf "${SSH_ENV}"
 }
 
 ssh_agent_start() {
