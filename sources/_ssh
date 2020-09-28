@@ -7,7 +7,7 @@ fi
 SSH_ENV="${HOME}/.ssh/environment"
 
 ssh_agent_stop() {
-  if [[ -n ${SSH_AGENT_PID:-} ]] && [[ -e "${SSH_AUTH_SOCK:-}" ]]; then
+  if [[ -n ${SSH_AGENT_PID:-} ]] && ps -p ${SSH_AGENT_PID:-} >/dev/null; then
     ssh-agent -k
   fi
   rm -rf "${SSH_ENV}"
@@ -27,7 +27,9 @@ ssh_agent_init() {
   ssh_agent_stop
 
   if [[ -d "${HOME}/.ssh/" ]]; then
-    ssh_agent_start
+    if ls ${HOME}/.ssh/*.pub 1>/dev/null 2>&1; then
+      ssh_agent_start
+    fi
 
     if [ $(uname) == "Darwin" ]; then
       ssh-add -A
@@ -46,7 +48,7 @@ ssh_agent_init() {
 if [[ -f ${SSH_ENV:-} ]]; then
   source "${SSH_ENV}"
 
-  if [[ ! -e "${SSH_AUTH_SOCK:-}" ]]; then
+  if ! ps -p ${SSH_AGENT_PID:-} >/dev/null; then
     ssh_agent_init
   fi
 else
