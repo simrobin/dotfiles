@@ -17,7 +17,7 @@ install() {
     sed $'s|0.0.0.0 \(.*\)|0.0.0.0 \\1\\\n0:0:0:0:0:0:0:0 \\1|g' |
     sudo tee /etc/hosts >/dev/null
 
-  if [[ "${OSTYPE}" =~ ^darwin ]]; then
+  if [[ ${OSTYPE} =~ ^darwin ]]; then
     defaults -currentHost write NSGlobalDomain com.apple.mouse.tapBehavior -int 1
     defaults write NSGlobalDomain AppleEnableMenuBarTransparency -bool false
     defaults write NSGlobalDomain AppleFontSmoothing -int 1
@@ -47,11 +47,11 @@ install() {
 
     defaults write com.apple.finder AppleShowAllFiles -bool true
     defaults write com.apple.finder FXEnableExtensionChangeWarning -bool false
-    defaults write com.apple.finder ShowExternalHardDrivesOnDesktop -bool false
-    defaults write com.apple.finder ShowHardDrivesOnDesktop -bool false
-    defaults write com.apple.finder ShowMountedServersOnDesktop -bool false
+    defaults write com.apple.finder ShowExternalHardDrivesOnDesktop -bool true
+    defaults write com.apple.finder ShowHardDrivesOnDesktop -bool true
+    defaults write com.apple.finder ShowMountedServersOnDesktop -bool true
     defaults write com.apple.finder ShowPathbar -bool true
-    defaults write com.apple.finder ShowRemovableMediaOnDesktop -bool false
+    defaults write com.apple.finder ShowRemovableMediaOnDesktop -bool true
     defaults write com.apple.finder ShowStatusBar -bool true
     defaults write com.apple.finder DisableAllAnimations -bool true
 
@@ -131,7 +131,6 @@ install() {
     sudo systemsetup -setrestartfreeze on
     sudo systemsetup -setwakeonnetworkaccess off
 
-    # Disable the sudden motion sensor as it’s not useful for SSDs
     sudo pmset -a hibernatemode 0
     sudo pmset -a lidwake 1
     sudo pmset -a sms 0
@@ -140,14 +139,15 @@ install() {
     sudo pmset -c displaysleep 10
     sudo pmset -c sleep 15
 
+    sudo mdutil -a -d -i off
+    sudo mdutil -X "/"
+    sudo mdutil -X "/System/Volumes/Data"
+
     sudo defaults write /Library/Preferences/com.apple.loginwindow AdminHostInfo HostName
     sudo defaults write /Library/Preferences/com.apple.loginwindow GuestEnabled -bool false
     sudo defaults write /Library/Preferences/com.apple.loginwindow RetriesUntilHint -int 0
     sudo defaults write /Library/Preferences/com.apple.loginwindow showInputMenu -bool true
     sudo defaults write /Library/Preferences/com.apple.mDNSResponder.plist NoMulticastAdvertisements -bool true
-
-    sudo launchctl unload -w /System/Library/LaunchAgents/com.apple.notificationcenterui.plist 2> /dev/null
-    sudo launchctl unload -w /System/Library/LaunchAgents/com.apple.rcd.plist 2> /dev/null
 
     sudo nvram SystemAudioVolume=" "
     sudo scutil --set ComputerName macbook
