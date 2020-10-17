@@ -8,7 +8,7 @@
 mkdir -p ${HOME}/code/
 pushd ${HOME}/code/
 git clone https://github.com/simrobin/dotfiles.git
-./dotfiles/init.sh
+./dotfiles/init
 popd
 ```
 
@@ -16,18 +16,16 @@ popd
 
 You can set following environment variables for customizing installation behavior:
 
-* `DOTFILES_NO_NODE="true"` doesn't perform install of `install/node` file (replace `NODE` by any uppercase filename in `install/` dir)
+- `DOTFILES_NO_NODE="true"` doesn't perform install of `install/node` file (replace `NODE` by any uppercase filename in `install/` dir)
 
 ```bash
 # Server configuration example
 
-export DOTFILES_NO_ALACRITTY="true"
 export DOTFILES_NO_GOLANG="true"
 export DOTFILES_NO_GPG="true"
 export DOTFILES_NO_NODE="true"
 export DOTFILES_NO_PASS="true"
 export DOTFILES_NO_PYTHON="true"
-export DOTFILES_NO_PYTHON_ASCIINEMA="true"
 export DOTFILES_NO_PYTHON_PGCLI="true"
 ```
 

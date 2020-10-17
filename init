@@ -119,11 +119,6 @@ main() {
   set -e
   set -u
 
-  if [[ -z "${ARGS}" ]] || [[ "${ARGS}" =~ install ]]; then
-    browse_install clean install
-    clean_packages
-  fi
-
   local ACTIONS=()
 
   if [[ -z ${ARGS} ]] || [[ ${ARGS} =~ clean ]]; then
