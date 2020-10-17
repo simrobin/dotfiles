@@ -4,11 +4,8 @@ export HOMEBREW_NO_ANALYTICS=1
 export HOMEBREW_NO_INSECURE_REDIRECT=1
 export HOMEBREW_CASK_OPTS=--require-sha
 
-if [[ -d "${HOME}/homebrew" ]]; then
-  export PATH="${HOME}/homebrew/sbin:${HOME}/homebrew/bin:${PATH}"
-fi
-
-if command -v brew > /dev/null 2>&1; then
-  export PATH="$(brew --prefix)/opt/curl/bin:${PATH}"
-  export PATH="$(brew --prefix)/opt/python/libexec/bin:${PATH}"
+if command -v brew >/dev/null 2>&1; then
+  BREW_PREFIX="$(brew --prefix)"
+  export BREW_PREFIX
+  export PATH="${BREW_PREFIX}/opt/curl/bin:${PATH}"
 fi
