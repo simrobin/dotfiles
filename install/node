@@ -7,6 +7,11 @@ clean() {
     npm cache clean --force
   fi
 
+  if command -v n >/dev/null 2>&1; then
+    n prune
+    rm -rf "${HOME:?}/opt/bin/n"
+  fi
+
   rm -rf "${HOME:?}/.babel.json"
   rm -rf "${HOME:?}/.node-gyp"
   rm -rf "${HOME:?}/.node_repl_history"
@@ -15,25 +20,29 @@ clean() {
 }
 
 install() {
-  if ! command -v git >/dev/null 2>&1; then
-    var_error "git is required"
-    exit
-  fi
-
-  if ! command -v make >/dev/null 2>&1; then
-    var_error "make is required"
-    exit
-  fi
-
   local SCRIPT_DIR
   SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-  rm -rf "${HOME:?}/n-install"
-  git clone --depth 1 "https://github.com/tj/n.git" "${HOME}/n-install"
-  (cd "${HOME}/n-install" && PREFIX="${HOME}/opt" make install)
-  rm -rf "${HOME:?}/n-install"
+  if command -v brew >/dev/null 2>&1; then
+    brew install n
+  else
+    if ! command -v git >/dev/null 2>&1; then
+      printf "git is required \n"
+      exit
+    fi
 
-  mkdir -p "${HOME}/opt/node"
+    if ! command -v make >/dev/null 2>&1; then
+      printf "make is required \n"
+      exit
+    fi
+
+    rm -rf "${HOME:?}/n-install"
+    git clone --depth 1 "https://github.com/tj/n.git" "${HOME}/n-install"
+    (cd "${HOME}/n-install" && PREFIX="${HOME}/opt" make install)
+    rm -rf "${HOME:?}/n-install"
+  fi
+
+  mkdir -p "${HOME:?}/opt/node"
   source "${SCRIPT_DIR}/../sources/_first"
   source "${SCRIPT_DIR}/../sources/node"
 
@@ -44,5 +53,5 @@ install() {
     return
   fi
 
-  npm install --ignore-scripts -g npm npm-check-updates node-gyp
+  npm install --ignore-scripts -g npm npm-check-updates node-gyp yarn
 }
