@@ -4,6 +4,7 @@ set -o nounset -o pipefail -o errexit
 
 install() {
   local PACKAGES=('bash' 'bash-completion' 'htop' 'openssl' 'curl' 'ncdu' 'jq')
+  local APPLICATIONS=('iterm2' 'spectacle' 'google-chrome' 'signal')
 
   mkdir -p "${HOME}/opt/bin"
 
@@ -27,6 +28,7 @@ END_OF_BASH_PROFILE
     brew update
     brew upgrade
     brew install "${PACKAGES[@]}" fswatch
+    brew cask install "${APPLICATIONS[@]}"
 
     if [[ $(grep -c "$(brew --prefix)" "/etc/shells") -eq 0 ]]; then
       printf "+-------------------------+\n"
