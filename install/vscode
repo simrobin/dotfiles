@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+
+set -o nounset -o pipefail -o errexit
+
+install() {
+  local SCRIPT_DIR
+  SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+  if command -v brew >/dev/null 2>&1; then
+    brew cask install visual-studio-code
+  fi
+
+  if [[ -f "${HOME:?}/Library/Application Support/Code/User/keybindings.json" ]] && [[ -f "${SCRIPT_DIR}/../vscode/keybindings.json" ]]; then
+    cp "${SCRIPT_DIR}/../vscode/keybindings.json" "${HOME:?}/Library/Application Support/Code/User/keybindings.json"
+  fi
+
+  if command -v code >/dev/null 2>&1; then
+    local EXTENSIONS=(
+      "abusaidm.html-snippets"
+      "alefragnani.project-manager"
+      "artdiniz.quitcontrol-vscode"
+      "casualjim.gotemplate"
+      "dbaeumer.vscode-eslint"
+      "donjayamanne.githistory"
+      "EditorConfig.EditorConfig"
+      "EQuimper.react-native-react-redux"
+      "esbenp.prettier-vscode"
+      "formulahendry.auto-close-tag"
+      "formulahendry.auto-rename-tag"
+      "foxundermoon.shell-format"
+      "golang.go"
+      "jpoissonnier.vscode-styled-components"
+      "ms-azuretools.vscode-docker"
+      "MS-CEINTL.vscode-language-pack-fr"
+      "ms-python.python"
+      "msjsdiag.debugger-for-chrome"
+      "pflannery.vscode-versionlens"
+      "PKief.material-icon-theme"
+      "syler.sass-indented"
+      "waderyan.gitblame"
+      "wesbos.theme-cobalt2"
+    )
+
+    for extension in ${EXTENSIONS[@]}; do
+      code --install-extension "${extension}"
+    done
+  fi
+}
