@@ -36,7 +36,7 @@
     },
     {
         "key": "cmd+l",
-        "command": "workbench.action.splitEditor",
+        "command": "workbench.action.splitEditor"
     },
     {
         "key": "cmd+`",
@@ -45,5 +45,16 @@
     {
         "key": "cmd+shift+`",
         "command": "workbench.action.quickSwitchWindow"
+    },
+    {
+        "key": "f6",
+        "command": "workbench.action.tasks.runTask",
+        "args": "Test current file",
+        "when": "editorFocus && resourceFilename =~ /\\.?[Tt]est\\.jsx?$/"
+    },
+    {
+        "key": "f5",
+        "command": "editor.action.sortLinesAscending",
+        "when": "editorTextFocus"
     }
 ]
