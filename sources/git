@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
-if ! command -v git > /dev/null 2>&1; then
+if ! command -v git >/dev/null 2>&1; then
   return
 fi
 
-if command -v __git_complete > /dev/null 2>&1; then
+if command -v __git_complete >/dev/null 2>&1; then
   __git_complete g _git
 fi
 
@@ -14,49 +14,61 @@ alias ...="git_root"
 
 function git_info() {
   git rev-parse --is-inside-work-tree &>/dev/null || return
-  branch=`git symbolic-ref -q HEAD | sed -e 's|^refs/heads/||'`
-  dirty=`git diff --quiet --ignore-submodules HEAD &>/dev/null; [ $? -eq 1 ] && echo -e "*"`
+  branch=$(git symbolic-ref -q HEAD | sed -e 's|^refs/heads/||')
+  dirty=$(
+    git diff --quiet --ignore-submodules HEAD &>/dev/null
+    [ $? -eq 1 ] && echo -e "*"
+  )
 
   echo " ("$branch$dirty")"
 }
 
-git_browse() {
-  for dir in "$(pwd)"/*; do
-    pushd ${dir}
-
-    if [[ $(git rev-parse --is-inside-work-tree 2>/dev/null | grep true | wc -l) -eq 1 ]]; then
-      echo "${dir}"
-      eval "${@}"
-    fi
-
-    popd
-  done
-}
-
-git_open() {
-  local RED='\033[0;31m'
-  local RESET='\033[0m'
-
-  if [[ $(git rev-parse --is-inside-work-tree 2>&1) != "true" ]]; then
-    echo -e "${RED}You're not inside a git repository${RESET}"
-    return 1
-  fi
-
-  local pushURL=$(git remote get-url --push $(git remote show | head -1))
-
-  if [[ "${pushURL}" =~ ^.*@(.*):(.*)$ ]]; then
-    pushURL="https://${BASH_REMATCH[1]}/${BASH_REMATCH[2]}"
-  fi
-
-  open "${pushURL}"
-}
-
-git_pull() {
-  git_browse 'git pull'
+git_is_inside() {
+  git rev-parse --is-inside-work-tree 2>&1
 }
 
 git_root() {
-  git rev-parse --is-inside-work-tree > /dev/null 2>&1 && cd $(git rev-parse --show-toplevel)
+  if [[ $(git_is_inside) != "true" ]]; then
+    pwd
+    return
+  fi
+
+  git rev-parse --show-toplevel
+}
+
+git_browse() {
+  while IFS= read -r -d '' dir; do
+    (
+      cd "${dir}" || return
+      if [[ $(git_is_inside) != "true" ]] || [[ $(pwd) != $(git_root) ]]; then
+        return
+      fi
+
+      var_info "Running command in ${dir}"
+      eval "${@}"
+    )
+  done < <(find . -type d -maxdepth 1 -print0)
+}
+
+git_pull_all() {
+  git_browse 'git checkout master && git pull && git sweep'
+}
+
+git_clean_all() {
+  git_browse 'git checkout master && git checkout -- . && git pull && git clean -xfd && git sweep'
+}
+
+git_remote_repository() {
+  if [[ $(git_is_inside) != "true" ]]; then
+    return
+  fi
+
+  local REMOTE_URL
+  REMOTE_URL="$(git remote get-url --push "$(git remote show | head -1)")"
+
+  if [[ ${REMOTE_URL} =~ ^.*@.*:(.*)\/(.*).git$ ]]; then
+    printf "%s/%s" "${BASH_REMATCH[1]}" "${BASH_REMATCH[2]}"
+  fi
 }
 
 head_sync() {
@@ -65,12 +77,10 @@ head_sync() {
     return 1
   fi
 
-  local REMOTE_PATH_PREFIX="~/${2}"
   if [[ "${2:0:1}" == "/" ]]; then
     REMOTE_PATH_PREFIX="${2}"
   fi
 
-  local branch=$(git symbolic-ref -q HEAD | sed -e 's|^refs/heads/||')
   ssh "${1}" "cd ${REMOTE_PATH_PREFIX} && git reset HEAD . && git clean -f && git status -u -s | awk '{print $2}' | xargs rm -rf && git checkout -- . && git fetch && git checkout ${branch} && git pull"
 }
 
@@ -80,24 +90,16 @@ git_sync() {
     return 1
   fi
 
-  local RED='\033[0;31m'
-  local GREEN='\033[0;32m'
-  local YELLOW='\033[0;33m'
-  local BLUE='\033[0;34m'
-  local RESET='\033[0m'
-
   git_root
   isGit=$?
   if [[ ${isGit} -ne 0 ]]; then
     return ${isGit}
   fi
 
-  local REMOTE_PATH_PREFIX="~/${2}"
   if [[ "${2:0:1}" == "/" ]]; then
     REMOTE_PATH_PREFIX="${2}"
   fi
 
-  local dry=false
   if [[ "$(echo ${3} | tr '[:upper:]' '[:lower:]')" == "dry" ]]; then
     dry=true
   fi
@@ -108,33 +110,26 @@ git_sync() {
     echo -e "${BLUE}Syncing files...${RESET}\n"
   fi
 
-  local toSync=()
-  local toDelete=()
-
-  local IFS=$'\n'
   for gitFile in $(git status --porcelain); do
-    local prefix="${gitFile:0:2}"
-    local trimmedPrefix="${prefix#[[:space:]]}"
 
     case "${trimmedPrefix:0:1}" in
-      "M" | "A" | "?")
-        toSync=("${toSync[@]}" "${gitFile:3}")
-        ;;
+    "M" | "A" | "?")
+      toSync=("${toSync[@]}" "${gitFile:3}")
+      ;;
 
-      "D")
-        toDelete=("${toDelete[@]}" "${REMOTE_PATH_PREFIX}/${gitFile:3}")
-        ;;
+    "D")
+      toDelete=("${toDelete[@]}" "${REMOTE_PATH_PREFIX}/${gitFile:3}")
+      ;;
 
-      "R")
-        local originFile=$(echo -n "${gitFile}" | awk '{print $2}')
-        local destinationFile=$(echo -n "${gitFile}" | awk '{print $4}')
+    "R")
 
-        toDelete=("${toDelete[@]}" "${REMOTE_PATH_PREFIX}/${originFile}")
-        toSync=("${toSync[@]}" "${destinationFile}")
-        ;;
+      toDelete=("${toDelete[@]}" "${REMOTE_PATH_PREFIX}/${originFile}")
+      toSync=("${toSync[@]}" "${destinationFile}")
+      ;;
 
-      *)
-        echo -e "${BLUE} ¯\_(ツ)_/¯ Don't know how to handle ${gitFile}${RESET}"
+    *)
+      echo -e "${BLUE} ¯\_(ツ)_/¯ Don't know how to handle ${gitFile}${RESET}"
+      ;;
     esac
   done
 
@@ -164,8 +159,7 @@ watch_sync() {
 
   git_sync "${@}"
 
-  fswatch -0 -o --exclude=.git/ . | while read -d "" event
-  do
+  fswatch -0 -o --exclude=.git/ . | while read -d "" event; do
     git_sync "${@}"
   done
 }
