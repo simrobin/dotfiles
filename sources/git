@@ -12,7 +12,7 @@ alias g='git'
 alias gst='git st'
 alias ...="git_root"
 
-function git_info() {
+git_info() {
   git rev-parse --is-inside-work-tree &>/dev/null || return
   branch=$(git symbolic-ref -q HEAD | sed -e 's|^refs/heads/||')
   dirty=$(
@@ -54,10 +54,6 @@ git_pull_all() {
   git_browse 'git checkout master && git pull && git sweep'
 }
 
-git_clean_all() {
-  git_browse 'git checkout master && git checkout -- . && git pull && git clean -xfd && git sweep'
-}
-
 git_remote_repository() {
   if [[ $(git_is_inside) != "true" ]]; then
     return
@@ -72,16 +68,18 @@ git_remote_repository() {
 }
 
 head_sync() {
-  if [[ "${#}" -ne 2 ]]; then
-    echo "Usage: head_sync [REMOTE_SERVER] [REMOTE_PATH]"
+  if [[ ${#} -ne 2 ]]; then
+    echo "Usage: head_sync REMOTE_SERVER REMOTE_PATH"
     return 1
   fi
 
-  if [[ "${2:0:1}" == "/" ]]; then
-    REMOTE_PATH_PREFIX="${2}"
-  fi
+  local REMOTE_SERVER="${1}"
+  shift
+  local REMOTE_PATH="${1}"
+  shift
 
-  ssh "${1}" "cd ${REMOTE_PATH_PREFIX} && git reset HEAD . && git clean -f && git status -u -s | awk '{print $2}' | xargs rm -rf && git checkout -- . && git fetch && git checkout ${branch} && git pull"
+  local branch=$(git symbolic-ref -q HEAD | sed -e 's|^refs/heads/||')
+  ssh -A "${REMOTE_SERVER}" "cd '${REMOTE_PATH}' && git reset HEAD . && git clean -f && git status -u -s | awk '{print \$2}' | xargs -r rm -rf && git checkout -- . && git fetch && git checkout '${branch}' && git pull"
 }
 
 git_sync() {
@@ -90,16 +88,24 @@ git_sync() {
     return 1
   fi
 
+  local RED='\033[0;31m'
+  local GREEN='\033[0;32m'
+  local YELLOW='\033[0;33m'
+  local BLUE='\033[0;34m'
+  local RESET='\033[0m'
+
   git_root
   isGit=$?
   if [[ ${isGit} -ne 0 ]]; then
     return ${isGit}
   fi
 
+  local REMOTE_PATH_PREFIX="~/${2}"
   if [[ "${2:0:1}" == "/" ]]; then
     REMOTE_PATH_PREFIX="${2}"
   fi
 
+  local dry=false
   if [[ "$(echo ${3} | tr '[:upper:]' '[:lower:]')" == "dry" ]]; then
     dry=true
   fi
@@ -110,7 +116,13 @@ git_sync() {
     echo -e "${BLUE}Syncing files...${RESET}\n"
   fi
 
+  local toSync=()
+  local toDelete=()
+
+  local IFS=$'\n'
   for gitFile in $(git status --porcelain); do
+    local prefix="${gitFile:0:2}"
+    local trimmedPrefix="${prefix#[[:space:]]}"
 
     case "${trimmedPrefix:0:1}" in
     "M" | "A" | "?")
@@ -122,6 +134,8 @@ git_sync() {
       ;;
 
     "R")
+      local originFile=$(echo -n "${gitFile}" | awk '{print $2}')
+      local destinationFile=$(echo -n "${gitFile}" | awk '{print $4}')
 
       toDelete=("${toDelete[@]}" "${REMOTE_PATH_PREFIX}/${originFile}")
       toSync=("${toSync[@]}" "${destinationFile}")
