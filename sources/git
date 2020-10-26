@@ -44,7 +44,7 @@ git_browse() {
         return
       fi
 
-      var_info "Running command in ${dir}"
+      echo "Running command in ${dir}"
       eval "${@}"
     )
   done < <(find . -type d -maxdepth 1 -print0)
@@ -99,6 +99,8 @@ git_sync() {
   if [[ ${isGit} -ne 0 ]]; then
     return ${isGit}
   fi
+
+  cd $(git_root)
 
   local REMOTE_PATH_PREFIX="~/${2}"
   if [[ "${2:0:1}" == "/" ]]; then
