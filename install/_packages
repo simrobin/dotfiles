@@ -4,7 +4,7 @@ set -o nounset -o pipefail -o errexit
 
 install() {
   local PACKAGES=('bash' 'bash-completion' 'htop' 'openssl' 'curl' 'ncdu' 'jq')
-  local APPLICATIONS=('iterm2' 'spectacle' 'google-chrome' 'signal')
+  local APPLICATIONS=('iterm2' 'rectangle' 'google-chrome' 'signal')
 
   mkdir -p "${HOME}/opt/bin"
 
