@@ -42,7 +42,7 @@ install() {
     )
 
     for extension in ${EXTENSIONS[@]}; do
-      code --install-extension "${extension}"
+      code --install-extension "${extension}" --force
     done
   fi
 }
