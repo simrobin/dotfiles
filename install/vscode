@@ -7,7 +7,7 @@ install() {
   SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
   if command -v brew >/dev/null 2>&1; then
-    brew cask install visual-studio-code
+    brew install --cask visual-studio-code
   fi
 
   if [[ -f "${HOME:?}/Library/Application Support/Code/User/keybindings.json" ]] && [[ -f "${SCRIPT_DIR}/../vscode/keybindings.json" ]]; then
