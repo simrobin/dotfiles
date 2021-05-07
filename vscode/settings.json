@@ -1,39 +1,44 @@
 {
     "window.title": "${activeEditorMedium}${separator}${rootName}",
     "window.newWindowDimensions": "maximized",
+    "window.zoomLevel": 0,
+
     "workbench.startupEditor": "newUntitledFile",
     "workbench.iconTheme": "material-icon-theme",
     "workbench.colorTheme": "Cobalt2",
     "workbench.editor.enablePreviewFromQuickOpen": false,
-    "zenMode.fullScreen": false,
-    "git.autofetch": true,
+    "workbench.sideBar.location": "right",
+    "workbench.activityBar.visible": false,
+
+    "editor.fontFamily": "Operator Mono, Menlo, Monaco, 'Courier New', monospace",
+    "editor.fontSize": 14,
     "editor.renderWhitespace": "boundary",
     "editor.wordWrap": "on",
+    "editor.formatOnSave": false,
     "editor.dragAndDrop": false,
-    "editor.scrollBeyondLastLine": false,
-    "editor.rulers": [
-        100
-    ],
-    "editor.tabCompletion": true,
+    "editor.scrollBeyondLastLine": true,
+    "editor.tabCompletion": "on",
+    "editor.minimap.enabled": false,
+    "editor.rulers": [100],
+    "editor.codeActionsOnSave": {
+        "source.fixAll": true
+    },
+
+    "zenMode.fullScreen": false,
+
+    "git.autofetch": true,
+
     "explorer.autoReveal": true,
+
     "files.trimTrailingWhitespace": true,
     "files.insertFinalNewline": true,
+    "files.associations": {
+        "*.inc": "php"
+    },
     "files.watcherExclude": {
         "**/.git/objects/**": true,
         "**/.git/subtree-cache/**": true,
         "**/node_modules/**": true,
-        "**/bin/": true,
-        "**/vendor/": true,
-        "**/vendors/": true,
-        "**/esdoc/": true,
-        "**/dist/": true,
-        "**/coverage/": true,
-        "**/.nyc_output/": true,
-        "**/.cache/": true
-    },
-    "search.exclude": {
-        "**/node_modules": true,
-        "**/bower_components": true,
         "**/bin/": true,
         "**/vendor/": true,
         "**/vendors/": true,
@@ -52,37 +57,38 @@
         "**/.idea": true,
         "**/.cache": true
     },
-    "prettier.tabWidth": 4,
-    "prettier.singleQuote": true,
-    "prettier.printWidth": 100,
-    "editor.minimap.enabled": false,
-    "files.associations": {
-        "*.inc": "php"
+    "search.exclude": {
+        "**/node_modules": true,
+        "**/bower_components": true,
+        "**/bin/": true,
+        "**/vendor/": true,
+        "**/vendors/": true,
+        "**/esdoc/": true,
+        "**/dist/": true,
+        "**/coverage/": true,
+        "**/.nyc_output/": true,
+        "**/.cache/": true
     },
-    "window.zoomLevel": 0,
-    "workbench.activityBar.visible": false,
-    "editor.formatOnSave": true,
+
+    // File types
     "[javascript]": {
-        "editor.formatOnSave": false
+        "editor.defaultFormatter": "dbaeumer.vscode-eslint"
     },
     "[javascriptreact]": {
-        "editor.formatOnSave": false
+        "editor.defaultFormatter": "dbaeumer.vscode-eslint"
     },
     "[typescript]": {
-        "editor.formatOnSave": false
+        "editor.defaultFormatter": "dbaeumer.vscode-eslint"
     },
     "[typescriptreact]": {
-        "editor.formatOnSave": false
+        "editor.defaultFormatter": "dbaeumer.vscode-eslint"
     },
-    "editor.codeActionsOnSave": {
-        "source.fixAll": true
+    "[dockerfile]": {
+        "editor.defaultFormatter": "ms-azuretools.vscode-docker"
     },
-    "prettier.disableLanguages": [
-        "javascript",
-        "javascriptreact",
-        "typescript",
-        "typescriptreact",
-        "yaml"
-    ],
-    "workbench.sideBar.location": "right"
+
+    // Extensions
+    "prettier.tabWidth": 4,
+    "prettier.singleQuote": true,
+    "prettier.printWidth": 100
 }
