@@ -11,6 +11,7 @@ if ! command -v node > /dev/null 2>&1; then
 fi
 
 export PATH="${HOME}/opt/node/bin:${PATH}"
+export NODE_ICU_DATA="${HOME}/opt/node/lib/node_modules/full-icu"
 
 alias npmi="npm install --no-save"
 alias npmb="npm run build"
