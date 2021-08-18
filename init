@@ -105,6 +105,11 @@ main() {
     return 1
   fi
 
+  if [[ -z ${ARGS} ]] || [[ ${ARGS} =~ symlinks ]]; then
+    print_title "symlinks"
+    create_symlinks
+  fi
+
   set +u
   set +e
   mkdir -p "${HOME}/opt/bin"
