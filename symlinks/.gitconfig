@@ -48,7 +48,7 @@
 	current-branch = rev-parse --abbrev-ref HEAD
 	default-branch = ! git remote show origin | grep 'HEAD branch:' | awk '{print $3}'
 	default = ! git switch "$(git default-branch)"
-	pr = "! [[ \"$(git remote get-url --push $(git remote show | head -1))\" =~ ^.*@(.*):(.*)$ ]] && \"${DEFAULT_OPENER}\" \"https://${BASH_REMATCH[1]}/${BASH_REMATCH[2]%.git}/compare/master...$(git current-branch)?expand=1\""
+	pr = ! [[ \"$(git remote get-url --push $(git remote show | head -1))\" =~ ^.*@(.*):(.*)$ ]] && open \"https://${BASH_REMATCH[1]}/${BASH_REMATCH[2]%.git}/compare/$(git default-branch)...$(git current-branch)?expand=1\"
 	fixup = ! git commit --fixup $(git log-pretty "$(git default-branch).." --grep "^fixup" --invert-grep | fzf --height 20 --ansi --reverse | awk '{print $1}')
 	frevert = ! git revert $(git log-pretty "$(git default-branch).." --invert-grep | fzf --height 20 --ansi --reverse | awk '{print $1}')
 	file-list = ! git ls-files | grep --invert-match package-lock.json | grep --extended-regexp --invert-match '.jpg$|.jpeg$|.png$|.gif$|.ico$|.lock$|.sum$|.jar$|.bat$|.otf$|.woff$|.svg$|.xml$'
