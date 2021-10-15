@@ -1,0 +1,181 @@
+#!/usr/bin/env bash
+
+alias dev='cd ${HOME}/code/'
+
+random() {
+  openssl rand -hex "${1:-30}"
+}
+
+loop() {
+  if [[ ${#} -lt 1 ]]; then
+    echo "Usage: loop command interval?(default 60s)"
+    return 1
+  fi
+
+  while true; do
+    ${1}
+    sleep "${2:-60}"
+  done
+}
+
+meteo() {
+  curl --disable --silent --show-error --location --max-time 30 -4 "wttr.in/${1:-Paris}?m&format=v2"
+}
+
+if [[ ${OSTYPE} =~ ^darwin ]]; then
+  temperature() {
+    sudo powermetrics --samplers smc --sample-count 1 -i 1 | grep "temperature"
+  }
+fi
+
+rainbow() {
+  awk '
+  BEGIN{
+    s="          "; s=s s s s s s s s;
+    for (colnum = 0; colnum<77; colnum++) {
+      r = 255-(colnum*255/76);
+      g = (colnum*510/76);
+      b = (colnum*255/76);
+      if (g>255) g = 510-g;
+      printf "\033[48;2;%d;%d;%dm", r,g,b;
+      printf "\033[38;2;%d;%d;%dm", 255-r,255-g,255-b;
+      printf "%s\033[0m", substr(s,colnum+1,1);
+    }
+    printf "\n";
+  }'
+}
+
+if command -v systemctl >/dev/null 2>&1; then
+  status() {
+    sudo systemctl status "${@}"
+  }
+
+  restart() {
+    sudo systemctl restart "${@}"
+  }
+
+  logs() {
+    sudo journalctl -u "${@}"
+  }
+fi
+
+if [[ -n ${JIRA_URL:-} ]]; then
+  jira() {
+    local scope="self"
+
+    while getopts ":a" option; do
+      case "${option}" in
+      a)
+        scope="all"
+        ;;
+      :)
+        printf "option -%s requires a value\n" "${OPTARG}" >&2
+        return 1
+        ;;
+      \?)
+        printf "option -%s is invalid\n" "${OPTARG}" >&2
+        return 2
+        ;;
+      esac
+    done
+
+    shift $((OPTIND - 1))
+
+    local ACTION="${1:-}"
+    shift
+
+    if [[ -z ${ACTION} ]]; then
+      _jira_help
+      return
+    fi
+
+    local JIRA_TICKET
+    JIRA_TICKET="$(
+      _jira_ticket "${scope}" |
+        fzf --height=20 --ansi --reverse -1 --query="${1:-}" |
+        awk '{print $1}'
+    )"
+
+    if [[ -z ${JIRA_TICKET:-} ]]; then
+      return
+    fi
+
+    case ${ACTION} in
+    "browse")
+      open "${JIRA_URL}/browse/${JIRA_TICKET}"
+      ;;
+
+    "branch")
+      if [[ $(git rev-parse --is-inside-work-tree 2>&1) != "true" ]]; then
+        printf "%bnot in a git directory%b\n" "${RED}" "${RESET}" 1>&2
+      fi
+
+      local JIRA_BRANCH_NAME=""feat-${JIRA_TICKET}""
+
+      local CHECKOUT_OPTION=""
+      if ! git rev-parse --quiet --verify "${JIRA_BRANCH_NAME}" >/dev/null 2>&1; then
+        CHECKOUT_OPTION+=" -b"
+      fi
+
+      git checkout ${CHECKOUT_OPTION} "${JIRA_BRANCH_NAME}"
+      ;;
+
+    "print")
+      printf "%s" "${JIRA_TICKET}"
+      ;;
+
+    *)
+      _jira_help
+      ;;
+    esac
+  }
+
+  _jira_help() {
+    printf "%bUsage: jira ACTION%b\n" "${RED}" "${RESET}" 1>&2
+    printf "%b\nPossibles actions are                               | args\n%b\n" "${BLUE}" "${RESET}" 1>&2
+    printf "%b - browse   Open browser for ticket                 | <ticket name>?%b\n" "${BLUE}" "${RESET}" 1>&2
+    printf "%b - branch   Switch git repository branch to ticket  | <ticket name>?%b\n" "${BLUE}" "${RESET}" 1>&2
+    printf "%b - print    Print ticket ID                         | <ticket name>?%b\n" "${BLUE}" "${RESET}" 1>&2
+
+    printf "%b\nPossibles options are\n%b\n" "${BLUE}" "${RESET}" 1>&2
+    printf "%b - -a List tickets for all users (not just current)%b\n" "${BLUE}" "${RESET}" 1>&2
+    return 1
+  }
+
+  _jira_ticket() {
+    local JIRA_JQL="status%20NOT%20IN%20%28Done%2C%20Resolved%29"
+    if [[ ${1:-} == "self" ]]; then
+      JIRA_JQL+="%20AND%20assignee%20%3D%20currentUser%28%29"
+    fi
+
+    local JIRA_API_AUTH
+    JIRA_API_AUTH="$(pass show "${JIRA_CREDENTIALS}" | head -1)"
+
+    curl \
+      --disable \
+      --silent \
+      --show-error \
+      --location \
+      --max-time 10 \
+      --user "${JIRA_API_AUTH}" \
+      "${JIRA_URL}/rest/api/2/search?jql=${JIRA_JQL}" |
+      jq -r '.issues[] | .key + " " + .fields.summary'
+  }
+
+  _fzf_complete_jira() {
+    if [[ ${COMP_CWORD} -eq 1 ]]; then
+      mapfile -t COMPREPLY < <(compgen -W "browse branch print" -- "${COMP_WORDS[COMP_CWORD]}")
+      return
+    fi
+
+    FZF_COMPLETION_TRIGGER="" _fzf_complete "-1" "${@}" < <(
+      _jira_ticket "self"
+    )
+  }
+
+  _fzf_complete_jira_post() {
+    awk '{print $1}'
+  }
+
+  [[ -n ${BASH} ]] && complete -F _fzf_complete_jira -o default -o bashdefault jira
+fi
