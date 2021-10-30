@@ -32,7 +32,7 @@ ssh_agent_init() {
     fi
 
     if [ $(uname) == "Darwin" ]; then
-      ssh-add -A
+      ssh-add --apple-use-keychain --apple-load-keychain
     else
       shopt -s nullglob
 
