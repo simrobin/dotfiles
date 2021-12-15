@@ -29,9 +29,5 @@ install() {
 
   kubectl completion bash >"${SCRIPT_DIR}/../sources/kubectl-completion"
 
-  if command -v brew >/dev/null 2>&1; then
-    brew install kubectx
-  elif command -v apt-get >/dev/null 2>&1; then
-    sudo apt-get install kubectx
-  fi
+  packages_install kubectx
 }

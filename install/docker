@@ -17,7 +17,7 @@ clean() {
 
 install() {
   if command -v brew >/dev/null 2>&1; then
-    brew install --cask docker
+    packages_install_desktop docker
   fi
 
   if ! command -v docker >/dev/null 2>&1; then

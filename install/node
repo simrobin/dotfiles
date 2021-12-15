@@ -24,7 +24,7 @@ install() {
   SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
   if command -v brew >/dev/null 2>&1; then
-    brew install n
+    packages_install n
   else
     if ! command -v git >/dev/null 2>&1; then
       printf "git is required \n"
