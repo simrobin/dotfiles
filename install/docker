@@ -16,10 +16,6 @@ clean() {
 }
 
 install() {
-  if command -v brew >/dev/null 2>&1; then
-    packages_install_desktop docker
-  fi
-
   if ! command -v docker >/dev/null 2>&1; then
     return
   fi
