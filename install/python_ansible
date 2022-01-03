@@ -23,7 +23,7 @@ credentials() {
 install() {
   local SCRIPT_DIR
   SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-  source "${SCRIPT_DIR}/../sources/_python"
+  source "${SCRIPT_DIR}/../sources/_06_python"
 
   if ! command -v pip >/dev/null 2>&1; then
     printf "pip is required\n"

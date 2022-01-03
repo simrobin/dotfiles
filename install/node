@@ -43,7 +43,7 @@ install() {
   fi
 
   mkdir -p "${HOME:?}/opt/node"
-  source "${SCRIPT_DIR}/../sources/_first"
+  source "${SCRIPT_DIR}/../sources/_01_first"
   source "${SCRIPT_DIR}/../sources/node"
 
   local NODE_VERSION="lts"

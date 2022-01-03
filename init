@@ -74,15 +74,6 @@ browse_install() {
   done < <(find "${CURRENT_DIR}/install" -type f -print | LC_ALL=C sort)
 }
 
-clean_packages() {
-  if command -v brew >/dev/null 2>&1; then
-    brew cleanup -s
-  elif command -v apt-get >/dev/null 2>&1; then
-    sudo apt-get autoremove -y
-    sudo apt-get clean all
-  fi
-}
-
 main() {
   local FILE_LIMIT=""
   while getopts "l:" options; do
@@ -129,7 +120,7 @@ main() {
 
   if [[ ${#ACTIONS[@]} -ne 0 ]]; then
     browse_install "${ACTIONS[@]}"
-    clean_packages
+    packages_clean
   fi
 
   if [[ -z ${ARGS} ]] || [[ ${ARGS} =~ credentials ]]; then

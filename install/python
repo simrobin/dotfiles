@@ -21,8 +21,8 @@ install() {
   fi
 
   mkdir -p "${HOME}/opt/python"
-  source "${SCRIPT_DIR}/../sources/_first"
-  source "${SCRIPT_DIR}/../sources/_python"
+  source "${SCRIPT_DIR}/../sources/_01_first"
+  source "${SCRIPT_DIR}/../sources/_06_python"
 
   if ! command -v pip >/dev/null 2>&1; then
     return
