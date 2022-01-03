@@ -2,24 +2,54 @@
 
 [[ -z "${PS1:-}" ]] && return
 
-readonly BASHRC_PATH=$(python -c 'import sys; import os.path; print(os.path.realpath(sys.argv[1]))' "${BASH_SOURCE[0]}")
-readonly DOTFILES_PATH="$(dirname ${BASHRC_PATH})/.."
+set_locale() {
+  local LOCALES=("en_US.UTF-8" "en_US.utf8" "C.UTF-8" "C")
+  local ALL_LOCALES
+  ALL_LOCALES="$(locale -a)"
 
-# Setting locale for having correct sort of filename in sources/
-if [[ $(locale -a | grep "en_US.UTF-8" | wc -l) -eq 1 ]]; then
-  export LC_ALL="en_US.UTF-8"
-  export LANG="en_US.UTF-8"
-  export LANGUAGE="en_US.UTF-8"
-elif [[ $(locale -a | grep "C.UTF-8" | wc -l) -eq 1 ]]; then
-  export LC_ALL="C.UTF-8"
-  export LANG="C.UTF-8"
-  export LANGUAGE="C.UTF-8"
-fi
+  for locale in "${LOCALES[@]}"; do
+    if [[ $(echo "${ALL_LOCALES}" | grep --count "${locale}") -eq 1 ]]; then
+      export LC_ALL="${locale}"
+      export LANG="${locale}"
+      export LANGUAGE="${locale}"
 
-for file in "${DOTFILES_PATH}/sources/"*; do
-  [[ -r "${file}" ]] && [[ -f "${file}" ]] && source "${file}"
-done
+      return
+    fi
+  done
+
+  return 1
+}
+
+script_dir() {
+  local FILE_SOURCE="${BASH_SOURCE[0]}"
+
+  if [[ -L ${FILE_SOURCE} ]]; then
+    dirname "$(readlink "${FILE_SOURCE}")"
+  else
+    (
+      cd "$(dirname "${FILE_SOURCE}")" && pwd
+    )
+  fi
+}
+
+source_all() {
+  local SCRIPT_DIR
+  SCRIPT_DIR="$(script_dir)"
+
+  for file in "${SCRIPT_DIR}/../sources/"*; do
+    [[ -r ${file} ]] && [[ -f ${file} ]] && source "${file}"
+  done
+
+  var_color
+}
+
+set_locale
+source_all
 
 if [[ -e "${HOME}/.localrc" ]]; then
   source "${HOME}/.localrc"
 fi
+
+unset -f set_locale
+unset -f script_dir
+unset -f source_all

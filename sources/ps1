@@ -1,23 +1,27 @@
 #!/usr/bin/env bash
 
-RED="\[\033[01;91m\]"
-GREEN="\[\033[01;92m\]"
-BLUE="\[\033[0;94m\]"
-CYAN="\[\033[01;96m\]"
-PURPLE="\[\033[01;95m\]"
-RESET="\[\033[0m\]"
+var_color
 
-if command -v git > /dev/null 2>&1 && [[ $(type -t __git_ps1) = "function" ]]; then
-  GIT_PS1_SHOWDIRTYSTATE="true"
-  GIT_PS1_STATESEPARATOR="|"
-  GIT_PS1_SHOWSTASHSTATE="true"
-  GIT_PS1_SHOWUNTRACKEDFILES="true"
+export GIT_PS1_SHOWDIRTYSTATE="true"
+export GIT_PS1_STATESEPARATOR="|"
+export GIT_PS1_SHOWSTASHSTATE="true"
+export GIT_PS1_SHOWUNTRACKEDFILES="true"
+export GIT_PS1_COMPRESSSPARSESTATE="true"
 
-  GITINFO="${RED}\$(__git_ps1)${RESET}"
+export PROMPT_DIRTRIM="3"
+
+_previous_status() {
+  if [[ ${?} -eq 0 ]]; then
+    printf -- "%b✔%b" "${GREEN}" "${RESET}"
+  else
+    printf -- "%bx%b" "${RED}" "${RESET}"
+  fi
+}
+
+PS1="${GREEN}\u${RESET}@${YELLOW}\h${RESET} ${BLUE}\w${RESET}"
+if [[ "$(type -t __git_ps1)" == "function" ]]; then
+  PS1+="${RED}\$(__git_ps1)${RESET}"
 fi
 
-PS1="${GREEN}\u@\h${RESET} ${CYAN}\w${RESET}${RED}${GITINFO}${RESET}\n${PURPLE}>${RESET}"
-
-PROMPT_DIRTRIM=3
-
-export PS1="${PS1} "
+PS1+=" \$(_previous_status)\n> "
+export PS1

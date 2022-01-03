@@ -42,7 +42,7 @@
 	ui = true
 
 [alias]
-	last-tag = ! git describe --tag 2> /dev/null | awk -F "-" '{print $1}'
+	last-tag = ! git describe --abbrev=0 2> /dev/null
 	remote-repository = ! [[ \"$(git remote get-url --push $(git remote show | head -1))\" =~ ^.*@.*:(.*).git$ ]] && printf '%s' \"${BASH_REMATCH[1]}\"
 	changelog = ! git log --no-merges --pretty=format:'%Cred%h%Creset %s' "${2:-HEAD}...${1:-$(git last-tag)}"
 	current-branch = rev-parse --abbrev-ref HEAD
@@ -82,7 +82,7 @@
 	s = status -sb
 	st = status -sb
 	sweep = ! git prune && git remote prune origin && git branch --list --format '%(if:equals=[gone])%(upstream:track)%(then)%(refname:short)%(end)' | grep --extended-regexp --invert-match '^$' | xargs git branch --delete --force && git gc
-	tidy = rebase -i origin/master
+	tidy = ! git rebase --interactive "origin/$(git default-branch)"
 	undo = reset --soft HEAD^
 	unshallow = ! git remote set-branches origin '*' && git pull --unshallow
 	unstage = reset HEAD --

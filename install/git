@@ -2,6 +2,18 @@
 
 set -o nounset -o pipefail -o errexit
 
+script_dir() {
+  local FILE_SOURCE="${BASH_SOURCE[0]}"
+
+  if [[ -L ${FILE_SOURCE} ]]; then
+    dirname "$(readlink "${FILE_SOURCE}")"
+  else
+    (
+      cd "$(dirname "${FILE_SOURCE}")" && pwd
+    )
+  fi
+}
+
 install() {
   packages_install git
 
@@ -10,6 +22,9 @@ install() {
   fi
 
   local SCRIPT_DIR
-  SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  SCRIPT_DIR="$(script_dir)"
+
+  ln -s -f "${SCRIPT_DIR}/../scripts/git_coco" "${HOME}/opt/bin/git-coco"
+
   curl -q -sSL --max-time 30 -o "${SCRIPT_DIR}/../sources/git-prompt" "https://raw.githubusercontent.com/git/git/v$(git --version | awk '{print $3}')/contrib/completion/git-prompt.sh"
 }

@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# Inspired by https://github.com/mathiasbynens/dotfiles/blob/main/.macos
+
 set -o nounset -o pipefail
 
 install() {
@@ -90,15 +92,26 @@ install() {
 
     defaults write com.apple.NetworkBrowser BrowseAllInterfaces -bool true
 
-    defaults write com.apple.dock tilesize -int 36
     defaults write com.apple.dock autohide -bool true
     defaults write com.apple.dock autohide-delay -float 0
     defaults write com.apple.dock autohide-time-modifier -float 0
-    defaults write com.apple.dock showhidden -bool true
     defaults write com.apple.dock hide-mirror -bool true
+    defaults write com.apple.dock largesize -int 128
+    defaults write com.apple.dock launchanim -bool false
     defaults write com.apple.dock mineffect -string "scale"
     defaults write com.apple.dock minimize-to-application -bool true
-    defaults write com.apple.dock launchanim -bool false
+    defaults write com.apple.dock orientation -string "left"
+    defaults write com.apple.dock showhidden -bool true
+    defaults write com.apple.dock tilesize -int 36
+    defaults write com.apple.dock wvous-tl-modifier -int 1048576
+    defaults write com.apple.dock wvous-tr-modifier -int 1048576
+    defaults write com.apple.dock wvous-bl-modifier -int 1048576
+    defaults write com.apple.dock wvous-br-modifier -int 1048576
+    defaults write com.apple.dock wvous-tl-corner -int 1
+    defaults write com.apple.dock wvous-tr-corner -int 1
+    defaults write com.apple.dock wvous-bl-corner -int 1
+    defaults write com.apple.dock wvous-br-corner -int 1
+    killall Dock
 
     defaults write com.apple.TimeMachine DoNotOfferNewDisksForBackup -bool true
 
@@ -126,6 +139,8 @@ install() {
 
     sudo systemsetup -setrestartfreeze on
     sudo systemsetup -setwakeonnetworkaccess off
+    sudo systemsetup -f -setremotelogin off
+    sudo systemsetup -setcomputername macbook
 
     sudo pmset -a hibernatemode 0
     sudo pmset -a lidwake 1
@@ -149,12 +164,14 @@ install() {
     sudo scutil --set ComputerName macbook
     sudo scutil --set HostName macbook
     sudo scutil --set LocalHostName macbook
+    sudo networksetup -setcomputername macbook
 
+    sudo /usr/libexec/ApplicationFirewall/socketfilterfw --setallowsigned off
+    sudo /usr/libexec/ApplicationFirewall/socketfilterfw --setallowsignedapp off
     sudo /usr/libexec/ApplicationFirewall/socketfilterfw --setglobalstate on
     sudo /usr/libexec/ApplicationFirewall/socketfilterfw --setloggingmode on
     sudo /usr/libexec/ApplicationFirewall/socketfilterfw --setstealthmode on
-    sudo /usr/libexec/ApplicationFirewall/socketfilterfw --setallowsigned off
-    sudo /usr/libexec/ApplicationFirewall/socketfilterfw --setallowsignedapp off
+    sudo /usr/libexec/ApplicationFirewall/socketfilterfw --setblockall on
     sudo pkill -HUP socketfilterfw
 
     chflags nohidden "${HOME}/Library"

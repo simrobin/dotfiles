@@ -11,23 +11,32 @@ fi
 alias g='git'
 alias ...="git_root"
 
-git_info() {
-  git rev-parse --is-inside-work-tree &>/dev/null || return
-  branch=$(git symbolic-ref -q HEAD | sed -e 's|^refs/heads/||')
-  dirty=$(
-    git diff --quiet --ignore-submodules HEAD &>/dev/null
-    [ $? -eq 1 ] && echo -e "*"
-  )
+git_conventionnal_commits() {
+  var_color
 
-  echo " ("$branch$dirty")"
+  declare -gA CONVENTIONAL_COMMIT_SCOPES
+  CONVENTIONAL_COMMIT_SCOPES['build']='Changes that affect the build system or external dependencies'
+  CONVENTIONAL_COMMIT_SCOPES['chore']='Changes in the core of the repository'
+  CONVENTIONAL_COMMIT_SCOPES['ci']='Changes in Continuous Integration configuration files and scripts'
+  CONVENTIONAL_COMMIT_SCOPES['docs']='Documentation only changes'
+  CONVENTIONAL_COMMIT_SCOPES['feat']=$(printf 'A new feature for user %b(production change)%b' "${RED}" "${RESET}")
+  CONVENTIONAL_COMMIT_SCOPES['fix']=$(printf 'A bug fix for user %b(production change)%b' "${RED}" "${RESET}")
+  CONVENTIONAL_COMMIT_SCOPES['perf']=$(printf 'A performance improvement for user %b(production change)%b' "${RED}" "${RESET}")
+  CONVENTIONAL_COMMIT_SCOPES['refactor']=$(printf 'A change that is not a feature not a bug %b(production change)%b' "${RED}" "${RESET}")
+  CONVENTIONAL_COMMIT_SCOPES['style']='A change that do not affect the meaning of the code'
+  CONVENTIONAL_COMMIT_SCOPES['test']='A new test or correcting existing tests'
 }
 
 git_is_inside() {
-  git rev-parse --is-inside-work-tree 2>&1
+  if [[ $(git rev-parse --is-inside-work-tree 2>&1) == "true" ]]; then
+    return 0
+  fi
+
+  return 1
 }
 
 git_root() {
-  if [[ $(git_is_inside) != "true" ]]; then
+  if ! git_is_inside; then
     pwd
     return
   fi
@@ -39,22 +48,22 @@ git_browse() {
   while IFS= read -r -d '' dir; do
     (
       cd "${dir}" || return
-      if [[ $(git_is_inside) != "true" ]] || [[ $(pwd) != $(git_root) ]]; then
+      if ! git_is_inside || [[ $(pwd) != $(git_root) ]]; then
         return
       fi
 
-      echo "Running command in ${dir}"
+      var_info "Running command in ${dir}"
       eval "${@}"
     )
   done < <(find . -type d -maxdepth 1 -print0)
 }
 
 git_pull_all() {
-  git_browse 'git checkout master && git pull && git sweep'
+  git_browse 'git default && git pull && git sweep'
 }
 
 git_remote_repository() {
-  if [[ $(git_is_inside) != "true" ]]; then
+  if ! git_is_inside; then
     return
   fi
 
@@ -81,18 +90,207 @@ head_sync() {
   ssh -A "${REMOTE_SERVER}" "cd '${REMOTE_PATH}' && git reset HEAD . && git clean -f && git status -u -s | awk '{print \$2}' | xargs -r rm -rf && git checkout -- . && git fetch && git checkout '${branch}' && git pull"
 }
 
+git_is_commit_wip() {
+  if [[ ${1} =~ ^fixup\! ]]; then
+    return 0
+  fi
+
+  local WIP_REGEX='\bwip\b'
+  if [[ ${OSTYPE} =~ ^darwin ]]; then
+    WIP_REGEX="[[:<:]]wip[[:>:]]"
+  fi
+
+  if [[ ${1} =~ ${WIP_REGEX} ]]; then
+    return 0
+  fi
+
+  return 1
+}
+
+git_is_conventional_commit() {
+  git_conventionnal_commits
+
+  local SCOPES
+  printf -v SCOPES "%s|" "${!CONVENTIONAL_COMMIT_SCOPES[@]}"
+  SCOPES="${SCOPES%|}"
+
+  shopt -s nocasematch
+  if [[ ${1} =~ ^(revert:\ )?(${SCOPES})(\(.+\))?\!?:\ [a-zA-Z0-9\[\(]+ ]]; then
+    return 0
+  fi
+
+  return 1
+}
+
+git_is_valid_description() {
+  export COMMIT_MAX_LENGTH="70"
+
+  if [[ ${#1} -gt ${COMMIT_MAX_LENGTH} ]]; then
+    return 1
+  fi
+
+  return 0
+}
+
+git_conventionnal_commit_guidelines() {
+  var_color
+  git_conventionnal_commits
+
+  var_warning "Guidelines for prefixing commit message from conventionalcommits.org\n"
+
+  for prefix in "${!CONVENTIONAL_COMMIT_SCOPES[@]}"; do
+    printf "%b%s%b(component)%b:%b\n" "${GREEN}" "${prefix}" "${BLUE}" "${GREEN}" "${RESET}"
+    printf "\t%s\n" "${CONVENTIONAL_COMMIT_SCOPES[${prefix}]}"
+  done
+
+  var_warning "\n\nYou can add '!' before ':', for indicating breaking change"
+  printf "\n\t%bfeat%b(api)%b!%b:%b Adding mandatory parameter on signup\n\n" "${GREEN}" "${BLUE}" "${RED}" "${GREEN}" "${RESET}"
+
+  var_warning "\nYou can prefix with 'revert:' for indicating revert change"
+  printf "\n\t%brevert: %bfeat%b(api)%b:%b Adding mandatory parameter on signup\n\n" "${RED}" "${GREEN}" "${BLUE}" "${GREEN}" "${RESET}"
+}
+
+git_valid_description_guideline() {
+  var_color
+
+  var_warning "\nYou have to use a short commit description (max ${COMMIT_MAX_LENGTH:-70} characters). Current size is ${#1}"
+}
+
+git_last_tag() {
+  if ! git_is_inside; then
+    var_warning "not inside a git tree"
+    return 1
+  fi
+
+  git describe --tag 2>/dev/null | awk -F "-" '{printf("%s", $1)}'
+}
+
+git_changelog() {
+  var_color
+
+  git_conventionnal_commits
+
+  if [[ ${*} =~ ^-?help$ ]]; then
+    var_red "Usage: git_changelog [END_REF=HEAD] [START_REF=git_last_tag]"
+    return 1
+  fi
+
+  if ! git_is_inside; then
+    var_warning "not inside a git tree"
+    return 2
+  fi
+
+  local GIT_TO="${1:-HEAD}"
+  shift || true
+  local GIT_FROM="${1:-$(git_last_tag)}"
+  shift || true
+
+  local FEATURES=()
+  local FIXES=()
+  local MISC=()
+  local BREAKING=()
+
+  IFS=$'\n'
+
+  local SCOPES
+  printf -v SCOPES "%s|" "${!CONVENTIONAL_COMMIT_SCOPES[@]}"
+  SCOPES="${SCOPES%|}"
+
+  shopt -s nocasematch
+  for hash in $(git log --no-merges --pretty=format:'%h' "${GIT_TO}...${GIT_FROM}"); do
+    local VERSION_MESSAGE=""
+    local HASH=""
+    local TYPE=""
+    local BREAK=""
+
+    for line in $(git show --no-patch --format='%h %B' "${hash}" | grep --invert-match '^\s*$'); do
+      if [[ ${line} =~ \[skip\ ci\] ]]; then
+        continue
+      fi
+
+      if [[ -z ${VERSION_MESSAGE} ]] && [[ ${line} =~ ^([0-9a-f]{1,16})\ (revert )?(${SCOPES})(\(.+\))?(\!)?:\ (.*)$ ]]; then
+        HASH="${BASH_REMATCH[1]}"
+        local REVERT="${BASH_REMATCH[2]}"
+        TYPE="${BASH_REMATCH[3]}"
+        local COMPONENT="${BASH_REMATCH[4]}"
+        local CONTENT="${BASH_REMATCH[6]}"
+        BREAK="${BASH_REMATCH[5]}"
+
+        VERSION_MESSAGE="*"
+
+        if [[ -n ${REVERT} ]]; then
+          VERSION_MESSAGE+=" **reverted**"
+        fi
+
+        if [[ -n ${COMPONENT} ]]; then
+          VERSION_MESSAGE+=" *${COMPONENT}*"
+        fi
+
+        VERSION_MESSAGE+=" ${CONTENT}"
+      fi
+
+      if [[ -z ${VERSION_MESSAGE} ]]; then
+        break
+      fi
+
+      if [[ ${line} =~ ^BREAKING[-\ ]CHANGE:\ (.*)$ ]]; then
+        BREAKING+=("* ${BASH_REMATCH[1]}")
+        BREAK=""
+
+        continue
+      fi
+
+      if [[ ${line} =~ ^((closes?)|(fix(ed)?))\ (#[0-9]+)$ ]]; then
+        VERSION_MESSAGE+=" ${BASH_REMATCH[5]}"
+        HASH=""
+
+        continue
+      fi
+    done
+
+    if [[ -n ${VERSION_MESSAGE} ]]; then
+      if [[ -n ${HASH} ]]; then
+        VERSION_MESSAGE+=" ${HASH}"
+      fi
+
+      if [[ ${TYPE} == "feat" ]]; then
+        FEATURES+=("${VERSION_MESSAGE}")
+      elif [[ ${TYPE} == "fix" ]]; then
+        FIXES+=("${VERSION_MESSAGE}")
+      else
+        MISC+=("${VERSION_MESSAGE}")
+      fi
+
+      if [[ ${BREAK} == "!" ]]; then
+        BREAKING+=("${VERSION_MESSAGE}")
+      fi
+    fi
+  done
+
+  if [[ ${#FEATURES[@]} -gt 0 ]]; then
+    printf "# Features\n\n%s\n\n" "$(printf "%s\n" "${FEATURES[@]}")"
+  fi
+
+  if [[ ${#FIXES[@]} -gt 0 ]]; then
+    printf "# Fixes\n\n%s\n\n" "$(printf "%s\n" "${FIXES[@]}")"
+  fi
+
+  if [[ ${#MISC[@]} -gt 0 ]]; then
+    printf "# Miscellaneous\n\n%s\n\n" "$(printf "%s\n" "${MISC[@]}")"
+  fi
+
+  if [[ ${#BREAKING[@]} -gt 0 ]]; then
+    printf "# BREAKING CHANGES\n\n%s\n\n" "$(printf "%s\n" "${BREAKING[@]}")"
+  fi
+}
+
 git_sync() {
   if [[ "${#}" -lt 2 ]]; then
     echo "Usage: git_sync [REMOTE_SERVER] [REMOTE_PATH] [DRY]?"
     return 1
   fi
 
-  local RED='\033[0;31m'
-  local GREEN='\033[0;32m'
-  local YELLOW='\033[0;33m'
-  local BLUE='\033[0;34m'
-  local RESET='\033[0m'
-
+  var_color
   git_root
   isGit=$?
   if [[ ${isGit} -ne 0 ]]; then
