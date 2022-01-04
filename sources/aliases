@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# dotfiles directory shorcut
+alias dotfiles="cd ${HOME}/code/dotfiles"
+
 # Preferred 'mv' implementation
 alias mv='mv -iv'
 # Preferred 'mkdir' implementation
