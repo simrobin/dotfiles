@@ -41,7 +41,13 @@ create_symlinks() {
 }
 
 browse_install() {
-  while IFS= read -r -d $'\n' file; do
+  local BROWSED_FILES=()
+
+  while IFS= read -r -d '' file; do
+    if [[ ! -r ${file} ]]; then
+      continue
+    fi
+
     local BASENAME_FILE
     BASENAME_FILE="$(basename "${file}")"
 
@@ -57,21 +63,23 @@ browse_install() {
       continue
     fi
 
-    if [[ -r ${file} ]]; then
-      for action in "${@}"; do
-        unset -f "${action}"
-      done
+    BROWSED_FILES+=("${BASENAME_FILE}")
+  done < <(find "${CURRENT_DIR}/install" -type f -print0 | LC_ALL=C sort --zero-terminated)
 
-      source "${file}"
+  for BROWSED_FILE in "${BROWSED_FILES[@]}"; do
+    for action in "${@}"; do
+      unset -f "${action}"
+    done
 
-      for action in "${@}"; do
-        if [[ $(type -t "${action}") == "function" ]]; then
-          print_title "${action} - ${BASENAME_FILE}"
-          "${action}"
-        fi
-      done
-    fi
-  done < <(find "${CURRENT_DIR}/install" -type f -print | LC_ALL=C sort)
+    source "${CURRENT_DIR}/install/${BROWSED_FILE}"
+
+    for action in "${@}"; do
+      if [[ $(type -t "${action}") == "function" ]]; then
+        print_title "${action} - ${BROWSED_FILE}"
+        "${action}"
+      fi
+    done
+  done
 }
 
 main() {
