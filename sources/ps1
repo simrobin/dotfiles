@@ -18,9 +18,13 @@ _previous_status() {
   fi
 }
 
-PS1="${GREEN}\u${RESET}@${YELLOW}\h${RESET} ${BLUE}\w${RESET}"
+PS1="${BLUE}\u${RESET}@${RED}\h${RESET} ${GREEN}\w${RESET}"
 if [[ "$(type -t __git_ps1)" == "function" ]]; then
-  PS1+="${RED}\$(__git_ps1)${RESET}"
+  PS1+="${YELLOW}\$(__git_ps1)${RESET}"
+fi
+
+if [[ "$(type -t __kube_ps1)" == "function" ]]; then
+  PS1+="${BLUE}\$(__kube_ps1)${RESET}"
 fi
 
 PS1+=" \$(_previous_status)\n> "
