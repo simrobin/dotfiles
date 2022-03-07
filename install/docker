@@ -20,16 +20,5 @@ install() {
     return
   fi
 
-  local CTOP_VERSION="0.7.3"
-  local OS
-  OS="$(uname -s | tr "[:upper:]" "[:lower:]")"
-  local ARCH
-  ARCH="$(uname -m | tr "[:upper:]" "[:lower:]")"
-
-  if [[ ${ARCH} == "x86_64" ]]; then
-    ARCH="amd64"
-  fi
-
-  curl -q -sSL --max-time 300 -o "${HOME}/opt/bin/ctop" "https://github.com/bcicen/ctop/releases/download/v${CTOP_VERSION}/ctop-${CTOP_VERSION}-${OS}-${ARCH}"
-  chmod +x "${HOME}/opt/bin/ctop"
+  packages_install ctop
 }
