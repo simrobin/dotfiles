@@ -1,11 +1,19 @@
 #!/usr/bin/env bash
 
-if ! command -v docker > /dev/null 2>&1; then
-  return
+if command -v colima >/dev/null 2>&1; then
+  docker_start() {
+    colima start --runtime=containerd
+  }
 fi
 
-alias dcp='docker-compose'
+if command -v docker >/dev/null 2>&1; then
+  alias dcp='docker compose'
 
-docker-restart() {
-  docker start $(docker ps -a -q -f status=exited -f status=created 2>/dev/null) 2>/dev/null
-}
+  docker_clean() {
+    docker ps --all --quiet | xargs docker rm --force --volumes
+    docker images --quiet | xargs docker rmi --force
+    docker images --format '{{ .Repository }}:{{ .Tag}}' | xargs docker rmi --force
+    docker network ls --quiet | xargs docker network rm
+    docker volume ls --quiet | xargs docker volume rm
+  }
+fi
