@@ -48,7 +48,7 @@ ssh_agent_init() {
 if [[ -f ${SSH_ENV:-} ]]; then
   source "${SSH_ENV}"
 
-  if ! ps -p ${SSH_AGENT_PID:-} >/dev/null; then
+  if ! ps -p ${SSH_AGENT_PID:-} | grep "ssh-agent" >/dev/null; then
     ssh_agent_init
   fi
 else
