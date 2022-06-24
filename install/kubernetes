@@ -2,20 +2,30 @@
 
 set -o nounset -o pipefail -o errexit
 
+script_dir() {
+  local FILE_SOURCE="${BASH_SOURCE[0]}"
+
+  if [[ -L ${FILE_SOURCE} ]]; then
+    dirname "$(readlink "${FILE_SOURCE}")"
+  else
+    (
+      cd "$(dirname "${FILE_SOURCE}")" && pwd
+    )
+  fi
+}
+
+clean() {
+  rm -rf "${HOME}/.kube"
+}
+
 install() {
   local SCRIPT_DIR
-  SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  SCRIPT_DIR="$(script_dir)"
 
   local OS
-  OS="$(uname -s | tr "[:upper:]" "[:lower:]")"
+  OS="$(normalized_os)"
   local ARCH
-  ARCH="$(uname -m | tr "[:upper:]" "[:lower:]")"
-
-  if [[ ${ARCH} == "x86_64" ]]; then
-    ARCH="amd64"
-  elif [[ ${ARCH} =~ ^armv.l$ ]]; then
-    ARCH="arm"
-  fi
+  ARCH="$(normalized_arch "amd64" "arm" "arm64")"
 
   if [[ -e "${HOME}/.kube/config" ]]; then
     chmod 0600 "${HOME}/.kube/config"
@@ -24,10 +34,22 @@ install() {
   local KUBERNETES_VERSION
   KUBERNETES_VERSION="$(curl --disable --silent --show-error --location --max-time 30 "https://storage.googleapis.com/kubernetes-release/release/stable.txt")"
 
-  curl -q -sSL --max-time 300 -o "${HOME}/opt/bin/kubectl" "https://storage.googleapis.com/kubernetes-release/release/${KUBERNETES_VERSION}/bin/${OS}/${ARCH}/kubectl"
-  chmod +x "${HOME}/opt/bin/kubectl"
-
+  curl_to_binary "https://storage.googleapis.com/kubernetes-release/release/${KUBERNETES_VERSION}/bin/${OS}/${ARCH}/kubectl" "kubectl"
   kubectl completion bash >"${SCRIPT_DIR}/../sources/kubectl-completion"
 
-  packages_install kubectx
+  local HELM_VERSION="v3.9.0"
+  archive_to_binary "https://get.helm.sh/helm-${HELM_VERSION}-${OS}-${ARCH}.tar.gz" "${OS}-${ARCH}/helm"
+  if command -v helm >/dev/null 2>&1; then
+    helm completion bash >"${SCRIPT_DIR}/../sources/helm-completion"
+  else
+    var_error "helm was not found in path. Please run 'helm completion bash >'${SCRIPT_DIR}/../sources/helm-completion'"
+  fi
+
+  local KUBESEAL_VERSION="0.18.0"
+  archive_to_binary "https://github.com/bitnami-labs/sealed-secrets/releases/download/v${KUBESEAL_VERSION}/kubeseal-${KUBESEAL_VERSION}-${OS}-${ARCH}.tar.gz" "kubeseal"
+
+  if [[ ${ARCH} == "amd64" ]]; then
+    local KAIL_VERSION="0.15.0"
+    archive_to_binary "https://github.com/boz/kail/releases/download/v${KAIL_VERSION}/kail_${KAIL_VERSION}_${OS}_${ARCH}.tar.gz" "kail"
+  fi
 }
