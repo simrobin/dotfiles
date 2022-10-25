@@ -8,12 +8,14 @@ clean() {
     mkdir -p "${GOPATH}"
   fi
 
-  rm -rf "${HOME}/opt/go"
   rm -rf "${HOME}/.dlv"
+  rm -rf "${HOME}/opt/go"
+  rm -rf "${HOME}/pprof"
+  rm -rf "${HOME}/.mc"
 }
 
 install() {
-  local GO_VERSION="1.18"
+  local GO_VERSION="1.19.2"
 
   local OS
   OS="$(uname -s | tr "[:upper:]" "[:lower:]")"
