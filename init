@@ -128,7 +128,10 @@ main() {
 
   if [[ ${#ACTIONS[@]} -ne 0 ]]; then
     browse_install "${ACTIONS[@]}"
-    packages_clean
+
+    if [[ ! -n ${FILE_LIMIT} ]]; then
+      packages_clean
+    fi
   fi
 
   if [[ -z ${ARGS} ]] || [[ ${ARGS} =~ credentials ]]; then
