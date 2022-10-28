@@ -4,53 +4,14 @@
         "command": "workbench.files.action.showActiveFileInExplorer"
     },
     {
-        "key": "shift+cmd+d",
-        "command": "editor.action.copyLinesDownAction",
-        "when": "editorTextFocus && !editorReadonly"
-    },
-    {
-        "key": "ctrl+cmd+up",
-        "command": "editor.action.insertCursorAbove",
-        "when": "editorTextFocus"
-    },
-    {
-        "key": "alt+cmd+up",
-        "command": "-editor.action.insertCursorAbove",
-        "when": "editorTextFocus"
-    },
-    {
-        "key": "ctrl+cmd+down",
-        "command": "editor.action.insertCursorBelow",
-        "when": "editorTextFocus"
-    },
-    {
-        "key": "alt+cmd+down",
-        "command": "-editor.action.insertCursorBelow",
-        "when": "editorTextFocus"
-    },
-    {
-        "key": "cmd+shift+b",
-        "command": "workbench.action.tasks.runTask",
-        "args": "Test current file",
-        "when": "editorFocus && resourceFilename =~ /\\.test\\.jsx?$/"
-    },
-    {
         "key": "cmd+l",
         "command": "workbench.action.splitEditor"
-    },
-    {
-        "key": "cmd+`",
-        "command": "workbench.action.quickSwitchWindow"
-    },
-    {
-        "key": "cmd+shift+`",
-        "command": "workbench.action.quickSwitchWindow"
     },
     {
         "key": "f6",
         "command": "workbench.action.tasks.runTask",
         "args": "Test current file",
-        "when": "editorFocus && resourceFilename =~ /\\.?[Tt]est\\.jsx?$/"
+        "when": "editorFocus && resourceFilename =~ /\\.?[Tt]est\\.[jt]sx?$/"
     },
     {
         "key": "f5",

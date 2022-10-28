@@ -20,9 +20,6 @@
     "editor.tabCompletion": "on",
     "editor.minimap.enabled": false,
     "editor.rulers": [100],
-    "editor.codeActionsOnSave": {
-        "source.fixAll": true
-    },
     "editor.bracketPairColorization.enabled": true,
     "editor.guides.bracketPairs":"active",
 
@@ -61,7 +58,6 @@
     },
     "search.exclude": {
         "**/node_modules": true,
-        "**/bower_components": true,
         "**/bin/": true,
         "**/vendor/": true,
         "**/vendors/": true,
@@ -74,18 +70,33 @@
 
     // File types
     "[javascript]": {
+        "editor.codeActionsOnSave": {
+            "source.fixAll": true
+        },
         "editor.defaultFormatter": "dbaeumer.vscode-eslint"
     },
     "[javascriptreact]": {
+        "editor.codeActionsOnSave": {
+            "source.fixAll": true
+        },
         "editor.defaultFormatter": "dbaeumer.vscode-eslint"
     },
     "[typescript]": {
+        "editor.codeActionsOnSave": {
+            "source.fixAll": true
+        },
         "editor.defaultFormatter": "dbaeumer.vscode-eslint"
     },
     "[typescriptreact]": {
+        "editor.codeActionsOnSave": {
+            "source.fixAll": true
+        },
         "editor.defaultFormatter": "dbaeumer.vscode-eslint"
     },
     "[dockerfile]": {
+        "editor.codeActionsOnSave": {
+            "source.fixAll": true
+        },
         "editor.defaultFormatter": "ms-azuretools.vscode-docker"
     },
 

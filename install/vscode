@@ -10,7 +10,7 @@ install() {
     packages_install_desktop visual-studio-code
   fi
 
-  if [[ -f "${HOME:?}/Library/Application Support/Code/User/keybindings.json" ]] && [[ -f "${SCRIPT_DIR}/../vscode/keybindings.json" ]]; then
+  if [[ -d "${HOME:?}/Library/Application Support/Code/User" ]] && [[ -f "${SCRIPT_DIR}/../vscode/keybindings.json" ]]; then
     cp "${SCRIPT_DIR}/../vscode/keybindings.json" "${HOME:?}/Library/Application Support/Code/User/keybindings.json"
   fi
 
@@ -18,7 +18,6 @@ install() {
     local EXTENSIONS=(
       "alefragnani.project-manager"
       "artdiniz.quitcontrol-vscode"
-      "casualjim.gotemplate"
       "dbaeumer.vscode-eslint"
       "donjayamanne.githistory"
       "EditorConfig.EditorConfig"
@@ -27,10 +26,9 @@ install() {
       "golang.go"
       "ms-azuretools.vscode-docker"
       "MS-CEINTL.vscode-language-pack-fr"
-      "ms-python.python"
-      "msjsdiag.debugger-for-chrome"
       "pflannery.vscode-versionlens"
       "PKief.material-icon-theme"
+      "stylelint.vscode-stylelint"
       "syler.sass-indented"
       "waderyan.gitblame"
       "wesbos.theme-cobalt2"
