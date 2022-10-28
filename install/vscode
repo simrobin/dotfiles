@@ -18,6 +18,7 @@ install() {
     local EXTENSIONS=(
       "alefragnani.project-manager"
       "artdiniz.quitcontrol-vscode"
+      "cmstead.jsrefactor"
       "dbaeumer.vscode-eslint"
       "donjayamanne.githistory"
       "EditorConfig.EditorConfig"
@@ -28,6 +29,7 @@ install() {
       "MS-CEINTL.vscode-language-pack-fr"
       "pflannery.vscode-versionlens"
       "PKief.material-icon-theme"
+      "streetsidesoftware.code-spell-checker"
       "stylelint.vscode-stylelint"
       "syler.sass-indented"
       "waderyan.gitblame"
