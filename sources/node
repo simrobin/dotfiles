@@ -15,7 +15,7 @@ export NODE_ICU_DATA="${HOME}/opt/node/lib/node_modules/full-icu"
 
 if command -v pnpm > /dev/null 2>&1; then
   export PNPM_HOME="${HOME}/Library/pnpm"
-  export PATH="$P{NPM_HOME}:${PATH}"
+  export PATH="${PNPM_HOME}:${PATH}"
 fi
 
 alias npmi="npm install --no-save"

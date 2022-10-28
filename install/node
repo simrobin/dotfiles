@@ -53,5 +53,5 @@ install() {
     return
   fi
 
-  npm install --ignore-scripts -g npm npm-check-updates node-gyp yarn full-icu
+  npm install --ignore-scripts -g npm npm-check-updates node-gyp full-icu pnpm yarn @antfu/ni tldr
 }
