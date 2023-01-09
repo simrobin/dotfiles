@@ -140,7 +140,7 @@ install() {
     sudo systemsetup -setrestartfreeze on
     sudo systemsetup -setwakeonnetworkaccess off
     sudo systemsetup -f -setremotelogin off
-    sudo systemsetup -setcomputername macbook
+    sudo systemsetup -setcomputername simrobin-macbook
 
     sudo pmset -a hibernatemode 0
     sudo pmset -a lidwake 1
@@ -150,7 +150,7 @@ install() {
     sudo pmset -c displaysleep 10
     sudo pmset -c sleep 15
 
-    sudo mdutil -a -d -i off
+    # sudo mdutil -a -d -i off
     sudo mdutil -X "/"
     sudo mdutil -X "/System/Volumes/Data"
 
@@ -161,10 +161,10 @@ install() {
     sudo defaults write /Library/Preferences/com.apple.mDNSResponder.plist NoMulticastAdvertisements -bool true
 
     sudo nvram SystemAudioVolume=" "
-    sudo scutil --set ComputerName macbook
-    sudo scutil --set HostName macbook
-    sudo scutil --set LocalHostName macbook
-    sudo networksetup -setcomputername macbook
+    sudo scutil --set ComputerName simrobin-macbook
+    sudo scutil --set HostName simrobin-macbook
+    sudo scutil --set LocalHostName simrobin-macbook
+    sudo networksetup -setcomputername simrobin-macbook
 
     sudo /usr/libexec/ApplicationFirewall/socketfilterfw --setallowsigned off
     sudo /usr/libexec/ApplicationFirewall/socketfilterfw --setallowsignedapp off
