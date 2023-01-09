@@ -46,12 +46,15 @@ install() {
   source "${SCRIPT_DIR}/../sources/_01_first"
   source "${SCRIPT_DIR}/../sources/node"
 
-  local NODE_VERSION="lts"
+  local NODE_VERSION="20"
   n "${NODE_VERSION}"
 
   if ! command -v npm >/dev/null 2>&1; then
     return
   fi
 
-  npm install --ignore-scripts -g npm npm-check-updates node-gyp full-icu pnpm yarn @antfu/ni tldr
+  npm install --ignore-scripts -g npm npm-check-updates node-gyp full-icu pnpm@8 yarn @antfu/ni tldr ngrok commitizen cz-emoji
+
+  # fix broken cz-emoji lib
+  sed -i '' 's/type.code === emoji.emoji/type.name === emoji.name/g' $(npm -g prefix)/lib/node_modules/cz-emoji/index.js
 }
