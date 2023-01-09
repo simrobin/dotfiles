@@ -9,9 +9,21 @@ install() {
   cat \
     <(curl -q -sS -L "https://raw.githubusercontent.com/StevenBlack/hosts/master/alternates/fakenews-gambling-porn/hosts") \
     <(curl -q -sS -L "https://someonewhocares.org/hosts/zero/hosts") \
-    <(echo "127.0.0.1 ${DOTFILES_HOSTNAME}") |
+    <(echo "127.0.0.1 ${DOTFILES_HOSTNAME}") \
+    <(echo "127.0.0.1 dev.yousign.io") |
     grep -E -v '^$' |
     grep -E -v '^\s*#' |
+    grep -E -v 'segment' |
+    grep -E -v 'mixpanel' |
+    grep -E -v 'mxpnl' |
+    grep -E -v 'googletagmanager' |
+    grep -E -v 'visualwebsiteoptimizer' |
+    grep -E -v 'js.hs' |
+    grep -E -v 'hs-scripts' |
+    grep -E -v 'hs-analytics' |
+    grep -E -v 'hsleadflows' |
+    grep -E -v 'hubspot' |
+    grep -E -v 'vwo' |
     grep -E '^(0.0.0.0|127.0.0.1|255.255.255.255|::1|fe00::|ff02::)' |
     tr -s '[:blank:]' ' ' |
     sort |

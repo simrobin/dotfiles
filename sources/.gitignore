@@ -1,4 +1,4 @@
 git-prompt
 kubectl-completion
-colima-completion
+orbctl-completion
 helm-completion
