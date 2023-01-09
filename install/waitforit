@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+set -o nounset -o pipefail -o errexit
+
+install() {
+  local WAITFORIT_VERSION="v2.4.1"
+  curl_to_binary "https://github.com/maxcnunes/waitforit/releases/download/${WAITFORIT_VERSION}/waitforit-darwin_amd64" "waitforit"
+}

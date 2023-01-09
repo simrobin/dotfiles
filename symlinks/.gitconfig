@@ -7,6 +7,9 @@
 	login = simrobin
 	signingkey = A5BF1F40BEDB1EEC
 
+[includeIf "hasconfig:remote.*.url:ssh://git@*.yousign.*:*/**"]
+	path = ~/.gitconfig_work
+
 [core]
 	editor = zed --wait
 	autocrlf = input
