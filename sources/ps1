@@ -27,5 +27,11 @@ if [[ "$(type -t __kube_ps1)" == "function" ]]; then
   PS1+="${BLUE}\$(__kube_ps1)${RESET}"
 fi
 
-PS1+=" \$(_previous_status)\n> "
+PS1+=" \$(_previous_status)"
+
+# Warp Terminal does not support multiple line PS1 yet
+if [[ "${TERM_PROGRAM}" != "WarpTerminal" ]]; then
+  PS1+="\n> "
+fi
+
 export PS1
