@@ -10,7 +10,22 @@ HOSTS_BLOCKLISTS=(
 
 # Patterns to exclude from blocklists (one per line, matched with grep -E)
 # Set to empty string to disable exclusions
-HOSTS_EXCLUDE=""
+HOSTS_EXCLUDE="
+segment
+mixpanel
+mxpnl
+googletagmanager
+visualwebsiteoptimizer
+js.hs
+hs-scripts
+hs-analytics
+hsleadflows
+hubspot
+criteo
+vwo
+bing
+affilae
+"
 
 # Optional local overrides file (unversioned, raw hosts lines appended at the end)
 HOSTS_LOCAL="${HOME}/.hosts.local"
