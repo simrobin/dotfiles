@@ -13,11 +13,6 @@ alt_send_esc: false
 selection:
   save_to_clipboard: true
 
-shell:
-  program: /usr/local/bin/bash
-  args:
-    - --login
-
 colors:
   primary:
     background: '0x173347'
