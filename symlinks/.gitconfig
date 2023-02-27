@@ -65,6 +65,7 @@
 	df = diff -w
 	f = fetch
 	fco = "! git switch \"$(git branch -vv --all | fzf --height 20 --ansi -1 --reverse --query=\"remotes/${1:-}\" | awk '{print $1}' | sed 's|^remotes/origin/||')\" #"
+	fco-author = "! git switch \"$(git branch --all --format \"%(color:red)%(refname:short)%(color:reset) %(subject) %(color:magenta)%(authordate)%(color:reset) %(color:bold blue)<%(authorname)>%(color:reset)\" | fzf --ansi --height 20 --ansi -1 --reverse --query=\"${1:-$(git config user.name)}\" | awk '{print $1}' | sed 's|^remotes/origin/||')\" #"
 	filehistory = log-pretty --
 	linehistory = log-pretty -L
 	find = log-pretty -S
