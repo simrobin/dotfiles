@@ -41,6 +41,16 @@ if command -v pass > /dev/null 2>&1; then
   }
   [ -n "${BASH}" ] && complete -F _fzf_complete_pass -o default -o bashdefault passfor
 
+  function otpfor() {
+    pass otp -c "${1}"
+
+    read -s -p "  Press enter for password"
+    echo ""
+
+    pass -c "${1}"
+  }
+  [ -n "${BASH}" ] && complete -F _fzf_complete_pass -o default -o bashdefault otpfor
+
   function loginfor() { # Will only work in OSX because it uses pbcopy, fallback to passfor in other systems
     if [[ "${OSTYPE}" =~ ^darwin ]]; then
       local login="$(pass show "${1}" | grep '^login:')"
