@@ -1,12 +1,9 @@
 #!/usr/bin/env bash
 
 if command -v brew >/dev/null 2>&1; then
-  PYTHON_PATH="${BREW_PREFIX}/opt/python/libexec/bin"
-  export PATH="${PYTHON_PATH}:${PATH}"
-  unset PYTHON_PATH
+   export PATH="${BREW_PREFIX:-}/opt/python/libexec/bin:${PATH}"
 fi
 
 if [[ -d "${HOME}/opt/python" ]]; then
-  export PYTHONUSERBASE="${HOME}/opt/python"
-  export PATH="${PYTHONUSERBASE}/bin:${PATH}"
+  export PATH="${HOME}/opt/python/venv/bin:${PATH}"
 fi

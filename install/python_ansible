@@ -30,5 +30,5 @@ install() {
     exit
   fi
 
-  pip install --user ansible ansible-lint jmespath yamllint
+  pip install ansible ansible-lint jmespath yamllint
 }
