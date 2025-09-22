@@ -124,3 +124,101 @@ EOT
 alias finderRestart='sudo killall Finder >/dev/null 2>&1'
 alias finderShowHidden='defaults write com.apple.finder AppleShowAllFiles -bool true && finderRestart'
 alias finderHideHidden='defaults write com.apple.finder AppleShowAllFiles -bool false  && finderRestart'
+
+generate_pdf() {
+  # Prompt for the number of pages
+  read -p "Enter the number of pages [default=1]: " PAGES
+  local PAGES=${PAGES:-1}
+
+  # Prompt for the output file name
+  read -p "Enter the output file name [default=generated.pdf]: " FILENAME
+
+  # Add pdf extension if not present
+  if [[ $FILENAME != *".pdf" ]]; then
+    FILENAME="$FILENAME.pdf"
+  fi
+
+  # Prompt for the password (if needed)
+  read -p "Enter the password [default=none]: " PASSWORD
+  local PASSWORD=${PASSWORD:-none}
+
+  # PDF header
+  echo "%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [" > $FILENAME
+
+  # Generate page references
+  for i in $(seq 4 $((3 + PAGES)))
+  do
+    echo "$i 0 R " >> $FILENAME
+  done
+
+  # Continue PDF header
+  echo "] /Count $PAGES >>
+endobj" >> $FILENAME
+
+    # Font object
+    echo "3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj" >> $FILENAME
+
+  # Generate pages
+  for i in $(seq 4 $((3 + PAGES)))
+  do
+    CONTENT_INDEX=$((PAGES + i))
+    echo "$i 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R >> >> /Contents $CONTENT_INDEX 0 R >>
+endobj" >> $FILENAME
+  done
+
+  # Generate contents
+  for i in $(seq 1 $PAGES)
+  do
+    CONTENT_INDEX=$((3 + PAGES + i))
+    PAGE_TEXT="Page $i"
+    CONTENT="BT /F1 48 Tf 0 0 0 rg 297 421 Td ($PAGE_TEXT) Tj ET"
+    CONTENT_LENGTH=${#CONTENT}
+    echo "$CONTENT_INDEX 0 obj
+<< /Length $CONTENT_LENGTH >>
+stream
+$CONTENT
+endstream
+endobj" >> $FILENAME
+  done
+
+  # xref table
+  echo "xref
+0 $((3 + 2 * PAGES))
+0000000000 65535 f" >> $FILENAME
+
+  OFFSET=9
+  for i in $(seq 1 $((3 + 2 * PAGES)))
+  do
+    printf "%010d 00000 n\n" $OFFSET >> $FILENAME
+    OFFSET=$(($OFFSET + $(awk "NR==$i{print length(\$0)+1}" $FILENAME)))
+  done
+
+  # Trailer
+  echo "trailer
+<< /Size $((3 + 2 * PAGES)) /Root 1 0 R >>
+startxref
+$OFFSET
+%%EOF" >> $FILENAME
+
+if [ "$PASSWORD" != "none" ]; then
+  if [ command -v qpdf >/dev/null 2>&1 ]; then
+    echo "qpdf is not installed. Please install it to encrypt the PDF."
+    return
+  fi
+  qpdf --encrypt $PASSWORD $PASSWORD 256 -- $FILENAME ${FILENAME%.*}-encrypted.pdf 2>/dev/null 1>&2
+  rm $FILENAME
+  mv ${FILENAME%.*}-encrypted.pdf $FILENAME
+elif [ command -v qpdf >/dev/null 2>&1 ]; then
+  qpdf -- $FILENAME ${FILENAME%.*}-cleaned.pdf 2>/dev/null 1>&2
+  rm $FILENAME
+  mv ${FILENAME%.*}-cleaned.pdf $FILENAME
+fi
+}
