@@ -1,4 +1,2 @@
 git-prompt
-kubectl-completion
-colima-completion
-helm-completion
+*-completion
