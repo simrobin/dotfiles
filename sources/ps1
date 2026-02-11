@@ -2,15 +2,107 @@
 
 var_color
 
-export GIT_PS1_SHOWDIRTYSTATE="true"
-export GIT_PS1_STATESEPARATOR="|"
-export GIT_PS1_SHOWSTASHSTATE="true"
-export GIT_PS1_SHOWUNTRACKEDFILES="true"
-export GIT_PS1_COMPRESSSPARSESTATE="true"
-
 export PROMPT_DIRTRIM="3"
 
-_previous_status() {
+PS1=""
+
+# Show username if different than logname
+if [[ $(logname 2>/dev/null) != "$(id -un)" ]]; then
+  PS1+="${BLUE}\u${RESET}"
+fi
+
+# Show hostname if SSH
+if [[ -n ${SSH_CONNECTION:-} ]]; then
+  PS1+="@${RED}\h${RESET}"
+fi
+
+if [[ -n ${PS1} ]]; then
+  PS1+=" "
+fi
+
+PS1+="${GREEN}\w${RESET}"
+
+# Custom __git_ps1: single git status call, much faster in monorepos
+# Replaces git-prompt.sh which runs multiple commands and uses slow -uall flag
+__git_ps1() {
+  local exit="${?}"
+
+  if [[ $(git rev-parse --is-inside-work-tree 2>&1) == "true" ]]; then
+    local _GIT_STATUS_BRANCH
+    local _GIT_LOCAL_CHANGE=0
+
+    # Single command gets branch, staged, unstaged, conflicts, untracked, stash
+    # --untracked-files=normal is key: doesn't enumerate all files like -uall
+    while read -r line; do
+      if [[ ${line} =~ ^#\ branch\.head\ (.*) ]]; then
+        _GIT_STATUS_BRANCH="${BASH_REMATCH[1]}"
+      fi
+
+      # Unstaged changes (second char is status)
+      if [[ ${line} =~ ^[1|2]\ .[MTADRC] ]]; then
+        _GIT_LOCAL_CHANGE=$((_GIT_LOCAL_CHANGE | 1))
+      fi
+
+      # Staged changes (first char is status)
+      if [[ ${line} =~ ^[1|2]\ [MTADRC] ]]; then
+        _GIT_LOCAL_CHANGE=$((_GIT_LOCAL_CHANGE | 2))
+      fi
+
+      # Merge conflicts
+      if [[ ${line} =~ ^u ]]; then
+        _GIT_LOCAL_CHANGE=$((_GIT_LOCAL_CHANGE | 4))
+      fi
+
+      # Untracked files
+      if [[ ${line} =~ ^\? ]]; then
+        _GIT_LOCAL_CHANGE=$((_GIT_LOCAL_CHANGE | 8))
+      fi
+
+      # Stash entries
+      if [[ ${line} =~ ^#\ stash ]]; then
+        _GIT_LOCAL_CHANGE=$((_GIT_LOCAL_CHANGE | 16))
+      fi
+    done <<<"$(git status --porcelain=v2 --branch --show-stash --untracked-files=normal)"
+
+    local _GIT_STATUS_FILES=""
+
+    if [[ $((_GIT_LOCAL_CHANGE & 1)) -ne 0 ]]; then
+      _GIT_STATUS_FILES+="*"
+    fi
+
+    if [[ $((_GIT_LOCAL_CHANGE & 2)) -ne 0 ]]; then
+      _GIT_STATUS_FILES+="+"
+    fi
+
+    if [[ $((_GIT_LOCAL_CHANGE & 4)) -ne 0 ]]; then
+      _GIT_STATUS_FILES+="💥"
+    fi
+
+    if [[ $((_GIT_LOCAL_CHANGE & 8)) -ne 0 ]]; then
+      _GIT_STATUS_FILES+="$"
+    fi
+
+    if [[ $((_GIT_LOCAL_CHANGE & 16)) -ne 0 ]]; then
+      _GIT_STATUS_FILES+="%"
+    fi
+
+    if [[ -n ${_GIT_STATUS_FILES} ]]; then
+      _GIT_STATUS_FILES="|${_GIT_STATUS_FILES}"
+    fi
+
+    printf -- " (%s%s)" "${_GIT_STATUS_BRANCH}" "${_GIT_STATUS_FILES}"
+  fi
+
+  return "${exit}"
+}
+
+PS1+="${YELLOW}\$(__git_ps1)${RESET}"
+
+if [[ "$(type -t __kube_ps1)" == "function" ]]; then
+  PS1+="${BLUE}\$(__kube_ps1)${RESET}"
+fi
+
+__previous_status_ps1() {
   if [[ ${?} -eq 0 ]]; then
     printf -- "%b✔%b" "${GREEN}" "${RESET}"
   else
@@ -18,20 +110,39 @@ _previous_status() {
   fi
 }
 
-PS1="${BLUE}\u${RESET}@${RED}\h${RESET} ${GREEN}\w${RESET}"
-if [[ "$(type -t __git_ps1)" == "function" ]]; then
-  PS1+="${YELLOW}\$(__git_ps1)${RESET}"
-fi
+PS1+=' $(__previous_status_ps1)'
 
-if [[ "$(type -t __kube_ps1)" == "function" ]]; then
-  PS1+="${BLUE}\$(__kube_ps1)${RESET}"
-fi
+# Command elapsed time display
+human_duration() {
+  ((h = ${1} / 3600))
+  if [[ ${h} -gt 0 ]]; then
+    printf -- "%dh" "${h}"
+  fi
 
-PS1+=" \$(_previous_status)"
+  ((m = (${1} % 3600) / 60))
+  if [[ ${m} -gt 0 ]]; then
+    printf -- "%dm" "${m}"
+  fi
 
-# Warp Terminal does not support multiple line PS1 yet
-if [[ "${TERM_PROGRAM}" != "WarpTerminal" ]]; then
-  PS1+="\n> "
-fi
+  ((s = ${1} % 60))
+  printf -- "%ds" "${s}"
+}
+
+__elapsed_ps1() {
+  local _START="${1}"
+
+  if [[ ${_START} -gt 0 ]]; then
+    local _ELAPSED=$((EPOCHSECONDS - _START))
+
+    if [[ ${_ELAPSED} -gt 0 ]]; then
+      printf -- "⏳%s" "$(human_duration "${_ELAPSED}")"
+    fi
+  fi
+}
+
+# PS0 captures command start time, PS1 shows elapsed
+PS0='${PS1:PS0time=${EPOCHSECONDS}:0}'
+
+PS1+=" \$(__elapsed_ps1 \${PS0time})\${PS0:PS0time=0:0}\n> "
 
 export PS1
