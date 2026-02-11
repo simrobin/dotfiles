@@ -21,10 +21,10 @@ install() {
     return
   fi
 
+  packages_install git-delta
+
   local SCRIPT_DIR
   SCRIPT_DIR="$(script_dir)"
-
-  ln -s -f "${SCRIPT_DIR}/../scripts/git_coco" "${HOME}/opt/bin/git-coco"
 
   curl -q -sSL --max-time 30 -o "${SCRIPT_DIR}/../sources/git-prompt" "https://raw.githubusercontent.com/git/git/v$(git --version | awk '{print $3}')/contrib/completion/git-prompt.sh"
 }

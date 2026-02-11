@@ -15,8 +15,8 @@ script_dir() {
 }
 
 install() {
-  local PACKAGES=('bash' 'bash-completion' 'make' 'htop' 'openssl' 'curl' 'ncdu' 'jq' 'yq')
-  local PACKAGES_DESKTOP=('iterm2' 'rectangle' 'google-chrome' 'signal')
+  local PACKAGES=('bash' 'bash-completion@2' 'make' 'htop' 'openssl' 'curl' 'ncdu' 'jq' 'yq')
+  local PACKAGES_DESKTOP=('rectangle' 'google-chrome' 'raycast' 'zed' 'appcleaner' 'slack' 'notion' 'figma')
 
   if [[ ${OSTYPE} =~ ^darwin ]]; then
     cat >"${HOME}/.bash_profile" <<END_OF_BASH_PROFILE

@@ -8,10 +8,11 @@
 	signingkey = A5BF1F40BEDB1EEC
 
 [core]
-	editor = code --wait
+	editor = zed --wait
 	autocrlf = input
 	excludesfile = ~/.gitignore_global
 	ignorecase = false
+	pager = delta
 
 [color]
 	ui = true
@@ -19,6 +20,14 @@
 [diff]
 	mnemonicprefix = true
 	wordRegex = .
+    diffFilter = delta --color-only
+
+[delta]
+    navigate = true  # use n and N to move between diff sections
+    dark = true      # or light = true, or omit for auto-detection
+
+[merge]
+    conflictStyle = zdiff3
 
 [pull]
 	rebase = merges
