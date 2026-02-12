@@ -2,20 +2,54 @@
 
 set -o nounset -o pipefail
 
+# Blocklist sources
+HOSTS_BLOCKLISTS=(
+  "https://raw.githubusercontent.com/StevenBlack/hosts/master/alternates/fakenews-gambling-porn/hosts"
+  "https://someonewhocares.org/hosts/zero/hosts"
+)
+
+# Patterns to exclude from blocklists (one per line, matched with grep -E)
+# Set to empty string to disable exclusions
+HOSTS_EXCLUDE=""
+
+# Optional local overrides file (unversioned, raw hosts lines appended at the end)
+HOSTS_LOCAL="${HOME}/.hosts.local"
+
 install() {
   local DOTFILES_HOSTNAME
   DOTFILES_HOSTNAME="$(hostname)"
 
-  cat \
-    <(curl -q -sS -L "https://raw.githubusercontent.com/StevenBlack/hosts/master/alternates/fakenews-gambling-porn/hosts") \
-    <(curl -q -sS -L "https://someonewhocares.org/hosts/zero/hosts") \
-    <(echo "127.0.0.1 ${DOTFILES_HOSTNAME}") |
+  # Build exclude pattern from the list (skip blank lines)
+  local exclude_pattern
+  exclude_pattern="$(printf '%s\n' "${HOSTS_EXCLUDE}" | grep -v '^$' | paste -sd '|' -)"
+
+  # Fetch blocklists
+  local blocklist
+  blocklist="$(
+    for url in "${HOSTS_BLOCKLISTS[@]}"; do
+      curl -q -sS -L "${url}"
+    done
+  )"
+
+  # Assemble, filter, and deduplicate
+  {
+    printf '%s\n' "${blocklist}"
+    echo "0.0.0.0 ${DOTFILES_HOSTNAME}"
+  } |
     grep -E -v '^$' |
     grep -E -v '^\s*#' |
+    if [[ -n "${exclude_pattern}" ]]; then grep -E -v "${exclude_pattern}"; else cat; fi |
     grep -E '^(0.0.0.0|127.0.0.1|255.255.255.255|::1|fe00::|ff02::)' |
     tr -s '[:blank:]' ' ' |
-    sort |
-    uniq |
+    sort -u |
     grep -v "ɢ" |
+    {
+      cat
+      # Append local overrides if the file exists
+      if [[ -f "${HOSTS_LOCAL}" ]]; then
+        printf '\n# Local overrides from %s\n' "${HOSTS_LOCAL}"
+        cat "${HOSTS_LOCAL}"
+      fi
+    } |
     sudo tee /etc/hosts >/dev/null
 }
