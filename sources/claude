@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+if ! command -v claude > /dev/null 2>&1; then
+  return
+fi
+
+alias cc='claude'
+alias ccc='claude --continue'
+alias ccr='claude --resume'
