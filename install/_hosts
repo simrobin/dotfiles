@@ -21,7 +21,7 @@ install() {
 
   # Build exclude pattern from the list (skip blank lines)
   local exclude_pattern
-  exclude_pattern="$(printf '%s\n' "${HOSTS_EXCLUDE}" | grep -v '^$' | paste -sd '|' -)"
+  exclude_pattern="$(printf '%s\n' "${HOSTS_EXCLUDE}" | { grep -v '^$' || true; } | paste -sd '|' -)"
 
   # Fetch blocklists
   local blocklist

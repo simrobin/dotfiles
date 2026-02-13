@@ -20,14 +20,16 @@
 [diff]
 	mnemonicprefix = true
 	wordRegex = .
-    diffFilter = delta --color-only
+	diffFilter = delta --color-only
 
 [delta]
-    navigate = true  # use n and N to move between diff sections
-    dark = true      # or light = true, or omit for auto-detection
+	navigate = true
+	dark = true
+	line-numbers = true
+	side-by-side = true
 
 [merge]
-    conflictStyle = zdiff3
+	conflictStyle = zdiff3
 
 [pull]
 	rebase = merges
@@ -46,9 +48,6 @@
 
 [log]
 	abbrevCommit = true
-
-[color]
-	ui = true
 
 [alias]
 	last-tag = ! git describe --abbrev=0 2> /dev/null
