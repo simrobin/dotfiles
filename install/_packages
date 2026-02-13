@@ -15,7 +15,7 @@ script_dir() {
 }
 
 install() {
-  local PACKAGES=('bash' 'bash-completion@2' 'make' 'htop' 'openssl' 'curl' 'ncdu' 'jq' 'yq')
+  local PACKAGES=('bash' 'bash-completion@2' 'make' 'htop' 'openssl' 'curl' 'ncdu' 'jq' 'yq' 'eza' 'bat' 'fd' 'zoxide' 'shellcheck')
   local PACKAGES_DESKTOP=('rectangle' 'google-chrome' 'raycast' 'zed' 'appcleaner' 'slack' 'notion' 'figma')
 
   if [[ ${OSTYPE} =~ ^darwin ]]; then
