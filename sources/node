@@ -25,5 +25,15 @@ alias npms="npm run start"
 alias npmt="npm run test"
 alias npmq="npm run quality"
 
+if command -v pnpm > /dev/null 2>&1; then
+  alias pi="pnpm install"
+  alias pa="pnpm add"
+  alias pad="pnpm add -D"
+  alias pb="pnpm build"
+  alias pd="pnpm dev"
+  alias pt="pnpm test"
+  alias px="pnpm dlx"
+fi
+
 # See https://github.com/zloirock/core-js/blob/d986c210528e1226b7f1e813856d5329ab04a991/packages/core-js/postinstall.js#L7
 export ADBLOCK=1

@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+# Open localhost on given port (default 3000)
+localhost() {
+  open "http://localhost:${1:-3000}"
+}
+
+# Kill process running on a given port
+killport() {
+  if [[ -z "${1:-}" ]]; then
+    echo "Usage: killport PORT"
+    return 1
+  fi
+  lsof -ti :"${1}" | xargs kill -9 2>/dev/null || echo "No process on port ${1}"
+}
+
+# List all node_modules directories and their sizes
+nm_sizes() {
+  find "${1:-.}" -name 'node_modules' -type d -prune -exec du -sh {} \; | sort -rh
+}
+
+# Clean all node_modules in subdirectories
+nm_clean() {
+  find "${1:-.}" -name 'node_modules' -type d -prune -exec rm -rf {} +
+  echo "Cleaned node_modules"
+}
