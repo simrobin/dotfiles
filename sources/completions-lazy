@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+
+# Lazy-load heavy completion files to speed up shell startup
+# Requires _lazy_load_completion from sources/bash
+
+if ! type _lazy_load_completion >/dev/null 2>&1; then
+  return
+fi
+
+_COMPLETIONS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/completions" 2>/dev/null && pwd)"
+
+if [[ ! -d "${_COMPLETIONS_DIR}" ]]; then
+  return
+fi
+
+if command -v orbctl >/dev/null 2>&1 && [[ -f "${_COMPLETIONS_DIR}/orbctl-completion" ]]; then
+  _lazy_load_completion orbctl "${_COMPLETIONS_DIR}/orbctl-completion"
+fi
+
+if command -v kubectl >/dev/null 2>&1 && [[ -f "${_COMPLETIONS_DIR}/kubectl-completion" ]]; then
+  _lazy_load_completion kubectl "${_COMPLETIONS_DIR}/kubectl-completion"
+fi
+
+if command -v helm >/dev/null 2>&1 && [[ -f "${_COMPLETIONS_DIR}/helm-completion" ]]; then
+  _lazy_load_completion helm "${_COMPLETIONS_DIR}/helm-completion"
+fi
+
+if command -v task >/dev/null 2>&1 && [[ -f "${_COMPLETIONS_DIR}/task-completion" ]]; then
+  _lazy_load_completion task "${_COMPLETIONS_DIR}/task-completion"
+fi
+
+if command -v colima >/dev/null 2>&1 && [[ -f "${_COMPLETIONS_DIR}/colima-completion" ]]; then
+  _lazy_load_completion colima "${_COMPLETIONS_DIR}/colima-completion"
+fi
+
+unset _COMPLETIONS_DIR

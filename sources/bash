@@ -12,7 +12,8 @@ fi
 shopt -s cdspell
 
 # history configuration
-export HISTSIZE=10000
+export HISTSIZE=100000
+export HISTFILESIZE=100000
 export HISTCONTROL=ignoreboth:erasedups
 export LESSHISTFILE=/dev/null
 
@@ -28,3 +29,16 @@ fi
 if [[ $(shopt | grep --count "dirspell") -eq 1 ]]; then
   shopt -s dirspell
 fi
+
+# Lazy-load completions to speed up shell startup
+_lazy_load_completion() {
+  local cmd="${1}"
+  local comp_file="${2}"
+
+  eval "_lazy_completion_${cmd}() {
+    complete -r ${cmd} 2>/dev/null
+    source '${comp_file}'
+    return 124
+  }"
+  complete -F "_lazy_completion_${cmd}" "${cmd}"
+}

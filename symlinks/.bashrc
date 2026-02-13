@@ -37,7 +37,20 @@ source_all() {
   SCRIPT_DIR="$(script_dir)"
 
   for file in "${SCRIPT_DIR}/../sources/"*; do
-    [[ -r ${file} ]] && [[ -f ${file} ]] && source "${file}"
+    if [[ -r ${file} ]] && [[ -f ${file} ]]; then
+      if [[ -n ${DOTFILES_PROFILE:-} ]]; then
+        local start_time
+        start_time=$(date +%s%N 2>/dev/null || gdate +%s%N 2>/dev/null || echo 0)
+        source "${file}"
+        local end_time
+        end_time=$(date +%s%N 2>/dev/null || gdate +%s%N 2>/dev/null || echo 0)
+        if [[ ${start_time} != "0" ]]; then
+          printf "%6.1fms  %s\n" "$(echo "scale=1; (${end_time} - ${start_time}) / 1000000" | bc)" "${file##*/}" >&2
+        fi
+      else
+        source "${file}"
+      fi
+    fi
   done
 
   var_color
