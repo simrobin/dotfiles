@@ -26,29 +26,18 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
-# Eclipse
-*.pydevproject
-.metadata
-.gradle
-bin/
-tmp/
-*.tmp
-*.bak
-*.swp
-*~.nib
-local.properties
-.settings/
-.loadpath
-.project
-.externalToolBuilders/
-*.launch
-.cproject
-.classpath
-.factorypath
-.buildpath
-.target
-.texlipse
-.springBeans
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# direnv
+.envrc
+.direnv/
+
+# Claude Code
+.claude/settings.local.json
+.claude/todos.json
 
 # JetBrains
 *.iml
@@ -63,25 +52,16 @@ crashlytics.properties
 crashlytics-build.properties
 fabric.properties
 
-# Netbeans
-nbproject/private/
-build/
-nbbuild/
-dist/
-nbdist/
-nbactions.xml
-.nb-gradle/
-
-# SublimeText
-*.tmlanguage.cache
-*.tmPreferences.cache
-*.stTheme.cache
-*.sublime-workspace
-sftp-config.json
-
 # VSCode
 .vscode
 jsconfig.json
+
+# Frontend build outputs
+.turbo/
+.next/
+.nuxt/
+.vercel/
+.output/
 
 # Compiled source
 *.class
@@ -105,3 +85,11 @@ jsconfig.json
 # Logs and databases
 *.log
 *.sqlite
+
+# Misc
+*.tmp
+*.bak
+*.swp
+tmp/
+build/
+dist/
