@@ -6,7 +6,8 @@ set -o nounset -o pipefail
 
 install() {
   if [[ "${OSTYPE}" =~ ^darwin ]]; then
-    defaults write NSGlobalDomain AppleEnableMenuBarTransparency -bool false
+    # --- Global settings ---
+    defaults write NSGlobalDomain AppleInterfaceStyleSwitchesAutomatically -bool true
     defaults write NSGlobalDomain AppleFontSmoothing -int 1
     defaults write NSGlobalDomain AppleKeyboardUIMode -int 3
     defaults write NSGlobalDomain AppleLanguages -array "en"
@@ -39,12 +40,16 @@ install() {
     defaults write NSGlobalDomain NSNavPanelExpandedStateForSaveMode2 -bool true
     defaults write NSGlobalDomain NSWindowResizeTime -float 0.001
 
+    # --- System Preferences ---
     defaults write com.apple.systempreferences NSQuitAlwaysKeepsWindows -bool false
     defaults write com.apple.systempreferences DisableAutoLoginButtonIsHidden -bool true
     defaults write com.apple.systempreferences ShowAllMode -bool true
 
+    # --- Finder ---
     defaults write com.apple.finder AppleShowAllFiles -bool true
     defaults write com.apple.finder FXEnableExtensionChangeWarning -bool false
+    defaults write com.apple.finder FXPreferredViewStyle -string "Nlsv"
+    defaults write com.apple.finder _FXSortFoldersFirst -bool true
     defaults write com.apple.finder ShowExternalHardDrivesOnDesktop -bool true
     defaults write com.apple.finder ShowHardDrivesOnDesktop -bool true
     defaults write com.apple.finder ShowMountedServersOnDesktop -bool true
@@ -53,14 +58,13 @@ install() {
     defaults write com.apple.finder ShowStatusBar -bool true
     defaults write com.apple.finder DisableAllAnimations -bool true
 
+    # --- Safari ---
     sudo defaults write com.apple.Safari AutoFillCreditCardData -bool false
     sudo defaults write com.apple.Safari AutoFillFromAddressBook -bool false
     sudo defaults write com.apple.Safari AutoFillMiscellaneousForms -bool false
     sudo defaults write com.apple.Safari AutoFillPasswords -bool false
     sudo defaults write com.apple.Safari AutoOpenSafeDownloads -bool false
     sudo defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2DeveloperExtrasEnabled -bool true
-    sudo defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2JavaEnabled -bool false
-    sudo defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2JavaEnabledForLocalFiles -bool false
     sudo defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2JavaScriptCanOpenWindowsAutomatically -bool false
     sudo defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2PluginsEnabled -bool false
     sudo defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2TabsToLinks -bool true
@@ -72,26 +76,27 @@ install() {
     sudo defaults write com.apple.Safari ShowFavoritesBar -bool false
     sudo defaults write com.apple.Safari ShowFullURLInSmartSearchField -bool true
     sudo defaults write com.apple.Safari ShowSidebarInTopSites -bool false
-    sudo defaults write com.apple.Safari ShowSidebarInTopSites -bool false
     sudo defaults write com.apple.Safari SuppressSearchSuggestions -bool true
     sudo defaults write com.apple.Safari UniversalSearchEnabled -bool false
     sudo defaults write com.apple.Safari WarnAboutFraudulentWebsites -bool true
     sudo defaults write com.apple.Safari WebAutomaticSpellingCorrectionEnabled -bool false
     sudo defaults write com.apple.Safari WebContinuousSpellCheckingEnabled -bool false
     sudo defaults write com.apple.Safari WebKitDeveloperExtrasEnabledPreferenceKey -bool true
-    sudo defaults write com.apple.Safari WebKitJavaEnabled -bool false
     sudo defaults write com.apple.Safari WebKitJavaScriptCanOpenWindowsAutomatically -bool false
     sudo defaults write com.apple.Safari WebKitPluginsEnabled -bool false
     sudo defaults write com.apple.Safari WebKitTabToLinksPreferenceKey -bool true
 
+    # --- Screensaver ---
     defaults write com.apple.screensaver askForPassword -int 1
     defaults write com.apple.screensaver askForPasswordDelay -int 0
 
+    # --- Desktop services ---
     defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true
     defaults write com.apple.desktopservices DSDontWriteUSBStores -bool true
 
     defaults write com.apple.NetworkBrowser BrowseAllInterfaces -bool true
 
+    # --- Dock ---
     defaults write com.apple.dock autohide -bool true
     defaults write com.apple.dock autohide-delay -float 0
     defaults write com.apple.dock autohide-time-modifier -float 0
@@ -102,6 +107,7 @@ install() {
     defaults write com.apple.dock minimize-to-application -bool true
     defaults write com.apple.dock orientation -string "left"
     defaults write com.apple.dock showhidden -bool true
+    defaults write com.apple.dock show-recents -bool false
     defaults write com.apple.dock tilesize -int 36
     defaults write com.apple.dock wvous-tl-modifier -int 1048576
     defaults write com.apple.dock wvous-tr-modifier -int 1048576
@@ -113,6 +119,7 @@ install() {
     defaults write com.apple.dock wvous-br-corner -int 1
     killall Dock
 
+    # --- Misc apps ---
     defaults write com.apple.TimeMachine DoNotOfferNewDisksForBackup -bool true
 
     defaults write com.apple.ActivityMonitor ShowCategory -int 0
@@ -131,48 +138,46 @@ install() {
 
     defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad Clicking -bool true
 
-    defaults write com.apple.BluetoothAudioAgent "Apple Bitpool Min (editable)" -int 40
-
     defaults write com.apple.screencapture disable-shadow -bool true
     defaults write com.apple.screencapture location -string "${HOME}/Downloads"
     defaults write com.apple.screencapture type -string "png"
 
-    sudo systemsetup -setrestartfreeze on
-    sudo systemsetup -setwakeonnetworkaccess off
-    sudo systemsetup -f -setremotelogin off
-    sudo systemsetup -setcomputername macbook
+    # --- Window Manager (Sonoma+) ---
+    defaults write com.apple.WindowManager EnableStandardClickToShowDesktop -bool false
 
-    sudo pmset -a hibernatemode 0
+    # --- Power management ---
     sudo pmset -a lidwake 1
-    sudo pmset -a sms 0
     sudo pmset -b displaysleep 5
     sudo pmset -b sleep 10
     sudo pmset -c displaysleep 10
     sudo pmset -c sleep 15
 
-    sudo mdutil -a -d -i off
-    sudo mdutil -X "/"
-    sudo mdutil -X "/System/Volumes/Data"
+    # --- Spotlight (disable) ---
+    sudo mdutil -a -i off
 
+    # --- Login window ---
     sudo defaults write /Library/Preferences/com.apple.loginwindow AdminHostInfo HostName
     sudo defaults write /Library/Preferences/com.apple.loginwindow GuestEnabled -bool false
     sudo defaults write /Library/Preferences/com.apple.loginwindow RetriesUntilHint -int 0
     sudo defaults write /Library/Preferences/com.apple.loginwindow showInputMenu -bool true
     sudo defaults write /Library/Preferences/com.apple.mDNSResponder.plist NoMulticastAdvertisements -bool true
 
-    sudo nvram SystemAudioVolume=" "
+    # --- Hostname ---
     sudo scutil --set ComputerName macbook
     sudo scutil --set HostName macbook
     sudo scutil --set LocalHostName macbook
     sudo networksetup -setcomputername macbook
 
-    sudo /usr/libexec/ApplicationFirewall/socketfilterfw --setallowsigned off
-    sudo /usr/libexec/ApplicationFirewall/socketfilterfw --setallowsignedapp off
-    sudo /usr/libexec/ApplicationFirewall/socketfilterfw --setglobalstate on
-    sudo /usr/libexec/ApplicationFirewall/socketfilterfw --setloggingmode on
-    sudo /usr/libexec/ApplicationFirewall/socketfilterfw --setstealthmode on
-    sudo /usr/libexec/ApplicationFirewall/socketfilterfw --setblockall on
-    sudo pkill -HUP socketfilterfw
+    # --- Firewall ---
+    if sudo /usr/libexec/ApplicationFirewall/socketfilterfw --getglobalstate 2>/dev/null | grep -q "enabled\|disabled"; then
+      sudo /usr/libexec/ApplicationFirewall/socketfilterfw --setallowsigned off
+      sudo /usr/libexec/ApplicationFirewall/socketfilterfw --setallowsignedapp off
+      sudo /usr/libexec/ApplicationFirewall/socketfilterfw --setglobalstate on
+      sudo /usr/libexec/ApplicationFirewall/socketfilterfw --setloggingmode on
+      sudo /usr/libexec/ApplicationFirewall/socketfilterfw --setstealthmode on
+      sudo /usr/libexec/ApplicationFirewall/socketfilterfw --setblockall on
+      sudo pkill -HUP socketfilterfw
+    fi
 
     chflags nohidden "${HOME}/Library"
 
