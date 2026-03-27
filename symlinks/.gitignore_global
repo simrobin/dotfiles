@@ -35,9 +35,15 @@ Temporary Items
 .envrc
 .direnv/
 
+# grepai
+.grepai
+
 # Claude Code
 .claude/settings.local.json
 .claude/todos.json
+.claude/skills/local-*
+.claude/agents/local-*
+.assistant-code-reviews/
 
 # JetBrains
 *.iml
