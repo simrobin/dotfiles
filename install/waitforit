@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+set -o nounset -o pipefail -o errexit
+
+install() {
+  local OS
+  OS="$(normalized_os)"
+  local ARCH
+  ARCH="$(normalized_arch "amd64" "arm" "arm64")"
+
+  github_release_to_binary "maxcnunes/waitforit" "latest" "waitforit-${OS}_${ARCH}" "waitforit"
+}

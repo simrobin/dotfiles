@@ -5,4 +5,11 @@ set -o nounset -o pipefail -o errexit
 install() {
   packages_install claude
   mkdir -p "${HOME}/.claude"
+
+  local OS
+  OS="$(normalized_os)"
+  local ARCH
+  ARCH="$(normalized_arch "x64" "" "arm64")"
+
+  github_release_to_binary "backnotprop/plannotator" "latest" "plannotator-${OS}-${ARCH}" "plannotator"
 }

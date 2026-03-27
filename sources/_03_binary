@@ -51,6 +51,62 @@ archive_to_binary() {
   )
 }
 
+github_release_to_binary() {
+  if [[ ${#} -lt 3 ]]; then
+    var_red "Usage: github_release_to_binary REPO TAG RELEASE_FILENAME [BINARY_NAME] [BINARY_DESTINATION=${HOME}/opt/bin]"
+    return 1
+  fi
+
+  local REPO="${1}"
+  shift
+  local TAG="${1}"
+  shift
+  local RELEASE_FILENAME="${1}"
+  shift
+  local BINARY_NAME="${1:-$(basename "${RELEASE_FILENAME}")}"
+  shift || true
+  local BINARY_DESTINATION="${1:-${HOME}/opt/bin}"
+  shift || true
+
+  if [[ ${TAG} == "latest" ]]; then
+    TAG="$(curl --disable --silent --show-error --location --max-time 30 "https://api.github.com/repos/${REPO}/releases/latest" | grep '"tag_name"' | cut -d'"' -f4)"
+    if [[ -z ${TAG} ]]; then
+      var_error "github_release_to_binary: failed to fetch latest tag for ${REPO}"
+      return 1
+    fi
+  fi
+
+  local BINARY_URL="https://github.com/${REPO}/releases/download/${TAG}/${RELEASE_FILENAME}"
+  local TMP_FILE
+  TMP_FILE="$(mktemp)"
+
+  curl --disable --silent --show-error --location --max-time 300 -o "${TMP_FILE}" -- "${BINARY_URL}"
+
+  local EXPECTED_CHECKSUM ACTUAL_CHECKSUM
+  EXPECTED_CHECKSUM="$(curl --disable --silent --show-error --location --max-time 30 -- "${BINARY_URL}.sha256" | cut -d' ' -f1)"
+
+  if [[ -n ${EXPECTED_CHECKSUM} ]]; then
+    if [[ "$(uname -s)" == "Darwin" ]]; then
+      ACTUAL_CHECKSUM="$(shasum -a 256 "${TMP_FILE}" | cut -d' ' -f1)"
+    else
+      ACTUAL_CHECKSUM="$(sha256sum "${TMP_FILE}" | cut -d' ' -f1)"
+    fi
+
+    if [[ ${ACTUAL_CHECKSUM} != "${EXPECTED_CHECKSUM}" ]]; then
+      var_error "github_release_to_binary: checksum verification failed for ${RELEASE_FILENAME}"
+      rm -f "${TMP_FILE}"
+      return 1
+    fi
+  fi
+
+  mv "${TMP_FILE}" "${BINARY_DESTINATION}/${BINARY_NAME}"
+  chmod +x "${BINARY_DESTINATION}/${BINARY_NAME}"
+
+  if [[ "$(uname -s)" == "Darwin" ]]; then
+    codesign --sign - "${BINARY_DESTINATION}/${BINARY_NAME}"
+  fi
+}
+
 curl_to_binary() {
   if [[ ${#} -lt 2 ]]; then
     var_red "Usage: curl_to_binary BINARY_URL BINARY_NAME [BINARY_DESTINATION=${HOME}/opt/bin]"
