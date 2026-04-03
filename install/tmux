@@ -4,8 +4,4 @@ set -o nounset -o pipefail -o errexit
 
 install() {
   packages_install tmux
-
-  if command -v brew >/dev/null 2>&1; then
-    packages_install tmux reattach-to-user-namespace
-  fi
 }
