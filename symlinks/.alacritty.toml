@@ -35,10 +35,11 @@ save_to_clipboard = true
 [window]
 decorations = "none"
 startup_mode = "Maximized"
+dynamic_padding = true
 
 [window.padding]
-x = 5
-y = 5
+x = 2
+y = 2
 
 [[keyboard.bindings]]
 key = "Return"
