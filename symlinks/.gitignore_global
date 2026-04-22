@@ -43,6 +43,9 @@ Temporary Items
 .claude/todos.json
 .claude/skills/local-*
 .claude/agents/local-*
+.claude/hooks/local-*
+.claude/worktrees
+.claude/scheduled_tasks.lock
 .assistant-code-reviews/
 
 # JetBrains
@@ -61,6 +64,9 @@ fabric.properties
 # VSCode
 .vscode
 jsconfig.json
+
+# Zed
+.zed
 
 # Frontend build outputs
 .turbo/
