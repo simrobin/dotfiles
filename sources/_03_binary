@@ -83,7 +83,7 @@ github_release_to_binary() {
   curl --disable --silent --show-error --location --max-time 300 -o "${TMP_FILE}" -- "${BINARY_URL}"
 
   local EXPECTED_CHECKSUM ACTUAL_CHECKSUM
-  EXPECTED_CHECKSUM="$(curl --disable --silent --show-error --location --max-time 30 -- "${BINARY_URL}.sha256" | cut -d' ' -f1)"
+  EXPECTED_CHECKSUM="$(curl --disable --silent --location --fail --max-time 30 -- "${BINARY_URL}.sha256" 2>/dev/null | cut -d' ' -f1 || true)"
 
   if [[ -n ${EXPECTED_CHECKSUM} ]]; then
     if [[ "$(uname -s)" == "Darwin" ]]; then
@@ -155,7 +155,7 @@ normalized_arch() {
     ARCH="${X86_VALUE}"
   elif [[ ${ARCH} =~ ^armv ]] && [[ -n ${ARM_VALUE} ]]; then
     ARCH="${ARM_VALUE}"
-  elif [[ ${ARCH} == "aarch64" ]] && [[ -n ${ARM64_VALUE} ]]; then
+  elif [[ ${ARCH} == "aarch64" || ${ARCH} == "arm64" ]] && [[ -n ${ARM64_VALUE} ]]; then
     ARCH="${ARM64_VALUE}"
   fi
 
