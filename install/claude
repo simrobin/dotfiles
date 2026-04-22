@@ -6,6 +6,8 @@ install() {
   packages_install claude
   mkdir -p "${HOME}/.claude"
 
+  packages_install rtk
+
   local OS
   OS="$(normalized_os)"
   local ARCH
