@@ -63,6 +63,11 @@ if [[ -e "${HOME}/.localrc" ]]; then
   source "${HOME}/.localrc"
 fi
 
+# Deduplicate PATH entries (preserves order, first occurrence wins)
+PATH="$(printf '%s' "${PATH}" | awk -v RS=: -v ORS=: '!seen[$0]++')"
+PATH="${PATH%:}"
+export PATH
+
 unset -f set_locale
 unset -f script_dir
 unset -f source_all
