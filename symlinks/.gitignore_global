@@ -47,6 +47,7 @@ Temporary Items
 .claude/worktrees
 .claude/scheduled_tasks.lock
 .assistant-code-reviews/
+.assistant-issue-tracker/
 
 # JetBrains
 *.iml
