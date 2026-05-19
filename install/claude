@@ -2,8 +2,102 @@
 
 set -o nounset -o pipefail -o errexit
 
+CLAUDE_DOWNLOAD_BASE_URL="https://downloads.claude.ai/claude-code-releases"
+
+claude_platform() {
+  local OS ARCH
+
+  case "$(uname -s)" in
+  Darwin) OS="darwin" ;;
+  Linux) OS="linux" ;;
+  *)
+    var_error "claude: unsupported OS $(uname -s)"
+    return 1
+    ;;
+  esac
+
+  case "$(uname -m)" in
+  x86_64 | amd64) ARCH="x64" ;;
+  arm64 | aarch64) ARCH="arm64" ;;
+  *)
+    var_error "claude: unsupported architecture $(uname -m)"
+    return 1
+    ;;
+  esac
+
+  # Prefer native arm64 when running under Rosetta 2
+  if [[ ${OS} == "darwin" ]] && [[ ${ARCH} == "x64" ]]; then
+    if [[ "$(sysctl -n sysctl.proc_translated 2>/dev/null)" == "1" ]]; then
+      ARCH="arm64"
+    fi
+  fi
+
+  if [[ ${OS} == "linux" ]] && { [[ -f /lib/libc.musl-x86_64.so.1 ]] || [[ -f /lib/libc.musl-aarch64.so.1 ]] || ldd /bin/ls 2>&1 | grep -q musl; }; then
+    printf "linux-%s-musl" "${ARCH}"
+  else
+    printf "%s-%s" "${OS}" "${ARCH}"
+  fi
+}
+
+claude_sha256() {
+  if [[ "$(uname -s)" == "Darwin" ]]; then
+    shasum -a 256 "${1}" | cut -d' ' -f1
+  else
+    sha256sum "${1}" | cut -d' ' -f1
+  fi
+}
+
+install_claude_code() {
+  local PLATFORM
+  PLATFORM="$(claude_platform)"
+
+  local DOWNLOAD_DIR="${HOME}/.claude/downloads"
+  mkdir -p "${DOWNLOAD_DIR}"
+
+  local VERSION
+  VERSION="$(curl --disable --silent --show-error --location --fail --max-time 30 -- "${CLAUDE_DOWNLOAD_BASE_URL}/latest")"
+  if [[ -z ${VERSION} ]]; then
+    var_error "claude: failed to fetch latest version"
+    return 1
+  fi
+
+  local EXPECTED_CHECKSUM
+  EXPECTED_CHECKSUM="$(
+    curl --disable --silent --show-error --location --fail --max-time 30 -- "${CLAUDE_DOWNLOAD_BASE_URL}/${VERSION}/manifest.json" |
+      jq -r --arg p "${PLATFORM}" '.platforms[$p].checksum // empty'
+  )"
+  if [[ ! ${EXPECTED_CHECKSUM} =~ ^[a-f0-9]{64}$ ]]; then
+    var_error "claude: platform ${PLATFORM} not found in manifest"
+    return 1
+  fi
+
+  local BINARY_PATH="${DOWNLOAD_DIR}/claude-${VERSION}-${PLATFORM}"
+  if ! curl --disable --silent --show-error --location --fail --max-time 300 -o "${BINARY_PATH}" -- "${CLAUDE_DOWNLOAD_BASE_URL}/${VERSION}/${PLATFORM}/claude"; then
+    var_error "claude: download failed"
+    rm -f "${BINARY_PATH}"
+    return 1
+  fi
+
+  local ACTUAL_CHECKSUM
+  ACTUAL_CHECKSUM="$(claude_sha256 "${BINARY_PATH}")"
+  if [[ ${ACTUAL_CHECKSUM} != "${EXPECTED_CHECKSUM}" ]]; then
+    var_error "claude: checksum verification failed"
+    rm -f "${BINARY_PATH}"
+    return 1
+  fi
+
+  chmod +x "${BINARY_PATH}"
+
+  var_info "Setting up Claude Code ${VERSION}"
+  "${BINARY_PATH}" install
+
+  rm -f "${BINARY_PATH}"
+
+  var_success "Claude Code ${VERSION} installed"
+}
+
 install() {
-  packages_install claude
+  install_claude_code
   mkdir -p "${HOME}/.claude"
 
   packages_install rtk
