@@ -2,10 +2,41 @@
 
 set -o nounset -o pipefail -o errexit
 
-install() {
-  packages_install_desktop alacritty
+script_dir() {
+  local FILE_SOURCE="${BASH_SOURCE[0]}"
 
+  if [[ -L ${FILE_SOURCE} ]]; then
+    dirname "$(readlink "${FILE_SOURCE}")"
+  else
+    (
+      cd "$(dirname "${FILE_SOURCE}")" && pwd
+    )
+  fi
+}
+
+install() {
   if [[ ${OSTYPE} =~ ^darwin ]]; then
+    github_dmg_to_app "alacritty/alacritty" "latest" "Alacritty-{tag}.dmg" "Alacritty.app"
     ln -f -s "/Applications/Alacritty.app/Contents/MacOS/alacritty" "${HOME}/opt/bin/alacritty"
+
+    local RESOURCES="/Applications/Alacritty.app/Contents/Resources"
+
+    # Install the bundled alacritty terminfo entries, otherwise TERM falls back
+    # to xterm-256color and sources/alacritty (tmux auto-start) is skipped.
+    local HEXDIR
+    for HEXDIR in "${RESOURCES}"/[0-9a-f][0-9a-f]; do
+      [[ -d ${HEXDIR} ]] || continue
+      mkdir -p "${HOME}/.terminfo/$(basename "${HEXDIR}")"
+      ln -f -s "${HEXDIR}"/* "${HOME}/.terminfo/$(basename "${HEXDIR}")/"
+    done
+
+    # Refresh the bash completion lazily sourced by sources/completions-lazy.
+    if [[ -f "${RESOURCES}/completions/alacritty.bash" ]]; then
+      local SCRIPT_DIR
+      SCRIPT_DIR="$(script_dir)"
+      cp "${RESOURCES}/completions/alacritty.bash" "${SCRIPT_DIR}/../sources/completions/alacritty-completion"
+    fi
+  else
+    packages_install_desktop alacritty
   fi
 }

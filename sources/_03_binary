@@ -107,6 +107,51 @@ github_release_to_binary() {
   fi
 }
 
+github_dmg_to_app() {
+  if [[ ${#} -lt 4 ]]; then
+    var_red "Usage: github_dmg_to_app REPO TAG DMG_FILENAME APP_NAME [APP_DESTINATION=/Applications]"
+    return 1
+  fi
+
+  local REPO="${1}"
+  shift
+  local TAG="${1}"
+  shift
+  local DMG_FILENAME="${1}"
+  shift
+  local APP_NAME="${1}"
+  shift
+  local APP_DESTINATION="${1:-/Applications}"
+  shift || true
+
+  if [[ ${TAG} == "latest" ]]; then
+    TAG="$(curl --disable --silent --show-error --location --max-time 30 "https://api.github.com/repos/${REPO}/releases/latest" | grep '"tag_name"' | cut -d'"' -f4)"
+    if [[ -z ${TAG} ]]; then
+      var_error "github_dmg_to_app: failed to fetch latest tag for ${REPO}"
+      return 1
+    fi
+  fi
+
+  DMG_FILENAME="${DMG_FILENAME//\{tag\}/${TAG}}"
+
+  local DMG_URL="https://github.com/${REPO}/releases/download/${TAG}/${DMG_FILENAME}"
+  local TMP_DMG MOUNT_POINT
+  TMP_DMG="$(mktemp)"
+  MOUNT_POINT="$(mktemp -d)"
+
+  curl --disable --silent --show-error --location --max-time 300 -o "${TMP_DMG}" -- "${DMG_URL}"
+
+  (
+    trap 'hdiutil detach "${MOUNT_POINT}" >/dev/null 2>&1 || true; rm -rf "${TMP_DMG}" "${MOUNT_POINT}"' EXIT
+
+    hdiutil attach "${TMP_DMG}" -nobrowse -readonly -mountpoint "${MOUNT_POINT}" >/dev/null
+    rm -rf "${APP_DESTINATION:?}/${APP_NAME}"
+    cp -R "${MOUNT_POINT}/${APP_NAME}" "${APP_DESTINATION}/"
+  )
+
+  xattr -dr com.apple.quarantine "${APP_DESTINATION}/${APP_NAME}" 2>/dev/null || true
+}
+
 curl_to_binary() {
   if [[ ${#} -lt 2 ]]; then
     var_red "Usage: curl_to_binary BINARY_URL BINARY_NAME [BINARY_DESTINATION=${HOME}/opt/bin]"

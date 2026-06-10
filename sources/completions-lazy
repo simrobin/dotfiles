@@ -33,4 +33,8 @@ if command -v colima >/dev/null 2>&1 && [[ -f "${_COMPLETIONS_DIR}/colima-comple
   _lazy_load_completion colima "${_COMPLETIONS_DIR}/colima-completion"
 fi
 
+if command -v alacritty >/dev/null 2>&1 && [[ -f "${_COMPLETIONS_DIR}/alacritty-completion" ]]; then
+  _lazy_load_completion alacritty "${_COMPLETIONS_DIR}/alacritty-completion"
+fi
+
 unset _COMPLETIONS_DIR
