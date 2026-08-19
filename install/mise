@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+set -o nounset -o pipefail -o errexit
+
+clean() {
+  if command -v brew >/dev/null 2>&1 && brew list mise >/dev/null 2>&1; then
+    brew uninstall mise
+  fi
+
+  rm -rf "${HOME:?}/.local/bin/mise"
+  rm -rf "${HOME:?}/.local/share/mise"
+  rm -rf "${HOME:?}/.local/state/mise"
+  rm -rf "${HOME:?}/.cache/mise"
+}
+
+install() {
+  if command -v brew >/dev/null 2>&1; then
+    packages_install mise
+  else
+    if ! command -v curl >/dev/null 2>&1; then
+      printf "curl is required \n"
+      exit
+    fi
+
+    curl -q -sSL --max-time 300 "https://mise.run" | MISE_INSTALL_PATH="${HOME}/.local/bin/mise" sh
+  fi
+}
