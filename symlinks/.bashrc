@@ -68,6 +68,13 @@ PATH="$(printf '%s' "${PATH}" | awk -v RS=: -v ORS=: '!seen[$0]++')"
 PATH="${PATH%:}"
 export PATH
 
+# Last on purpose: mise's paths must front everything, including what .localrc
+# prepends. Shims stay out of PATH and idiomatic version files stay per-project,
+# so `n` keeps Node outside repos shipping a mise config.
+if command -v mise > /dev/null 2>&1; then
+  eval "$(mise activate bash)"
+fi
+
 unset -f set_locale
 unset -f script_dir
 unset -f source_all
