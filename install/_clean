@@ -22,6 +22,7 @@ clean() {
   local SCRIPT_DIR
   SCRIPT_DIR="$(script_dir)"
   rm -rf "${SCRIPT_DIR}/../sources/"*-completion
+  rm -rf "${SCRIPT_DIR}/../sources/completions/"*-completion
   rm -rf "${SCRIPT_DIR}/../sources/git-prompt"
 }
 
