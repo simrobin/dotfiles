@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC1090 # sources/ files and .localrc are runtime paths
 
 [[ -z "${PS1:-}" ]] && return
 

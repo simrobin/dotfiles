@@ -143,6 +143,7 @@ __elapsed_ps1() {
 # PS0 captures command start time, PS1 shows elapsed
 PS0='${PS1:PS0time=${EPOCHSECONDS}:0}'
 
+# shellcheck disable=SC2154 # PS0time is assigned by the PS0 expansion above
 PS1+=" \$(__elapsed_ps1 \${PS0time})\${PS0:PS0time=0:0}\n> "
 
 export PS1

@@ -38,8 +38,8 @@ END_OF_BASH_PROFILE
     # Registration in /etc/shells and the user's shell are two independent
     # conditions: testing them together skipped the switch whenever the entry
     # already existed.
-    local TARGET_SHELL="$(brew --prefix)/bin/bash"
-    local CURRENT_SHELL
+    local TARGET_SHELL CURRENT_SHELL
+    TARGET_SHELL="$(brew --prefix)/bin/bash"
 
     if ! grep --quiet --line-regexp --fixed-strings "${TARGET_SHELL}" "/etc/shells"; then
       printf "+----------------------------------+\n"

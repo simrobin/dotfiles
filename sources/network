@@ -43,5 +43,5 @@ dnsFlushCache() {
 }
 
 ip() {
-  echo `ifconfig -a | grep "netmask 0xffffff00\|netmask 255.255.255.0" | awk '{print $2}'`
+  ifconfig -a | grep "netmask 0xffffff00\|netmask 255.255.255.0" | awk '{print $2}'
 }

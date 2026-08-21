@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # dotfiles directory shorcut
-alias dotfiles="cd ${HOME}/code/dotfiles"
+alias dotfiles='cd ${HOME}/code/dotfiles'
 
 # Preferred 'mv' implementation
 alias mv='mv -iv'
@@ -29,7 +29,7 @@ alias cic='set completion-ignore-case On'
 alias fix_ssh='eval $(tmux showenv -s SSH_AUTH_SOCK)'
 
 # Makes new Dir and jumps inside
-mcd () { mkdir -p "$1" && cd "$1"; }
+mcd () { mkdir -p "$1" && cd "$1" || return; }
 
 # Full Recursive Directory Listing
 alias lr='ls -R | grep ":$" | sed -e '\''s/:$//'\'' -e '\''s/[^-][^\/]*\//--/g'\'' -e '\''s/^/   /'\'' -e '\''s/-/|/'\'' | less'
@@ -66,9 +66,9 @@ alias qfind="find . -name "
 # Find file under the current directory
 ff () { /usr/bin/find . -name "$@" ; }
 # Find file whose name starts with a given string
-ffs () { /usr/bin/find . -name "$@"'*' ; }
+ffs () { /usr/bin/find . -name "$1"'*' ; }
 # Find file whose name ends with a given string
-ffe () { /usr/bin/find . -name '*'"$@" ; }
+ffe () { /usr/bin/find . -name '*'"$1" ; }
 
 # find out the pid of a specified process
 findPid () { lsof -t -c "$@" ; }
@@ -88,7 +88,7 @@ function trim() {
 
 alias now="date '+%Y-%m-%d %H:%M:%S'"
 
-if [ `uname` != "Darwin" ]; then
+if [[ "$(uname)" != "Darwin" ]]; then
   return
 fi
 
@@ -114,7 +114,7 @@ cdf () {
 EOT
     )
     echo "cd to \"$currFolderPath\""
-    cd "$currFolderPath"
+    cd "$currFolderPath" || return
 }
 
 alias finderRestart='sudo killall Finder >/dev/null 2>&1'

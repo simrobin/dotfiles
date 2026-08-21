@@ -53,7 +53,7 @@ git_browse() {
       fi
 
       var_info "Running command in ${dir}"
-      eval "${@}"
+      eval "${*}"
     )
   done < <(find . -type d -maxdepth 1 -print0)
 }
@@ -86,7 +86,8 @@ head_sync() {
   local REMOTE_PATH="${1}"
   shift
 
-  local branch=$(git symbolic-ref -q HEAD | sed -e 's|^refs/heads/||')
+  local branch
+  branch="$(git symbolic-ref -q HEAD | sed -e 's|^refs/heads/||')"
   ssh -A "${REMOTE_SERVER}" "cd '${REMOTE_PATH}' && git reset HEAD . && git clean -f && git status -u -s | awk '{print \$2}' | xargs -r rm -rf && git checkout -- . && git fetch && git checkout '${branch}' && git pull"
 }
 
@@ -297,8 +298,9 @@ git_sync() {
     return ${isGit}
   fi
 
-  cd $(git_root)
+  cd "$(git_root)" || return
 
+  # shellcheck disable=SC2088 # expanded by the remote shell, not this one
   local REMOTE_PATH_PREFIX="~/${2}"
   if [[ "${2:0:1}" == "/" ]]; then
     REMOTE_PATH_PREFIX="${2}"
@@ -333,8 +335,9 @@ git_sync() {
       ;;
 
     "R")
-      local originFile=$(echo -n "${gitFile}" | awk '{print $2}')
-      local destinationFile=$(echo -n "${gitFile}" | awk '{print $4}')
+      local originFile destinationFile
+      originFile="$(echo -n "${gitFile}" | awk '{print $2}')"
+      destinationFile="$(echo -n "${gitFile}" | awk '{print $4}')"
 
       toDelete=("${toDelete[@]}" "${REMOTE_PATH_PREFIX}/${originFile}")
       toSync=("${toSync[@]}" "${destinationFile}")
@@ -372,7 +375,7 @@ watch_sync() {
 
   git_sync "${@}"
 
-  fswatch -0 -o --exclude=.git/ . | while read -d "" event; do
+  fswatch -0 -o --exclude=.git/ . | while read -r -d "" _; do
     git_sync "${@}"
   done
 }

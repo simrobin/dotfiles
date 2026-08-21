@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC1090 # SSH_ENV is a runtime path
 
 if ! command -v ssh >/dev/null 2>&1; then
   return
@@ -31,7 +32,7 @@ ssh_agent_init() {
       ssh_agent_start
     fi
 
-    if [ $(uname) == "Darwin" ]; then
+    if [[ "$(uname)" == "Darwin" ]]; then
       ssh-add --apple-use-keychain --apple-load-keychain
     else
       shopt -s nullglob

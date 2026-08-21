@@ -15,7 +15,7 @@ install() {
 
   if command -v brew >/dev/null 2>&1; then
     packages_install fzf
-    $(brew --prefix)/opt/fzf/install --key-bindings --completion --no-zsh --no-fish --no-update-rc
+    "$(brew --prefix)/opt/fzf/install" --key-bindings --completion --no-zsh --no-fish --no-update-rc
   else
     local FZF_INSTALL_DIR="${HOME}/opt/fzf"
 

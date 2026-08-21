@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC1090 # install scripts are sourced from a computed path
 
 set -o nounset -o pipefail -o errexit
-readonly CURRENT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+CURRENT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly CURRENT_DIR
 
 print_title() {
   local line="--------------------------------------------------------------------------------"
