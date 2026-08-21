@@ -352,7 +352,7 @@ git_sync() {
   fi
 
   if [[ "${#toDelete[@]}" -ne 0 ]]; then
-    ! ${dry} && ssh "${1}" "rm -rf ${toDelete[@]}"
+    ! ${dry} && ssh "${1}" "rm -rf ${toDelete[*]}"
     echo -e "${RED} - Deleted\n${toDelete[*]}${RESET}\n"
   fi
 
