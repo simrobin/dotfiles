@@ -76,6 +76,9 @@ jsconfig.json
 .vercel/
 .output/
 
+# Python
+__pycache__/
+
 # Compiled source
 *.class
 *.dll
