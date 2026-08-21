@@ -17,6 +17,7 @@ popd
 You can set following environment variables for customizing installation behavior:
 
 - `DOTFILES_NO_NODE="true"` doesn't perform install of `install/node` file (replace `NODE` by any uppercase filename in `install/` dir)
+- `DOTFILES_DOCKER_RUNTIME="orbstack"` selects the container runtime installed by `install/docker` (`colima` by default)
 
 ```bash
 # Server configuration example

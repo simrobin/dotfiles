@@ -9,8 +9,8 @@ script_dir() {
     dirname "$(readlink "${FILE_SOURCE}")"
   else
     (
-    cd "$(dirname "${FILE_SOURCE}")" && pwd
-  )
+      cd "$(dirname "${FILE_SOURCE}")" && pwd
+    )
   fi
 }
 
@@ -19,15 +19,40 @@ clean() {
     colima delete --force
   fi
 
+  if command -v orbctl >/dev/null 2>&1; then
+    orbctl reset -y
+  fi
+
   sudo rm -rf "${HOME}/.docker" "${HOME}/.lima" "${HOME}/.colima"
 }
 
 install() {
+  local RUNTIME="${DOTFILES_DOCKER_RUNTIME:-colima}"
+  local SCRIPT_DIR
+  SCRIPT_DIR="$(script_dir)"
+
   if [[ ${OSTYPE} =~ ^darwin ]]; then
-    packages_install "colima"
-    mkdir -p "$(script_dir)/../sources/completions"
-    colima completion bash >"$(script_dir)/../sources/completions/colima-completion"
-    colima nerdctl install --path "${HOME}/opt/bin/docker" --force
+    mkdir -p "${SCRIPT_DIR}/../sources/completions"
+
+    case "${RUNTIME}" in
+    colima)
+      packages_install "colima"
+      colima completion bash >"${SCRIPT_DIR}/../sources/completions/colima-completion"
+      # OrbStack ships its own docker CLI, colima needs the nerdctl shim
+      colima nerdctl install --path "${HOME}/opt/bin/docker" --force
+      ;;
+    orbstack)
+      packages_install_desktop "orbstack"
+
+      if command -v orbctl >/dev/null 2>&1; then
+        orbctl completion bash >"${SCRIPT_DIR}/../sources/completions/orbctl-completion"
+      fi
+      ;;
+    *)
+      var_error "unknown DOTFILES_DOCKER_RUNTIME '${RUNTIME}', expected colima or orbstack"
+      return 1
+      ;;
+    esac
   fi
 
   packages_install ctop
