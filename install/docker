@@ -27,7 +27,7 @@ clean() {
 }
 
 install() {
-  local RUNTIME="${DOTFILES_DOCKER_RUNTIME:-colima}"
+  local RUNTIME="${DOTFILES_DOCKER_RUNTIME:-orbstack}"
   local SCRIPT_DIR
   SCRIPT_DIR="$(script_dir)"
 
