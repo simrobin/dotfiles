@@ -35,13 +35,29 @@ END_OF_BASH_PROFILE
     packages_install "${PACKAGES[@]}" fswatch awk
     packages_install_desktop "${PACKAGES_DESKTOP[@]}"
 
-    if [[ $(grep --count "${BREW_PREFIX}" "/etc/shells") -eq 0 ]]; then
+    # Registration in /etc/shells and the user's shell are two independent
+    # conditions: testing them together skipped the switch whenever the entry
+    # already existed.
+    local TARGET_SHELL="$(brew --prefix)/bin/bash"
+    local CURRENT_SHELL
+
+    if ! grep --quiet --line-regexp --fixed-strings "${TARGET_SHELL}" "/etc/shells"; then
+      printf "+----------------------------------+\n"
+      printf "| registering shell in /etc/shells |\n"
+      printf "+----------------------------------+\n"
+
+      echo "${TARGET_SHELL}" | sudo tee -a "/etc/shells" >/dev/null
+    fi
+
+    CURRENT_SHELL="$(dscl . -read "/Users/$(whoami)" UserShell | awk '{print $2}')"
+
+    if [[ "${CURRENT_SHELL}" != "${TARGET_SHELL}" ]]; then
       printf "+-------------------------+\n"
       printf "| changing shell for user |\n"
       printf "+-------------------------+\n"
 
-      echo "$(brew --prefix)/bin/bash" | sudo tee -a "/etc/shells" >/dev/null
-      chsh -s "$(brew --prefix)/bin/bash" -u "$(whoami)"
+      # sudo dscl instead of chsh: no password prompt
+      sudo dscl . -change "/Users/$(whoami)" UserShell "${CURRENT_SHELL}" "${TARGET_SHELL}"
     fi
   elif command -v apt-get >/dev/null 2>&1; then
     packages_update
