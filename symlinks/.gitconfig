@@ -7,6 +7,9 @@
 	login = simrobin
 	signingkey = A5BF1F40BEDB1EEC
 
+[includeIf "hasconfig:remote.*.url:ssh://git@*.yousign.*:*/**"]
+	path = ~/.gitconfig_work
+
 [core]
 	editor = zed --wait
 	autocrlf = input
@@ -99,3 +102,5 @@
 	undo = reset --soft HEAD^
 	unshallow = ! git remote set-branches origin '*' && git pull --unshallow
 	unstage = reset HEAD --
+[url "ssh://git@gitlab.yousign.fr:10022/"]
+	insteadOf = git@gitlab.yousign.fr:
