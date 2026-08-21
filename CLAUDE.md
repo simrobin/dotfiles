@@ -6,6 +6,22 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Personal dotfiles repository (inspired by [ViBiOh/dotfiles](https://github.com/ViBiOh/dotfiles)) managing shell configuration, tool installation, and system setup for macOS/Linux.
 
+## Branches
+
+- **`main`** is the canonical branch. Everything of general use lands here.
+- **`work`** is `main` plus **exactly one commit** (`feat: work-specific configuration`) carrying what only applies to the work machine: hosts blocklist exclusions, work git identity, corporate tooling, apps already deployed by JAMF.
+
+Rules:
+
+- A change of general use goes on `main`, never on `work`, even when it was noticed while working on `work`.
+- A work-specific change amends the single `work` commit. Never stack extra commits on `work`.
+- `work` is refreshed by rebasing it onto `main`, then `git push --force-with-lease` (no merge request, and `work` is never merged into `main`).
+
+```bash
+git rebase main work        # replay the single commit on top of main
+git commit --amend          # fold a new work-specific change into it
+```
+
 ## Architecture
 
 The repo has three main directories:
