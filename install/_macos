@@ -16,6 +16,8 @@ install() {
     defaults write NSGlobalDomain AppleMetricUnits -bool true
     defaults write NSGlobalDomain ApplePressAndHoldEnabled -bool true
     defaults write NSGlobalDomain AppleShowAllExtensions -bool true
+    # 24h clock: AppleLocale en_US otherwise forces 12h AM/PM
+    defaults write NSGlobalDomain AppleICUForce24HourTime -bool true
 
     defaults write NSGlobalDomain com.apple.keyboard.fnState -int 1
     defaults write NSGlobalDomain com.apple.mouse.scaling -int 5
@@ -59,6 +61,8 @@ install() {
     defaults write com.apple.finder DisableAllAnimations -bool true
 
     # --- Safari ---
+    # FIXME: sudo writes to root's preferences, so these have no effect on the user's
+    # Safari. Drop them or replay without sudo (Safari prefs also need full disk access).
     sudo defaults write com.apple.Safari AutoFillCreditCardData -bool false
     sudo defaults write com.apple.Safari AutoFillFromAddressBook -bool false
     sudo defaults write com.apple.Safari AutoFillMiscellaneousForms -bool false
@@ -103,12 +107,13 @@ install() {
     defaults write com.apple.dock hide-mirror -bool true
     defaults write com.apple.dock largesize -int 128
     defaults write com.apple.dock launchanim -bool false
+    defaults write com.apple.dock magnification -bool true # largesize is inert without it
     defaults write com.apple.dock mineffect -string "scale"
     defaults write com.apple.dock minimize-to-application -bool true
     defaults write com.apple.dock orientation -string "left"
     defaults write com.apple.dock showhidden -bool true
     defaults write com.apple.dock show-recents -bool false
-    defaults write com.apple.dock tilesize -int 36
+    defaults write com.apple.dock tilesize -int 37
     defaults write com.apple.dock wvous-tl-modifier -int 1048576
     defaults write com.apple.dock wvous-tr-modifier -int 1048576
     defaults write com.apple.dock wvous-bl-modifier -int 1048576
@@ -120,6 +125,8 @@ install() {
     killall Dock
 
     # --- Misc apps ---
+    defaults write com.apple.menuextra.clock ShowDayOfWeek -bool true
+
     defaults write com.apple.TimeMachine DoNotOfferNewDisksForBackup -bool true
 
     defaults write com.apple.ActivityMonitor ShowCategory -int 0
@@ -137,6 +144,9 @@ install() {
     defaults write com.apple.CrashReporter DialogType none
 
     defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad Clicking -bool true
+    # Built-in trackpad: different domain than the external Magic Trackpad above
+    defaults write com.apple.AppleMultitouchTrackpad Clicking -bool true
+    defaults write com.apple.AppleMultitouchTrackpad TrackpadThreeFingerDrag -bool false
 
     defaults write com.apple.screencapture disable-shadow -bool true
     defaults write com.apple.screencapture location -string "${HOME}/Downloads"
