@@ -32,7 +32,7 @@ END_OF_BASH_PROFILE
     fi
 
     packages_update
-    packages_install "${PACKAGES[@]}" fswatch awk
+    packages_install "${PACKAGES[@]}" fswatch awk mole
     packages_install_desktop "${PACKAGES_DESKTOP[@]}"
 
     # Registration in /etc/shells and the user's shell are two independent
