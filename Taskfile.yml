@@ -1,0 +1,27 @@
+version: '3'
+
+vars:
+  # sources/git-prompt and sources/fzf-completion are vendored upstream files
+  SHELL_FILES:
+    sh: git ls-files init 'install/*' 'sources/*' 'symlinks/.bashrc' 'symlinks/.tmux-stats.sh' | grep -vE 'sources/(\.gitignore|git-prompt|fzf-completion)'
+
+tasks:
+  default:
+    cmds:
+      - task --list
+
+  lint:
+    desc: Run shellcheck over the tracked shell scripts
+    cmds:
+      - shellcheck --severity=warning {{.SHELL_FILES | catLines}}
+
+  syntax:
+    desc: Parse every tracked shell script without running it
+    cmds:
+      - for file in {{.SHELL_FILES | catLines}}; do bash -n "${file}"; done
+
+  check:
+    desc: Run every check
+    cmds:
+      - task: syntax
+      - task: lint

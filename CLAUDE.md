@@ -51,6 +51,12 @@ The repo has three main directories:
 DOTFILES_NO_NODE="true" ./init
 ```
 
+```bash
+# Checks (shellcheck + bash -n) over the tracked shell scripts
+task check
+task lint
+```
+
 ## Key Conventions
 
 - **Install scripts** must define functions (`install`, `clean`, `credentials`) — the `init` script sources each file and calls the functions if they exist.
