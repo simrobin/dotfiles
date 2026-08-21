@@ -109,3 +109,7 @@ __pycache__/
 tmp/
 build/
 dist/
+
+# Gitlab CI local
+.gitlab-ci-local/
+.gitlab-ci-local-variables.yml
