@@ -43,7 +43,7 @@ install() {
   fi
 
   mkdir -p "${HOME:?}/opt/node"
-  source "${SCRIPT_DIR}/../sources/_04_homebrew"
+  source "${SCRIPT_DIR}/../sources/_03_homebrew"
   source "${SCRIPT_DIR}/../sources/node"
 
   local NODE_VERSION="24"
