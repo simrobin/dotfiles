@@ -14,3 +14,13 @@ if command -v brew >/dev/null 2>&1; then
   export BREW_PREFIX
   export PATH="${BREW_PREFIX}/opt/openssl/bin:${BREW_PREFIX}/opt/make/libexec/gnubin:${BREW_PREFIX}/opt/curl/bin:${BREW_PREFIX}/sbin:${PATH}"
 fi
+
+# The prepends above must not take precedence over the user directories: the tools
+# installed there are meant to override their homebrew counterpart
+if [[ -d "${HOME}/opt/bin" ]] && [[ "${PATH}" != "${HOME}/opt/bin:"* ]]; then
+  export PATH="${HOME}/opt/bin:${PATH}"
+fi
+
+if [[ -d "${HOME}/.local/bin" ]] && [[ "${PATH}" != "${HOME}/.local/bin:"* ]]; then
+  export PATH="${HOME}/.local/bin:${PATH}"
+fi

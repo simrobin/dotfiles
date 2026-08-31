@@ -1,9 +1,0 @@
-#!/usr/bin/env bash
-
-if [[ -d "${HOME}/opt/bin" ]]; then
-  export PATH="${HOME}/opt/bin:${PATH}"
-fi
-
-if [[ -d "${HOME}/.local/bin" ]]; then
-  export PATH="${HOME}/.local/bin:${PATH}"
-fi

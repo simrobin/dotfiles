@@ -27,7 +27,7 @@ git commit --amend          # fold a new work-specific change into it
 The repo has three main directories:
 
 - **`symlinks/`** — Config files (`.bashrc`, `.gitconfig`, etc.) that get symlinked into `$HOME`
-- **`sources/`** — Shell scripts sourced by `.bashrc`, ordered by numeric prefix (`_01_first` through `_07_ssh`) then alphabetically. These provide env vars, functions, aliases, completions, and the PS1 prompt.
+- **`sources/`** — Shell scripts sourced by `.bashrc`, ordered by numeric prefix (`_02_var` through `_07_ssh`) then alphabetically. These provide env vars, functions, aliases, completions, and the PS1 prompt.
 - **`install/`** — Modular install scripts, each defining `install()`, `clean()`, and/or `credentials()` functions. Prefixed scripts (`_clean`, `_hosts`, `_macos`, `_packages`) handle cross-cutting concerns.
 
 
