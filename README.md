@@ -30,6 +30,23 @@ export DOTFILES_NO_PYTHON="true"
 export DOTFILES_NO_PYTHON_PGCLI="true"
 ```
 
+## tmux session
+
+The first `alacritty` shell attaches to the running `tmux` session, or creates
+it from `~/.tmux-session`. Copy `.tmux-session.example` and adjust it, the file
+stays out of the repo:
+
+```bash
+cp dotfiles/.tmux-session.example ${HOME}/.tmux-session
+```
+
+One window per line, `name:path`. `~` is expanded, blank lines and `#` lines
+are ignored, and a path that is not a directory falls back on `${HOME}`.
+Without that file, a bare session is created.
+
+- `DOTFILES_TMUX_SESSION="dev"` names the session
+- `DOTFILES_TMUX_LAYOUT="${HOME}/.tmux-session"` locates the layout file
+
 ## SSH
 
 ```bash

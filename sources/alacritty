@@ -1,13 +1,75 @@
 #!/usr/bin/env bash
 
-if [[ ! "${TERM}" = "alacritty" ]]; then
+if [[ ! ${TERM} == "alacritty" ]]; then
   return
 fi
 
-if command -v tmux >/dev/null 2>&1 && [[ -z "${TMUX}" ]]; then
-    if tmux list-sessions >/dev/null 2>&1; then
-        tmux a
-    else
-        tmux new -s dev
-    fi
+if ! command -v tmux > /dev/null 2>&1 || [[ -n ${TMUX:-} ]]; then
+  return
 fi
+
+export DOTFILES_TMUX_LAYOUT="${DOTFILES_TMUX_LAYOUT:-${HOME}/.tmux-session}"
+export DOTFILES_TMUX_SESSION="${DOTFILES_TMUX_SESSION:-dev}"
+
+# source_all only exports the colors once every source is loaded, and the
+# session is created before that
+var_color
+
+alacritty_trim() {
+  local VALUE="${1}"
+
+  VALUE="${VALUE#"${VALUE%%[![:space:]]*}"}"
+  VALUE="${VALUE%"${VALUE##*[![:space:]]}"}"
+
+  printf '%s' "${VALUE}"
+}
+
+# Creates the session detached, one window per `name:path` line of the layout
+# file. A window whose path is missing or is not a directory falls back on
+# ${HOME}. Returns 1 when no window could be created, leaving the caller free
+# to fall back on a bare session.
+alacritty_tmux_layout() {
+  local SESSION="${1}"
+  local NAME TARGET
+  local CREATED="false"
+
+  while IFS=':' read -r NAME TARGET || [[ -n ${NAME:-} ]]; do
+    NAME="$(alacritty_trim "${NAME}")"
+
+    if [[ -z ${NAME} ]] || [[ ${NAME} == \#* ]]; then
+      continue
+    fi
+
+    TARGET="$(alacritty_trim "${TARGET:-}")"
+    TARGET="${TARGET/#\~/${HOME}}"
+
+    if [[ -z ${TARGET} ]]; then
+      var_warning "tmux layout: no path for window '${NAME}', falling back on ${HOME}"
+      TARGET="${HOME}"
+    elif [[ ! -d ${TARGET} ]]; then
+      var_warning "tmux layout: '${TARGET}' is not a directory, falling back on ${HOME} for window '${NAME}'"
+      TARGET="${HOME}"
+    fi
+
+    if [[ ${CREATED} == "false" ]]; then
+      tmux new-session -d -s "${SESSION}" -n "${NAME}" -c "${TARGET}" || return 1
+      CREATED="true"
+    else
+      # -d keeps the first window current, so no select-window is needed
+      tmux new-window -d -t "${SESSION}:" -n "${NAME}" -c "${TARGET}"
+    fi
+  done < "${DOTFILES_TMUX_LAYOUT}"
+
+  [[ ${CREATED} == "true" ]]
+}
+
+if tmux list-sessions > /dev/null 2>&1; then
+  tmux attach-session
+elif [[ -r ${DOTFILES_TMUX_LAYOUT} ]] && alacritty_tmux_layout "${DOTFILES_TMUX_SESSION}"; then
+  tmux attach-session -t "${DOTFILES_TMUX_SESSION}"
+else
+  tmux new-session -s "${DOTFILES_TMUX_SESSION}"
+fi
+
+unset -f alacritty_trim
+unset -f alacritty_tmux_layout

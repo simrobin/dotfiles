@@ -1,0 +1,13 @@
+# Layout of the tmux session created on the first alacritty shell.
+# Copy this file to ~/.tmux-session and adjust it: it stays out of the repo.
+#
+# One window per line, `name:path`. `~` is expanded, paths must be absolute
+# once expanded. Blank lines and lines starting with `#` are ignored, and a
+# window whose path is not a directory falls back on ${HOME} with a warning.
+#
+# The session name defaults to `dev`, override it with DOTFILES_TMUX_SESSION.
+# The layout path defaults to ~/.tmux-session, override it with
+# DOTFILES_TMUX_LAYOUT.
+
+dotfiles:~/code/dotfiles
+perso:~/code/perso
