@@ -12,7 +12,28 @@ HOSTS_BLOCKLISTS=(
 # Set to empty string to disable exclusions
 HOSTS_EXCLUDE=""
 
-# Optional local overrides file (unversioned, raw hosts lines appended at the end)
+# Optional local overrides file (unversioned, raw hosts lines appended at the end).
+# Those lines bypass the IP filter below, so any sink address can be used there.
+#
+# Which sink IP to use (macOS):
+#
+#   0.0.0.0     the kernel rewrites connect() to 127.0.0.1, so a local dev server
+#               listening on 0.0.0.0 answers the blocked request and floods its logs.
+#   127.0.0.2   (any 127.0.0.0/8 address but 127.0.0.1) routed to lo0, so nothing
+#               leaves the machine, yet lo0 only carries 127.0.0.1: the address is
+#               not local, a 0.0.0.0 bind never sees it and the dev server stays
+#               quiet. The packet is dropped silently, so the client times out
+#               instead of getting a connection refused.
+#   240.0.0.1   reserved, but routed through the default gateway: the request does
+#               leave to the external network. Avoid.
+#
+# So prefer 127.0.0.2 to blackhole a domain a local process keeps calling, and pair
+# it with a pf rule for an instant reset instead of a timeout:
+#
+#   block return quick proto tcp to 127.0.0.2
+#
+# Note (Linux): the whole 127.0.0.0/8 is local there, so a 0.0.0.0 bind does answer
+# on 127.0.0.2. Use a blackhole route (ip route add blackhole 240.0.0.1) instead.
 HOSTS_LOCAL="${HOME}/.hosts.local"
 
 install() {
