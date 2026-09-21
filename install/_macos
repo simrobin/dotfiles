@@ -119,9 +119,9 @@ install() {
     defaults write com.apple.dock autohide-delay -float 0
     defaults write com.apple.dock autohide-time-modifier -float 0
     defaults write com.apple.dock hide-mirror -bool true
-    defaults write com.apple.dock largesize -int 128
     defaults write com.apple.dock launchanim -bool false
-    defaults write com.apple.dock magnification -bool true # largesize is inert without it
+    # Off, so largesize is not set either: it only applies while magnifying
+    defaults write com.apple.dock magnification -bool false
     defaults write com.apple.dock mineffect -string "scale"
     defaults write com.apple.dock minimize-to-application -bool true
     defaults write com.apple.dock orientation -string "left"
