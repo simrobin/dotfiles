@@ -4,6 +4,14 @@
 
 set -o nounset -o pipefail
 
+# Sandboxed apps keep their preferences inside their container, which `defaults`
+# cannot reach without Full Disk Access granted to the terminal. macOS 27 made
+# these writes fail outright ("Could not write domain ...; exiting") where they
+# used to pass. Reading the system TCC database is the usual probe for it.
+has_full_disk_access() {
+  [[ -r "/Library/Application Support/com.apple.TCC/TCC.db" ]]
+}
+
 install() {
   if [[ "${OSTYPE}" =~ ^darwin ]]; then
     # --- Global settings ---
@@ -42,10 +50,14 @@ install() {
     defaults write NSGlobalDomain NSNavPanelExpandedStateForSaveMode2 -bool true
     defaults write NSGlobalDomain NSWindowResizeTime -float 0.001
 
-    # --- System Preferences ---
-    defaults write com.apple.systempreferences NSQuitAlwaysKeepsWindows -bool false
-    defaults write com.apple.systempreferences DisableAutoLoginButtonIsHidden -bool true
-    defaults write com.apple.systempreferences ShowAllMode -bool true
+    # --- System Preferences (sandboxed) ---
+    if has_full_disk_access; then
+      defaults write com.apple.systempreferences NSQuitAlwaysKeepsWindows -bool false
+      defaults write com.apple.systempreferences DisableAutoLoginButtonIsHidden -bool true
+      defaults write com.apple.systempreferences ShowAllMode -bool true
+    else
+      var_warning "no Full Disk Access, skipping com.apple.systempreferences"
+    fi
 
     # --- Finder ---
     defaults write com.apple.finder AppleShowAllFiles -bool true
@@ -60,35 +72,37 @@ install() {
     defaults write com.apple.finder ShowStatusBar -bool true
     defaults write com.apple.finder DisableAllAnimations -bool true
 
-    # --- Safari ---
-    # FIXME: sudo writes to root's preferences, so these have no effect on the user's
-    # Safari. Drop them or replay without sudo (Safari prefs also need full disk access).
-    sudo defaults write com.apple.Safari AutoFillCreditCardData -bool false
-    sudo defaults write com.apple.Safari AutoFillFromAddressBook -bool false
-    sudo defaults write com.apple.Safari AutoFillMiscellaneousForms -bool false
-    sudo defaults write com.apple.Safari AutoFillPasswords -bool false
-    sudo defaults write com.apple.Safari AutoOpenSafeDownloads -bool false
-    sudo defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2DeveloperExtrasEnabled -bool true
-    sudo defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2JavaScriptCanOpenWindowsAutomatically -bool false
-    sudo defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2PluginsEnabled -bool false
-    sudo defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2TabsToLinks -bool true
-    sudo defaults write com.apple.Safari DebugSnapshotsUpdatePolicy -int 2
-    sudo defaults write com.apple.Safari FindOnPageMatchesWordStartsOnly -bool false
-    sudo defaults write com.apple.Safari HomePage -string "about:blank"
-    sudo defaults write com.apple.Safari IncludeDevelopMenu -bool true
-    sudo defaults write com.apple.Safari SendDoNotTrackHTTPHeader -bool true
-    sudo defaults write com.apple.Safari ShowFavoritesBar -bool false
-    sudo defaults write com.apple.Safari ShowFullURLInSmartSearchField -bool true
-    sudo defaults write com.apple.Safari ShowSidebarInTopSites -bool false
-    sudo defaults write com.apple.Safari SuppressSearchSuggestions -bool true
-    sudo defaults write com.apple.Safari UniversalSearchEnabled -bool false
-    sudo defaults write com.apple.Safari WarnAboutFraudulentWebsites -bool true
-    sudo defaults write com.apple.Safari WebAutomaticSpellingCorrectionEnabled -bool false
-    sudo defaults write com.apple.Safari WebContinuousSpellCheckingEnabled -bool false
-    sudo defaults write com.apple.Safari WebKitDeveloperExtrasEnabledPreferenceKey -bool true
-    sudo defaults write com.apple.Safari WebKitJavaScriptCanOpenWindowsAutomatically -bool false
-    sudo defaults write com.apple.Safari WebKitPluginsEnabled -bool false
-    sudo defaults write com.apple.Safari WebKitTabToLinksPreferenceKey -bool true
+    # --- Safari (sandboxed) ---
+    if has_full_disk_access; then
+      defaults write com.apple.Safari AutoFillCreditCardData -bool false
+      defaults write com.apple.Safari AutoFillFromAddressBook -bool false
+      defaults write com.apple.Safari AutoFillMiscellaneousForms -bool false
+      defaults write com.apple.Safari AutoFillPasswords -bool false
+      defaults write com.apple.Safari AutoOpenSafeDownloads -bool false
+      defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2DeveloperExtrasEnabled -bool true
+      defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2JavaScriptCanOpenWindowsAutomatically -bool false
+      defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2PluginsEnabled -bool false
+      defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2TabsToLinks -bool true
+      defaults write com.apple.Safari DebugSnapshotsUpdatePolicy -int 2
+      defaults write com.apple.Safari FindOnPageMatchesWordStartsOnly -bool false
+      defaults write com.apple.Safari HomePage -string "about:blank"
+      defaults write com.apple.Safari IncludeDevelopMenu -bool true
+      defaults write com.apple.Safari SendDoNotTrackHTTPHeader -bool true
+      defaults write com.apple.Safari ShowFavoritesBar -bool false
+      defaults write com.apple.Safari ShowFullURLInSmartSearchField -bool true
+      defaults write com.apple.Safari ShowSidebarInTopSites -bool false
+      defaults write com.apple.Safari SuppressSearchSuggestions -bool true
+      defaults write com.apple.Safari UniversalSearchEnabled -bool false
+      defaults write com.apple.Safari WarnAboutFraudulentWebsites -bool true
+      defaults write com.apple.Safari WebAutomaticSpellingCorrectionEnabled -bool false
+      defaults write com.apple.Safari WebContinuousSpellCheckingEnabled -bool false
+      defaults write com.apple.Safari WebKitDeveloperExtrasEnabledPreferenceKey -bool true
+      defaults write com.apple.Safari WebKitJavaScriptCanOpenWindowsAutomatically -bool false
+      defaults write com.apple.Safari WebKitPluginsEnabled -bool false
+      defaults write com.apple.Safari WebKitTabToLinksPreferenceKey -bool true
+    else
+      var_warning "no Full Disk Access, skipping com.apple.Safari"
+    fi
 
     # --- Screensaver ---
     defaults write com.apple.screensaver askForPassword -int 1
