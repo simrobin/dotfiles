@@ -15,15 +15,21 @@ script_dir() {
 }
 
 clean() {
-  if command -v colima >/dev/null 2>&1; then
-    colima delete --force
+  # Destroying the VM discards every container, volume and image, so it stays
+  # opt-in. ${HOME}/.docker is user state (config.json, contexts) and is never
+  # removed: only the cli-plugins symlinks, which install() puts back.
+  if [[ ${DOTFILES_PURGE:-} == "true" ]]; then
+    if command -v colima >/dev/null 2>&1; then
+      colima delete --force
+    fi
+
+    if command -v orbctl >/dev/null 2>&1; then
+      orbctl reset -y
+    fi
   fi
 
-  if command -v orbctl >/dev/null 2>&1; then
-    orbctl reset -y
-  fi
-
-  sudo rm -rf "${HOME}/.docker" "${HOME}/.lima" "${HOME}/.colima"
+  rm -rf "${HOME}/.docker/cli-plugins"
+  sudo rm -rf "${HOME}/.lima" "${HOME}/.colima"
 }
 
 install() {
@@ -43,6 +49,21 @@ install() {
       ;;
     orbstack)
       packages_install_desktop "orbstack"
+
+      # OrbStack only links its plugins on first app launch, so compose and
+      # buildx are missing between clean and that launch: link them here.
+      mkdir -p "${HOME}/.docker/cli-plugins"
+      for plugin in docker-compose docker-buildx; do
+        local PLUGIN_TARGET="/Applications/OrbStack.app/Contents/MacOS/xbin/${plugin}"
+
+        if [[ ! -x ${PLUGIN_TARGET} ]]; then
+          # A return here aborts the whole ./init run, which is set -e
+          var_warning "missing OrbStack plugin ${PLUGIN_TARGET}, skipping"
+          continue
+        fi
+
+        ln -sf "${PLUGIN_TARGET}" "${HOME}/.docker/cli-plugins/${plugin}"
+      done
 
       if command -v orbctl >/dev/null 2>&1; then
         orbctl completion bash >"${SCRIPT_DIR}/../sources/completions/orbctl-completion"
