@@ -3,8 +3,12 @@
 set -o nounset -o pipefail -o errexit
 
 clean() {
-  sudo rm -rf "${HOME:?}/.pgpass"
-  sudo rm -rf "${HOME:?}/.config/pgcli"
+  # .pgpass carries credentials. credentials() restores it from pass, but only
+  # when that stage runs and the entry still exists.
+  if [[ ${DOTFILES_PURGE:-} == "true" ]]; then
+    sudo rm -rf "${HOME:?}/.pgpass"
+    sudo rm -rf "${HOME:?}/.config/pgcli"
+  fi
 }
 
 credentials() {

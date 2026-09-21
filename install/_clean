@@ -15,7 +15,11 @@ script_dir() {
 }
 
 clean() {
-  rm -rf "${HOME}/.cache"
+  # Shared by every tool on the machine, not just the ones installed here
+  if [[ ${DOTFILES_PURGE:-} == "true" ]]; then
+    rm -rf "${HOME}/.cache"
+  fi
+
   sudo rm -rf "${HOME}/.config/htop"
   sudo rm -rf "${HOME}/opt"
 

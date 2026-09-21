@@ -3,15 +3,20 @@
 set -o nounset -o pipefail -o errexit
 
 clean() {
-  if [[ -n ${GOPATH:-} ]]; then
-    sudo rm -rf "${GOPATH}"
-    mkdir -p "${GOPATH}"
+  # GOPATH carries the module cache and every third-party binary, and .mc the
+  # minio client credentials: user state that install() does not put back.
+  if [[ ${DOTFILES_PURGE:-} == "true" ]]; then
+    if [[ -n ${GOPATH:-} ]]; then
+      sudo rm -rf "${GOPATH}"
+      mkdir -p "${GOPATH}"
+    fi
+
+    rm -rf "${HOME}/.mc"
   fi
 
   rm -rf "${HOME}/.dlv"
   rm -rf "${HOME}/opt/go"
   rm -rf "${HOME}/pprof"
-  rm -rf "${HOME}/.mc"
 }
 
 install() {

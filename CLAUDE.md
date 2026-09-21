@@ -64,3 +64,26 @@ task lint
 - **Symlink strategy**: files in `symlinks/` are symlinked to `$HOME` as-is. Old symlinks are removed before re-creating.
 - **Shell style**: `set -o nounset -o pipefail -o errexit` in scripts. Helper functions from `sources/_01_var` (`var_read`, `var_color`, `var_log`, `var_info`, `var_warning`, `var_success`, `var_error`) are available in install scripts.
 - **Package management**: `sources/_04_packages` abstracts `brew`/`apt` behind `packages_install`, `packages_clean`, etc.
+
+## Clean vs purge
+
+`clean()` removes **only what `install()` can recreate**. Credentials, configs, caches shared with other tools, and container or VM state are user data: they never belong in `clean()`.
+
+Anything destructive beyond that goes behind an opt-in guard, off by default:
+
+```bash
+clean() {
+  if [[ ${DOTFILES_PURGE:-} == "true" ]]; then
+    rm -rf "${HOME}/.kube"
+  fi
+}
+```
+
+```bash
+DOTFILES_PURGE="true" ./init clean    # explicitly wipe user state too
+```
+
+Two traps worth remembering:
+
+- A `return 1` inside `install()` aborts the whole `./init` run (`init` runs under `set -e`), so a non-fatal problem uses `var_warning` and continues.
+- Files generated into `sources/` must land in `sources/completions/`, which `clean()` sweeps. Hand-written files live directly in `sources/` and must not match a cleaned glob.

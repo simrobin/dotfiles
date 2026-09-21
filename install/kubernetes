@@ -15,7 +15,11 @@ script_dir() {
 }
 
 clean() {
-  rm -rf "${HOME}/.kube"
+  # ${HOME}/.kube holds the kubeconfig, contexts and client certs, which
+  # install() never recreates: it is user state, not an install artefact.
+  if [[ ${DOTFILES_PURGE:-} == "true" ]]; then
+    rm -rf "${HOME}/.kube"
+  fi
 }
 
 install() {
