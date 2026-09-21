@@ -6,8 +6,10 @@ fi
 
 if command -v git > /dev/null 2>&1; then
   function gitco() {
-    local branch=`git branch -vv --all | fzf --ansi --reverse`
-    git checkout `echo ${branch} | awk '{print $1}' | sed 's|^remotes/origin/||'`
+    local branch
+    branch="$(git branch -vv --all | fzf --ansi --reverse)"
+
+    git checkout "$(echo "${branch}" | awk '{print $1}' | sed 's|^remotes/origin/||')"
   }
 
   function gitlg() {
@@ -48,9 +50,11 @@ if command -v pass > /dev/null 2>&1; then
 
   function loginfor() { # Will only work in OSX because it uses pbcopy, fallback to passfor in other systems
     if [[ "${OSTYPE}" =~ ^darwin ]]; then
-      local login="$(pass show "${1}" | grep '^login:')"
-      if [[ $? -eq 0 ]] && [[ $(echo "${content}" | wc -l) -eq 1 ]]; then
-        echo -n "$login" | sed -e 's/login://g' | awk '{$1=$1};1' | pbcopy
+      local login
+      login="$(pass show "${1}" | grep '^login:')"
+
+      if [[ -n ${login} ]] && [[ $(echo "${login}" | wc -l) -eq 1 ]]; then
+        echo -n "${login}" | sed -e 's/login://g' | awk '{$1=$1};1' | pbcopy
 
         echo "Copied ${1} login to clipboard."
 
@@ -98,7 +102,7 @@ if command -v pgcli > /dev/null 2>&1; then
     FZF_COMPLETION_TRIGGER='' _fzf_complete '--ansi' '-1' "${@}" < <(
       var_color
 
-      while IFS=':' read -r host port db user pass
+      while IFS=':' read -r host port db user _
       do
         if ! [[ "${host}" =~ ^\s*# ]]; then
           echo -e "host: ${BLUE}${host}${RESET} port: ${YELLOW}${port}${RESET} db: ${RED}${db}${RESET} user: ${GREEN}${user}${RESET}"

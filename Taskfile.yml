@@ -1,10 +1,9 @@
 version: '3'
 
 vars:
-  # sources/git-prompt is vendored upstream, sources/fzf-functions predates the
-  # shellcheck pass and is excluded until its warnings are cleared
+  # sources/git-prompt is a vendored upstream file
   SHELL_FILES:
-    sh: git ls-files init 'install/*' 'sources/*' 'symlinks/.bashrc' 'symlinks/.tmux-stats.sh' | grep -vE 'sources/(\.gitignore|git-prompt|fzf-functions)'
+    sh: git ls-files init 'install/*' 'sources/*' 'symlinks/.bashrc' 'symlinks/.tmux-stats.sh' | grep -vE 'sources/(\.gitignore|git-prompt)'
 
 tasks:
   default:
