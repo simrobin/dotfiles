@@ -27,7 +27,8 @@ git commit --amend          # fold a new work-specific change into it
 The repo has three main directories:
 
 - **`symlinks/`** — Config files (`.bashrc`, `.gitconfig`, etc.) that get symlinked into `$HOME`
-- **`sources/`** — Shell scripts sourced by `.bashrc`, ordered by numeric prefix (`_01_var` through `_06_ssh`) then alphabetically. These provide env vars, functions, aliases, completions, and the PS1 prompt.
+- **`sources/env/`** — Environment scripts (PATH, exports) sourced by `.bashrc` in **every** shell, before the interactive guard, so non-interactive login shells (scp, rsync, stdio MCP servers) get them too. They must stay silent: no output on stdout or stderr, no prompt hook, no alias.
+- **`sources/`** — Interactive scripts sourced by `.bashrc` after the guard, ordered by numeric prefix (`_01_var` first) then alphabetically. These provide functions, aliases, completions, prompt hooks and the PS1 prompt.
 - **`install/`** — Modular install scripts, each defining `install()`, `clean()`, and/or `credentials()` functions. Prefixed scripts (`_clean`, `_hosts`, `_macos`, `_packages`) handle cross-cutting concerns.
 
 
@@ -60,7 +61,8 @@ task lint
 ## Key Conventions
 
 - **Install scripts** must define functions (`install`, `clean`, `credentials`) — the `init` script sources each file and calls the functions if they exist.
-- **Source scripts** are loaded in sort order by `.bashrc`. Numeric prefixes ensure dependencies load first (e.g., `_01_var` provides `var_read`/`var_log` helpers used by everything else).
+- **Source scripts** are loaded in sort order by `.bashrc`, `sources/env/` first then `sources/`. Numeric prefixes ensure dependencies load first (e.g., `env/_01_homebrew` sets `BREW_PREFIX` and the brew PATH, `_01_var` provides `var_read`/`var_log` helpers used by everything else).
+- **`.bashrc` tiers**: environment (`sources/env/`, `~/.local_envrc`, PATH dedup, `mise activate bash --shims`), then the `PS1` guard, then interactive (`sources/`, `~/.localrc`, `mise activate bash`). A new `export` or PATH entry goes to `sources/env/`; anything that prints, prompts or completes goes to `sources/`.
 - **Symlink strategy**: files in `symlinks/` are symlinked to `$HOME` as-is. Old symlinks are removed before re-creating.
 - **Shell style**: `set -o nounset -o pipefail -o errexit` in scripts. Helper functions from `sources/_01_var` (`var_read`, `var_color`, `var_log`, `var_info`, `var_warning`, `var_success`, `var_error`) are available in install scripts.
 - **Package management**: `sources/_04_packages` abstracts `brew`/`apt` behind `packages_install`, `packages_clean`, etc.

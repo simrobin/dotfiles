@@ -43,7 +43,7 @@ install() {
 
   local SCRIPT_DIR
   SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-  source "${SCRIPT_DIR}/../sources/golang"
+  source "${SCRIPT_DIR}/../sources/env/golang"
   mkdir -p "${GOPATH}"
 
   packages_install graphviz

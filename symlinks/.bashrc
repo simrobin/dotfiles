@@ -1,7 +1,12 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC1090 # sources/ files and .localrc are runtime paths
+# shellcheck disable=SC1090 # sources/ files and ~/.local*rc files are runtime paths
 
-[[ -z "${PS1:-}" ]] && return
+# Two tiers. The environment tier (locale, PATH, exports, secrets, mise shims)
+# loads in every shell, interactive or not, so that non-interactive shells (scp,
+# rsync, stdio MCP servers started from a login shell) see the
+# same variables as a terminal. The interactive tier (prompt, aliases,
+# completions, prompt hooks) only loads behind the PS1 guard.
+# Nothing before the guard may write to stdout or stderr.
 
 set_locale() {
   local LOCALES=("en_US.UTF-8" "en_US.utf8" "C.UTF-8" "C")
@@ -34,10 +39,9 @@ script_dir() {
 }
 
 source_all() {
-  local SCRIPT_DIR
-  SCRIPT_DIR="$(script_dir)"
+  local SOURCE_DIR="${1}"
 
-  for file in "${SCRIPT_DIR}/../sources/"*; do
+  for file in "${SOURCE_DIR}/"*; do
     if [[ -r ${file} ]] && [[ -f ${file} ]]; then
       if [[ -n ${DOTFILES_PROFILE:-} ]]; then
         local start_time
@@ -53,29 +57,55 @@ source_all() {
       fi
     fi
   done
-
-  var_color
 }
 
+SOURCES_DIR="$(script_dir)"
+SOURCES_DIR="${SOURCES_DIR}/../sources"
+
+# Environment tier: silent files only (exports and PATH, no prompt hook)
 set_locale
-source_all
+source_all "${SOURCES_DIR}/env"
+
+if [[ -e "${HOME}/.local_envrc" ]]; then
+  source "${HOME}/.local_envrc"
+fi
+
+# Deduplicate PATH entries (preserves order, first occurrence wins): a nested
+# shell inherits PATH and runs this tier again
+PATH="$(printf '%s' "${PATH}" | awk -v RS=: -v ORS=: '!seen[$0]++')"
+PATH="${PATH%:}"
+export PATH
+
+# Last on purpose: mise's shims must front everything, including what
+# .local_envrc prepends. The prompt hook of `mise activate bash` does not run
+# outside a terminal, while a shim resolves the per-project version at call
+# time and falls through to the PATH binary (`n`'s node, for example) when no
+# mise config applies. Idempotent: prints nothing when the shims already lead.
+if command -v mise > /dev/null 2>&1; then
+  eval "$(mise activate bash --shims)"
+fi
+
+unset -f set_locale
+unset -f script_dir
+
+if [[ -z "${PS1:-}" ]]; then
+  unset -f source_all
+  unset SOURCES_DIR
+  return
+fi
+
+# Interactive tier
+source_all "${SOURCES_DIR}"
+var_color
 
 if [[ -e "${HOME}/.localrc" ]]; then
   source "${HOME}/.localrc"
 fi
 
-# Deduplicate PATH entries (preserves order, first occurrence wins)
-PATH="$(printf '%s' "${PATH}" | awk -v RS=: -v ORS=: '!seen[$0]++')"
-PATH="${PATH%:}"
-export PATH
-
-# Last on purpose: mise's paths must front everything, including what .localrc
-# prepends. Shims stay out of PATH and idiomatic version files stay per-project,
-# so `n` keeps Node outside repos shipping a mise config.
+# The prompt hook keeps the tool paths in sync with the current directory
 if command -v mise > /dev/null 2>&1; then
   eval "$(mise activate bash)"
 fi
 
-unset -f set_locale
-unset -f script_dir
 unset -f source_all
+unset SOURCES_DIR

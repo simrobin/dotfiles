@@ -4,18 +4,8 @@ if ! command -v n > /dev/null 2>&1; then
   return
 fi
 
-export N_PREFIX="${HOME}/opt"
-
 if ! command -v node > /dev/null 2>&1; then
   return
-fi
-
-export PATH="${HOME}/opt/node/bin:${PATH}"
-export NODE_ICU_DATA="${HOME}/opt/node/lib/node_modules/full-icu"
-
-if command -v pnpm > /dev/null 2>&1; then
-  export PNPM_HOME="${HOME}/Library/pnpm"
-  export PATH="${PNPM_HOME}:${PATH}"
 fi
 
 alias npmi="npm install --no-save"
@@ -34,6 +24,3 @@ if command -v pnpm > /dev/null 2>&1; then
   alias pt="pnpm test"
   alias px="pnpm dlx"
 fi
-
-# See https://github.com/zloirock/core-js/blob/d986c210528e1226b7f1e813856d5329ab04a991/packages/core-js/postinstall.js#L7
-export ADBLOCK=1

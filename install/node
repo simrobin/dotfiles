@@ -43,8 +43,8 @@ install() {
   fi
 
   mkdir -p "${HOME:?}/opt/node"
-  source "${SCRIPT_DIR}/../sources/_03_homebrew"
-  source "${SCRIPT_DIR}/../sources/node"
+  source "${SCRIPT_DIR}/../sources/env/_01_homebrew"
+  source "${SCRIPT_DIR}/../sources/env/node"
 
   local NODE_VERSION="24"
   n "${NODE_VERSION}"

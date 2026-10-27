@@ -24,8 +24,8 @@ install() {
 
   python3 -m venv "${HOME}/opt/python/venv"
 
-  source "${SCRIPT_DIR}/../sources/_03_homebrew"
-  source "${SCRIPT_DIR}/../sources/_05_python"
+  source "${SCRIPT_DIR}/../sources/env/_01_homebrew"
+  source "${SCRIPT_DIR}/../sources/env/python"
 
   if ! command -v pip >/dev/null 2>&1; then
     return

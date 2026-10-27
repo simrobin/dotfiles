@@ -1,14 +1,7 @@
 #!/usr/bin/env bash
 
-if [[ -d "${HOME}/opt/go/bin" ]]; then
-  export PATH="${HOME}/opt/go/bin:${PATH}"
-fi
-
 if ! command -v go > /dev/null 2>&1; then
   return
 fi
-
-export GOPATH="${HOME}/opt/gopath"
-export PATH="${GOPATH}/bin:${PATH}"
 
 alias pprof_memory="go tool pprof http://localhost:1080/debug/pprof/profile/heap"
