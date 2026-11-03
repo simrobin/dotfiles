@@ -20,7 +20,7 @@ clean() {
 }
 
 install() {
-  local GO_VERSION="1.25.1"
+  local GO_VERSION="1.27.3"
 
   local OS
   OS="$(uname -s | tr "[:upper:]" "[:lower:]")"
